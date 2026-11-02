@@ -26,3 +26,8 @@ Every action is schema-validated, permission-checked, bounded, executed, re-obse
 **Date:** 2026-11-02 · **Status:** Accepted
 
 Google Play policy is documented in case distribution goals change, but it is not a current product acceptance criterion. Do not misrepresent accessibility-tool status or bypass platform security protections.
+
+## ADR-005 — Home security is a separate Android application
+**Date:** 2026-11-02 · **Status:** Accepted
+
+Home-security monitoring (camera uptime, face detection/recognition, event snapshots, notifications and remote access) is excluded from the autonomous agent's scope, roadmap, modules, permissions, dependencies and release criteria. It will be developed later as a separately packaged Android app that may be installed on the same physical phone. Keep the existing home-security document only as standalone future-project research. Do not integrate its runtime, storage, services or tools into this agent.
