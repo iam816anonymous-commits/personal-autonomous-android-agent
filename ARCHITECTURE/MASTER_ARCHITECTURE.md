@@ -55,6 +55,7 @@ Intents  AccessibilityService  System APIs
 - `model-api`: provider abstraction, structured generation and streaming.
 - `model-adk`: optional ADK/LiteRT-LM experiment.
 - `device-capabilities`: API/OEM/permission capability detection.
+- `hardware`: hardware inventory, typed hardware adapters, permission/risk gates and hardware-state verification (camera/torch, audio, sensors, haptics, connectivity, location, USB/NFC, power/thermal and storage).
 - `accessibility-bridge`: AccessibilityService lifecycle, node snapshots and permitted actions.
 - `device-actions`: intents, navigation and system action adapters.
 - `observation`: semantic snapshots, screenshot references and app state.
