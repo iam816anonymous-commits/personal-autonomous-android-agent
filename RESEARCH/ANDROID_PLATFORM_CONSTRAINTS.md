@@ -39,7 +39,13 @@ For wake-word:
 - Measure false accepts, battery and thermal impact.
 - Test screen-off, Doze, app standby, process death, reboot and OEM power management.
 
-## 4. Camera monitoring and background lifecycle\n\nAn optional home-security mode may keep the camera active while the device remains at home. This is subject to camera permission, foreground-service requirements, while-in-use restrictions, OEM process management and physical-device validation. On Android 14/API 34+ apps targeting the relevant SDK must declare the camera foreground-service type and permission; a camera service generally must be started while the app is visible because camera access is a while-in-use permission. Android 12+ also restricts background foreground-service starts. Do not assume the app can silently restart camera monitoring after process death or reboot. Keep a visible ongoing notification and explicit pause/stop controls.\n\nOfficial references: [foreground-service restrictions](https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start), [foreground-service changes](https://developer.android.com/develop/background-work/services/fgs/changes).\n\n## 5. AccessibilityService — primary automation candidate
+## 4. Camera monitoring and background lifecycle
+
+An optional home-security mode may keep the camera active while the device remains at home. This is subject to camera permission, foreground-service requirements, while-in-use restrictions, OEM process management and physical-device validation. On Android 14/API 34+ apps targeting the relevant SDK must declare the camera foreground-service type and permission; a camera service generally must be started while the app is visible because camera access is a while-in-use permission. Android 12+ also restricts background foreground-service starts. Do not assume the app can silently restart camera monitoring after process death or reboot. Keep a visible ongoing notification and explicit pause/stop controls.
+
+Official references: [foreground-service restrictions](https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start), [foreground-service changes](https://developer.android.com/develop/background-work/services/fgs/changes).
+
+## 5. AccessibilityService — primary automation candidate
 
 Because this is a personal-use sideloaded app, we can investigate AccessibilityService as a central device interaction mechanism without designing around Google Play publication restrictions.
 
