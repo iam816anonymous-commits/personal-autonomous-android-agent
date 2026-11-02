@@ -1,42 +1,29 @@
-# Google Play policy research: AccessibilityService and automation
+# Google Play policy reference (not the product target)
 
 **Last reviewed:** 2026-11-02  
-**Source:** https://support.google.com/googleplay/android-developer/answer/10964491?hl=en
+**Official source:** https://support.google.com/googleplay/android-developer/answer/10964491?hl=en
 
-## Verified policy finding
+## Why this document exists
 
-Google Play limits use of AccessibilityService and the `isAccessibilityTool` declaration. Only services genuinely designed to help people with disabilities access their device or overcome disability-related challenges may declare themselves accessibility tools.
+The project owner has explicitly confirmed that this app is for personal use, primarily installed directly on their own Android devices. It is **not intended for Google Play publication**. Therefore, Play policy is not the primary product design constraint.
 
-For automation apps, Google Play says actions performed on a user's behalf must be for a narrow and clearly understood purpose. It specifically prohibits use of AccessibilityService that enables an app to autonomously initiate, plan, and execute actions or decisions.
+This reference is retained in case the distribution goal changes later. If Play distribution is ever considered, re-audit the current policy and actual app behavior before building or submitting a Play release.
 
-This is a critical product constraint. Do not build a general-purpose agent whose central Play-distributed execution model depends on autonomous AccessibilityService orchestration and assume a disclosure dialog will make it acceptable.
+## Policy finding to remember
 
-## Product implications
+Google Play limits AccessibilityService use and the `isAccessibilityTool` declaration. The policy specifically restricts general automation apps from using AccessibilityService to autonomously initiate, plan and execute actions or decisions. Only qualifying accessibility tools whose primary purpose is assisting people with disabilities may make the corresponding accessibility-tool declaration.
 
-Maintain separate release profiles:
-1. **Personal / sideloaded profile:** may evaluate capabilities available on the device through standard Android APIs with explicit user configuration and control. It must still respect Android permissions, security boundaries, privacy and applicable law.
-2. **Google Play profile:** must use only functionality compatible with Play policy. Potential candidates include user-initiated narrow automation, explicit intents, app-specific APIs, integrations with permissioned services, and guided confirmation flows. These options are not automatically approved; review each use case and policy.
+Do not misrepresent the app as a disability accessibility tool. Personal use does not require us to design for Play review, but it also does not justify deceptive declarations or bypassing Android security controls.
 
-Do not fake disability use cases or set `isAccessibilityTool=true` for discoverability or policy circumvention.
+## Consequence for this project
 
-## Required product decisions
+- Do not artificially narrow the personal-use architecture solely to satisfy Play Store distribution requirements.
+- Investigate AccessibilityService as a core UI observation/action mechanism, with explicit user enablement and visible controls.
+- Keep permissions, consent, safety confirmations and sensitive-action protections.
+- If publishing becomes a future requirement, create a separate policy-compliant product profile and reassess the feature set.
 
-- Is the first release a personal sideloaded tool or a Play-distributed application?
-- Will broad UI automation remain a personal-only feature?
-- What tasks can be exposed in a Play build without violating the narrow-purpose policy?
-- How will the app explain data accessed through accessibility, screenshots, notifications, microphone and connected services?
-- How will user consent, revoke controls, logs, and emergency stop be implemented?
+## Official source
 
-## Review checklist
+https://support.google.com/googleplay/android-developer/answer/10964491?hl=en
 
-Before every Play submission, re-read the official policy and check:
-- AccessibilityService use case and scope;
-- `isAccessibilityTool` declaration and eligibility;
-- prominent disclosure and consent;
-- permission declaration and review forms;
-- app listing and in-app behavior consistency;
-- data safety and privacy policy declarations.
-
-## Important limitation
-
-This is engineering research, not legal advice or a Play approval guarantee. Policy enforcement and interpretation can change. Obtain a policy review for the actual app behavior before distributing.
+This is engineering research, not legal advice. Policy may change; re-check if the project ever targets Google Play.
