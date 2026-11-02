@@ -1,90 +1,97 @@
 # Android platform constraints
 
 **Last reviewed:** 2026-11-02  
-**Primary evidence:** Android Developers documentation. Re-check these rules against the selected target SDK before each release.
+**Deployment target:** personal-use, sideloaded Android application. No Play Store publication requirement.
 
 ## 1. API 27 / Android 8.1 compatibility
 
-API 27 is a legacy compatibility requirement, not permission to design the whole product around the lowest API. The app should use capability detection and explicit feature degradation.
+API 27 is a desired legacy compatibility target, but it is not a guarantee of full feature parity. Use runtime capability detection and explicit feature degradation.
 
-Proposed support tiers (hypotheses until device tests):
-- **Tier A – core baseline:** app installation, user-started sessions, foreground UI, local storage, text command input, basic explicit user-triggered actions.
-- **Tier B – supported device automation:** only APIs and interaction methods available and permitted on the installed OS, OEM and distribution channel.
-- **Tier C – modern enhancements:** newer foreground-service types, newer system APIs, modern inference accelerators and APIs requiring newer Android versions.
-- Features unsupported on a device must be hidden/disabled with an explanation, not exposed as controls that fail later.
+- Core app, local storage, text interaction and user-started tasks should be tested on API 27.
+- AccessibilityService capability and action behavior must be verified on the actual device/OEM.
+- Modern model runtimes, microphone service rules and APIs may require newer Android versions.
+- Unsupported features must be disabled with a clear explanation.
 
 ## 2. Background execution
 
-Android 8.0 introduced background execution limits. A service cannot be assumed to run indefinitely after its app becomes backgrounded. Design the runtime around:
+Android 8.0 introduced background execution limits. A service cannot be assumed to run indefinitely after the app is backgrounded. Design around:
 - visible/user-initiated sessions where possible;
-- foreground services only for valid, user-visible use cases and with required notifications;
-- WorkManager for deferrable work, not continuous real-time control;
-- persisted execution state and idempotent recovery after process death;
-- explicit handling of OEM battery management and force-stop.
+- foreground services with required notifications for valid ongoing work;
+- WorkManager for deferrable work, not real-time continuous control;
+- durable execution state and safe recovery after process death;
+- explicit testing of OEM battery management, force-stop and reboot behavior.
 
-Do not promise an always-on agent across all OEMs and Android versions.
+Personal sideloading does not remove OS lifecycle restrictions.
 
 ## 3. Microphone and wake-word lifecycle
 
-A voice command system has distinct modes:
-1. User taps a microphone/voice control and grants runtime permission.
-2. A user-visible voice session is active under the applicable platform rules.
-3. Optional wake-word listening is separately enabled, explained, and tested for the device/OS/distribution route.
+Separate:
+1. User-initiated speech capture.
+2. Optional wake-word detection.
+3. Speech-to-text and agent task execution.
 
-On modern Android versions, microphone foreground services have service-type and while-in-use permission constraints. For apps targeting Android 14/API 34+, a background attempt to create a microphone foreground service can fail with SecurityException unless a documented exemption applies. A notification or visible activity can be part of a valid start path; an app must not rely on launching such a service invisibly from the background.
+On modern Android versions, microphone foreground services have service-type and while-in-use permission constraints. For apps targeting Android 14/API 34+, a background attempt to create a microphone foreground service can fail with SecurityException unless an exemption applies. Do not assume an invisible background start will work.
 
-The wake-word feature must not silently record, upload, or retain raw audio. Prefer on-device keyword spotting, ephemeral audio buffers, visible status and a one-tap kill switch. These are product requirements, not claims that a particular wake-word implementation is already feasible on API 27.
+For wake-word:
+- Prefer on-device keyword spotting.
+- Use ephemeral audio buffers and do not retain raw audio by default.
+- Show visible listening status and provide one-tap disable/stop.
+- Measure false accepts, battery and thermal impact.
+- Test screen-off, Doze, app standby, process death, reboot and OEM power management.
 
-## 4. AccessibilityService
+## 4. AccessibilityService — primary automation candidate
 
-Technically, AccessibilityService can expose UI semantics and support gestures/actions on devices where enabled. That does not mean unrestricted autonomous control is permitted for every distribution route.
+Because this is a personal-use sideloaded app, we can investigate AccessibilityService as a central device interaction mechanism without designing around Google Play publication restrictions.
 
-- Use only narrow, documented actions with clear purpose and user control.
-- Do not misrepresent the app as an accessibility tool if it is not primarily intended to assist people with disabilities.
-- Google Play policy has a specific restriction against apps using AccessibilityService to autonomously initiate, plan, and execute actions or decisions.
-- Treat sideloaded/personal use and Play distribution as separate product profiles, but do not interpret sideloading as removing Android security, consent, or privacy obligations.
-- Where AccessibilityService is unsuitable, evaluate supported intents, app-specific integrations, user-confirmed flows, notification actions, MediaProjection where appropriate, and other Android APIs. Each has separate permission and policy limitations.
+Technical design:
+- User explicitly enables the service in Android Settings.
+- Service exposes UI hierarchy, node text/metadata, bounds and supported actions.
+- Agent uses fresh snapshots; node references are not assumed stable across screen transitions.
+- Support click, long-click, scroll, text input and global navigation only where the platform and target UI permit.
+- Re-observe after every action and verify the expected state transition.
+- Provide an obvious enabled/disabled state and emergency stop.
+- Avoid collecting or persisting sensitive UI content unnecessarily.
 
-## 5. Device controls and privileged operations
+Important: AccessibilityService does not grant omnipotent control. Apps can hide semantics, secure windows can block capture, custom canvases may expose poor nodes, and Android/OEM behavior varies. It cannot legitimately bypass authentication or app sandboxing.
+
+## 5. Complementary control mechanisms
+
+- Explicit Android intents and app links for deterministic navigation.
+- App-specific APIs/deep links where supported.
+- Accessibility semantic tree for UI grounding and interaction.
+- Screenshot/visual observation where permitted and user-consented.
+- MediaProjection for user-approved screen capture; not a universal silent screenshot API.
+- Notification actions and widgets where supported.
+- ADB/Shizuku/root as optional advanced personal profiles only, with explicit setup and threat model. Not baseline requirements.
+
+## 6. Device controls and boundaries
 
 Do not assume a normal app can:
 - toggle arbitrary secure settings;
-- read private data from other apps;
-- bypass lock screens or authentication;
-- silently send messages or make payments;
+- read private app databases;
+- bypass lock screens/authentication;
+- silently send messages or make payments without appropriate user authorization;
 - execute privileged shell commands;
-- act across work profiles or managed devices.
+- control work profiles or managed devices without the required privileges.
 
-Root, Shizuku, ADB, device-owner and OEM-specific modes are optional deployment profiles, not baseline requirements. Each needs a threat model, explicit setup and capability disclosure.
+## 7. Storage and process resilience
 
-## 6. Storage and process resilience
+Persist task ID, goal, plan version/current step, approval decisions, action intent/idempotency key, before/after state summary, retry/timeout counts and outcome. Do not persist screenshots/audio by default. Retention must be configurable.
 
-Use a durable local execution journal. Persist:
-- task ID and user goal;
-- plan version and current step;
-- permission/approval decisions;
-- action intent and idempotency key;
-- observed before/after state summary;
-- retry and timeout counts;
-- completion or failure reason.
+## 8. Sources
 
-Do not persist screenshots or audio by default. Retention must be configurable and understandable.
-
-## 7. Source references
-
-- Android background execution limits: https://developer.android.com/about/versions/oreo/background
-- Foreground services overview: https://developer.android.com/develop/background-work/services/foreground-services
-- Foreground service types required for target API 34+: https://developer.android.com/about/versions/14/changes/fgs-types-required
-- Background starts and while-in-use permissions: https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start
-- AccessibilityService reference: https://developer.android.com/reference/android/accessibilityservice/AccessibilityService
-- Accessibility overview: https://developer.android.com/guide/topics/ui/accessibility/service
+- Background execution: https://developer.android.com/about/versions/oreo/background
+- Foreground services: https://developer.android.com/develop/background-work/services/foreground-services
+- API 34 foreground-service types: https://developer.android.com/about/versions/14/changes/fgs-types-required
+- Background starts/while-in-use permissions: https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start
+- AccessibilityService API: https://developer.android.com/reference/android/accessibilityservice/AccessibilityService
+- Accessibility guide: https://developer.android.com/guide/topics/ui/accessibility/service
 - Runtime permissions: https://developer.android.com/training/permissions/requesting
 
-## 8. Required proof-of-concepts
+## 9. Required proof-of-concepts
 
-Before finalizing minimum SDK and service design:
-- Build and install on API 27 physical hardware.
-- Verify user-started voice capture, cancellation, permission denial and repeated sessions.
-- Verify app backgrounding, screen lock, process kill and reboot behavior.
-- Verify accessibility service enable/disable, tree retrieval, action return values and stale-node handling.
-- Verify compatibility on at least one modern Android version (API 34+) as a separate profile.
+- API 27 physical-device install and lifecycle.
+- AccessibilityService enable/disable, tree retrieval, actions, stale-node behavior and secure-window limitations.
+- Voice capture and cancellation on API 27.
+- Modern Android microphone foreground-service behavior on API 34+.
+- Background, screen lock, process kill, reboot, low memory and OEM battery modes.
