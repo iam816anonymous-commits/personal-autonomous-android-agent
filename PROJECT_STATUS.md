@@ -167,7 +167,8 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 | `ARCHITECTURE/SAFETY_AND_APPROVALS.md` | KEEP | Risk tiers, approval binding, prompt injection and prohibitions. |
 | `ARCHITECTURE/VOICE_AND_WAKE_WORD.md` | KEEP | Voice capture and wake-word lifecycle, deliberately separated. |
 | `ARCHITECTURE/DEVICE_CONTROL.md` | KEEP | Accessibility and device-control adapter strategy. |
-| `ARCHITECTURE/HARDWARE_CAPABILITIES.md` | KEEP | Dedicated hardware discovery/control subsystem. |\n| `ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md` | KEEP, OPTIONAL WORKSTREAM | Camera-based event monitoring, consented known-person matching, unfamiliar-face alerts, secure remote access and retention requirements. |
+| `ARCHITECTURE/HARDWARE_CAPABILITIES.md` | KEEP | Dedicated hardware discovery/control subsystem. |
+| `ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md` | KEEP, OPTIONAL WORKSTREAM | Camera-based event monitoring, consented known-person matching, unfamiliar-face alerts, secure remote access and retention requirements. |
 | `ARCHITECTURE/MODEL_ROUTER.md` | KEEP | Runtime routing and model eligibility rules. |
 | `ARCHITECTURE/MEMORY_AND_LEARNING.md` | KEEP | Data classes, retention and safe learning. |
 | `ARCHITECTURE/DECISION_LOG.md` | KEEP, UPDATE ON DECISIONS | Append accepted/rejected decisions and rationale; do not use as progress tracker. |
@@ -214,7 +215,9 @@ Task sequence:
 - [ ] ADK Kotlin + LiteRT-LM versus custom Kotlin orchestration/inference proof-of-concept.
 - [ ] API 27 visual observation fallback and realistic screenshot limitations.
 - [ ] Encryption/key-management and backup/restore design.
-- [ ] Wake-word feasibility under Android/OEM lifecycle constraints.\n- [ ] Home-device camera foreground-service uptime, face-recognition model evaluation and false-match/false-reject measurements.\n- [ ] Private VPN/remote API authentication and alert-delivery design.
+- [ ] Wake-word feasibility under Android/OEM lifecycle constraints.
+- [ ] Home-device camera foreground-service uptime, face-recognition model evaluation and false-match/false-reject measurements.
+- [ ] Private VPN/remote API authentication and alert-delivery design.
 - [ ] Explicit authorization for app source-code implementation.
 
 ## 8. Session log
@@ -232,4 +235,8 @@ Task sequence:
 - Android camera foreground-service restrictions and OEM uptime are major feasibility gates; no 24/7 reliability claim is made.
 - Updated the master architecture, hardware capability notes, Android platform constraints, README, roadmap and source index. No application code, dependencies, build configuration or CI workflow changed.
 - No app implementation or physical-device test was performed. Implementation authorization remains **NOT GRANTED**.
-- Added `ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md` and indexed it from README, research index, roadmap, master architecture and platform/hardware documentation.\n- Repaired literal escaped line breaks introduced during document updates and re-fetched the affected files.\n- Documentation commits for the new workstream include `c4731c3`, `baa48ee`, `e80cc05`, `720e7a2`, `378e4bd`, `3b43a67`, `624314f`, `ab3a099`, `734aa8b`, `375d131`, `73d1586`, `bc70a45`, `903027f`, `3747edf`, `ebd2c91` and `e6fd937`.\n- No application code, dependencies, build configuration, CI or physical-device tests changed.\n- Next: close Phase 0 evidence gaps, including target home-device camera uptime and computer-vision model evaluation.
+- Added `ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md` and indexed it from README, research index, roadmap, master architecture and platform/hardware documentation.
+- Repaired literal escaped line breaks introduced during document updates and re-fetched the affected files.
+- Documentation commits for the new workstream include `c4731c3`, `baa48ee`, `e80cc05`, `720e7a2`, `378e4bd`, `3b43a67`, `624314f`, `ab3a099`, `734aa8b`, `375d131`, `73d1586`, `bc70a45`, `903027f`, `3747edf`, `ebd2c91` and `e6fd937`.
+- No application code, dependencies, build configuration, CI or physical-device tests changed.
+- Next: close Phase 0 evidence gaps, including target home-device camera uptime and computer-vision model evaluation.
