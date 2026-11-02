@@ -15,7 +15,7 @@ Build a reliable Android-native assistant—not a chat wrapper—that can:
 - Plan and execute multi-step tasks using bounded atomic actions.
 - Verify each state transition and recover from UI drift, timeouts, app crashes and model errors.
 - Work offline for supported tasks with models selected against measured device resources.
-- Keep memory, history, permissions and data retention inspectable and user-controlled.
+- Keep memory, history, permissions and data retention inspectable and user-controlled.\n- Optionally use a separate home-monitoring mode for local unfamiliar-face alerts and secure remote event review, without continuous video retention by default.
 
 ## Distribution decision
 
@@ -47,7 +47,7 @@ Google Play policy is retained as reference material only; it is not the primary
 - [Safety and approvals](ARCHITECTURE/SAFETY_AND_APPROVALS.md)
 - [Voice and wake-word](ARCHITECTURE/VOICE_AND_WAKE_WORD.md)
 - [Device control](ARCHITECTURE/DEVICE_CONTROL.md)
-- [Hardware capabilities](ARCHITECTURE/HARDWARE_CAPABILITIES.md)
+- [Hardware capabilities](ARCHITECTURE/HARDWARE_CAPABILITIES.md)\n- [Home security and secure remote access](ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md)
 - [Model router](ARCHITECTURE/MODEL_ROUTER.md)
 - [Memory and learning](ARCHITECTURE/MEMORY_AND_LEARNING.md)
 - [Phases](ROADMAP/PHASES.md)
