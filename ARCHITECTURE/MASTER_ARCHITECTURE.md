@@ -1,130 +1,127 @@
 # Master architecture
 
-**Status:** Proposed architecture for proof-of-concept, not an implementation commitment.  
+**Status:** Proposed architecture for personal-use proof-of-concept.  
 **Last updated:** 2026-11-02
 
-## 1. Architectural principle
+## 1. Product and deployment target
 
-Separate decision-making from device actuation. The model may propose a bounded action; deterministic policy code validates it; a platform adapter performs it; an observer verifies the postcondition. Never allow model output to directly call Android APIs.
+This is a personal-use Android agent installed directly on the owner's devices. Google Play publication is not a requirement. Therefore, the design may investigate broader AccessibilityService-based interaction rather than artificially constraining the agent to a Play-compatible subset. Android security boundaries, permissions, privacy and lifecycle limits still apply.
 
-## 2. Logical components
+## 2. Architectural principle
+
+Separate decision-making from device actuation. The model proposes bounded actions; deterministic policy code validates them; platform adapters execute them; observers verify postconditions. Never let model output call Android APIs directly.
+
+## 3. Logical architecture
 
 ```text
-User (voice / text / explicit UI)
+Voice / Text / User UI
+        |
+Session + Wake-word Manager
+        |
+Goal / Intent Parser
+        |
+Task Orchestrator <----> Memory + Execution Journal
+        |                       |
+Planner / Reflector         Model Router
+        |
+Policy + Approval Gate
+        |
+Typed Tool Registry
+        |
+Action Validator
+        |
+Android Capability Layer
+  |       |          |
+Intents  AccessibilityService  System APIs
              |
-       Session Manager
+       UI Tree + Actions
              |
-      Goal / Intent Parser
+       Screenshot / Vision (optional)
              |
-      Policy + Approval Gate
+       State Observer
              |
-       Task Orchestrator
-       /      |       \
-   Planner  Memory   Model Router
-       \      |       /
-      Execution Journal
-             |
-      Typed Tool Registry
-             |
-       Action Validator
-             |
-      Android Capability Layer
-       /        |          \
-  App Intents  UI Adapter  System APIs
-                  |
-           Accessibility / visual
-           observation where permitted
-                  |
-             State Observer
-                  |
        Postcondition Verifier
-                  |
-       Recovery / Reflector
-                  |
-             User result
+             |
+       Recovery / Replanning
+             |
+          User
 ```
 
-## 3. Android-native application modules
+## 4. Android-native modules (proposed)
 
-Proposed module boundaries:
-- `app`: UI, onboarding, user session, settings.
-- `agent-core`: goal, plan, step, policy, action/result contracts; pure Kotlin where possible.
-- `agent-runtime`: orchestration loop, timeouts, retries, cancellation and checkpoint restore.
-- `model-api`: inference provider abstraction, streaming and structured generation.
-- `model-adk`: optional ADK/LiteRT-LM integration experiment.
-- `device-capabilities`: feature detection, permission status and platform version adapters.
-- `device-actions`: approved app intents, system actions and narrow UI actions.
-- `observation`: accessibility semantic snapshots, screenshots and app state.
-- `memory`: Room-backed execution history, user-approved facts and compact summaries.
-- `skills`: typed, permission-scoped task capabilities.
-- `safety`: approval decisions, sensitive-action taxonomy, audit log.
-- `evaluation`: deterministic test scenarios and trace export.
+- `app`: UI, onboarding, settings and session controls.
+- `agent-core`: pure Kotlin goal/plan/action/result contracts.
+- `agent-runtime`: execution loop, timeout, retries, cancellation, checkpoints.
+- `model-api`: provider abstraction, structured generation and streaming.
+- `model-adk`: optional ADK/LiteRT-LM experiment.
+- `device-capabilities`: API/OEM/permission capability detection.
+- `accessibility-bridge`: AccessibilityService lifecycle, node snapshots and permitted actions.
+- `device-actions`: intents, navigation and system action adapters.
+- `observation`: semantic snapshots, screenshot references and app state.
+- `memory`: Room-backed task history and user-approved preferences.
+- `skills`: typed, permission-scoped workflows.
+- `safety`: approvals, risk classification, audit log.
+- `evaluation`: deterministic scenarios and trace export.
 
-These are logical boundaries; avoid creating Gradle modules prematurely before package contracts stabilize.
+These are logical boundaries; avoid premature Gradle module proliferation.
 
-## 4. Interfaces first
+## 5. Interfaces first
 
 ```kotlin
 interface ModelProvider {
     suspend fun generate(request: ModelRequest): ModelResponse
     fun capabilities(): ModelCapabilities
 }
-
 interface DeviceObserver {
     suspend fun observe(scope: ObservationScope): DeviceSnapshot
 }
-
 interface ActionExecutor {
     suspend fun execute(action: DeviceAction): ActionResult
 }
-
 interface ActionVerifier {
-    suspend fun verify(
-        expected: Postcondition,
-        before: DeviceSnapshot,
-        after: DeviceSnapshot
-    ): VerificationResult
+    suspend fun verify(expected: Postcondition, before: DeviceSnapshot,
+                       after: DeviceSnapshot): VerificationResult
 }
-
 interface ApprovalGate {
     suspend fun authorize(action: DeviceAction): ApprovalDecision
 }
 ```
 
-Every operation must be cancellable, bounded by timeout, and return a typed result. A missing or uncertain result is not success.
+Every operation must be cancellable, bounded by timeout and typed. Uncertain results are not success.
 
-## 5. Execution invariant
+## 6. Execution invariant
 
-One action at a time:
-1. Observe current state.
-2. Select the next subgoal.
+1. Observe current UI/device state.
+2. Select next subgoal.
 3. Generate one typed action.
 4. Validate schema, capability, permission and risk.
-5. Ask user approval when required.
-6. Execute with timeout and idempotency key.
+5. Ask approval when required.
+6. Execute with timeout/idempotency key.
 7. Observe again.
-8. Verify the expected state transition.
-9. Retry, re-plan or stop with a precise reason.
+8. Verify expected state transition.
+9. Retry, replan or stop with a precise reason.
 
-The runtime records enough state to resume safely after process death, without blindly replaying a non-idempotent action.
+Persist enough state to recover after process death without blindly replaying non-idempotent actions.
 
-## 6. Model strategy
+## 7. Personal-use capability profile
 
-Use an interchangeable model provider. Start with one local model serving constrained intent/planning/tool roles. Avoid multi-agent swarm complexity until a benchmark proves it improves completion rate. Vision may be a separate provider. Cloud is disabled unless user configures it.
+- AccessibilityService is a primary candidate for semantic UI observation and interaction.
+- App intents and deep links are preferred when deterministic.
+- Screenshot/vision is a complementary fallback, subject to capture permissions and secure-window limitations.
+- Optional ADB/Shizuku/root profiles may be evaluated separately; never assume they are installed.
+- The runtime exposes only capabilities actually available and enabled on the current device.
 
-## 7. Deployment profiles
+## 8. Model strategy
 
-- Personal sideloaded: optional advanced capabilities subject to OS and user setup.
-- Play-compatible: only flows reviewed against Play policy; do not assume broad autonomous AccessibilityService use is allowed.
-- API 27 compatibility: explicit capability downgrade and physical-device validation; no promise of feature parity with modern Android.
+Use replaceable model providers. Start with one local model for constrained intent/planning/tool roles. Avoid multi-agent swarm complexity until benchmark evidence proves value. Vision may be a separate provider. Cloud stays disabled unless explicitly configured.
 
-## 8. Data and privacy
+## 9. Data and privacy
 
-Default to local storage. Keep raw audio/screenshots transient. User-controlled retention, export and deletion. Redact passwords, OTPs, financial/payment data and private message content from logs unless essential and explicitly authorized. Secrets never enter ordinary agent memory.
+Default local storage. Raw audio/screenshots transient by default. User-controlled retention, export and deletion. Redact passwords, OTPs, financial credentials and private message content from logs. Never put secrets into ordinary agent memory.
 
-## 9. Architecture decision gates
+## 10. Decision gates
 
-- ADK Kotlin vs custom runtime: after minimal tool-calling proof-of-concept.
-- Accessibility vs alternative controls: after distribution-profile decision.
-- Minimum SDK: after API 27 and modern-device compatibility experiments.
-- Wake-word architecture: after microphone lifecycle and battery tests.
+- ADK Kotlin vs custom runtime: after minimal tool-calling POC.
+- Accessibility bridge implementation: after API 27 and modern physical-device tests.
+- Minimum SDK: after compatibility experiments.
+- Wake-word: after microphone lifecycle and battery tests.
