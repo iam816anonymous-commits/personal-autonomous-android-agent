@@ -44,6 +44,7 @@ Google Play policy is retained as reference material only; it is not the primary
 - [Master architecture](ARCHITECTURE/MASTER_ARCHITECTURE.md)
 - [Android platform constraints](RESEARCH/ANDROID_PLATFORM_CONSTRAINTS.md)
 - [Open-source repository audit](RESEARCH/OPEN_SOURCE_REPOSITORY_AUDIT.md)
+- [Source-by-source reuse specification](RESEARCH/SOURCE_BY_SOURCE_REUSE_SPECIFICATION.md)
 - [License audit](RESEARCH/OPEN_SOURCE_LICENSE_AUDIT.md)
 - [Model/inference research](RESEARCH/MODEL_AND_INFERENCE_RESEARCH.md)
 - [Google Play policy reference](RESEARCH/GOOGLE_PLAY_POLICY_RESEARCH.md)
