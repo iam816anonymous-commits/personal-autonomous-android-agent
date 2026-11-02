@@ -55,13 +55,15 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 | 6 | Local model runtime, model catalogue and tool calling | Not started | Candidates researched; no runtime/model selected by physical-device benchmark. |
 | 7 | Memory, skills and user-approved learning | Not started | Design exists; no destination implementation. |
 | 8 | Wake word and long-running autonomy | Not started | Explicitly gated behind voice and lifecycle evidence. |
-| 9 | Hardening, device profiles and personal release | Not started | Requires all earlier gates and physical-device regression. |\n| Optional parallel workstream | Home security monitoring and secure remote access | Proposed / not started | Separate camera, face detection/recognition, event retention, remote VPN/API and alerting pipeline; depends on device camera lifecycle, security controls and physical-device evidence. |
+| 9 | Hardening, device profiles and personal release | Not started | Requires all earlier gates and physical-device regression. |
+| Optional parallel workstream | Home security monitoring and secure remote access | Proposed / not started | Separate camera, face detection/recognition, event retention, remote VPN/API and alerting pipeline; depends on device camera lifecycle, security controls and physical-device evidence. |
 
 **Important:** A written design, a donor repository implementation, or a test plan does not count as a feature implemented in this destination repository.
 
 ## 3. Canonical implementation roadmap
 
-An optional home-security workstream has been added in [HOME_SECURITY_AND_REMOTE_ACCESS.md](ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md). It is not a replacement for the core phases and must not delay or destabilise the core agent. Its prototype gates are: visible camera uptime, face detection, consented known-person recognition, unknown-event handling, secure remote access, notifications and hardening.\n
+An optional home-security workstream has been added in [HOME_SECURITY_AND_REMOTE_ACCESS.md](ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md). It is not a replacement for the core phases and must not delay or destabilise the core agent. Its prototype gates are: visible camera uptime, face detection, consented known-person recognition, unknown-event handling, secure remote access, notifications and hardening.
+
 The detailed sequence in [ROADMAP/PHASE_IMPLEMENTATION_BLUEPRINT.md](ROADMAP/PHASE_IMPLEMENTATION_BLUEPRINT.md) is the phase-level execution plan. [ROADMAP/PHASES.md](ROADMAP/PHASES.md) is its short index. This status file tracks progress and the next action.
 
 ### Phase 0 — Repository archaeology, research and requirements freeze
@@ -198,7 +200,8 @@ Task sequence:
 4. Complete a component-level dependency and license/provenance ledger for the subset actually proposed for reuse. Do not create a giant SBOM for components we will not use.
 5. Freeze 20–30 initial tasks with explicit initial state, allowed capabilities, expected final state, forbidden side effects, timeout and independent verifier.
 6. Close or defer each Phase 0 technical spike with a documented reason and decision owner.
-7. Add the home-security camera/face-recognition/remote-access spike to the Phase 0 device and threat-model review.\n8. Review the implementation authorization checklist with the owner. Until explicit approval, stop at research/specification and documentation changes.
+7. Add the home-security camera/face-recognition/remote-access spike to the Phase 0 device and threat-model review.
+8. Review the implementation authorization checklist with the owner. Until explicit approval, stop at research/specification and documentation changes.
 
 **Do not start Phase 1 code implementation yet.** The project has not cleared Phase 0 and the previous explicit authorization state was NOT AUTHORIZED.
 
