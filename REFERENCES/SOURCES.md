@@ -35,7 +35,7 @@ https://google-research.github.io/android_world/
 Benchmark is a reference for evaluation design, not proof of API 27 or physical-device production behavior.
 
 
-## Home security and remote access
+## Separate future project — home-security app (not part of this agent)
 - ML Kit face detection (detection only, not identity recognition): https://developers.google.com/ml-kit/vision/face-detection
 - ML Kit Android setup and image requirements: https://developers.google.com/ml-kit/vision/face-detection/android
 - Android foreground-service restrictions: https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start
