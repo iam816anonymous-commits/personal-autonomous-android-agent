@@ -54,6 +54,7 @@ Google Play policy is retained as reference material only; it is not the primary
 - [Model router](ARCHITECTURE/MODEL_ROUTER.md)
 - [Memory and learning](ARCHITECTURE/MEMORY_AND_LEARNING.md)
 - [Phases](ROADMAP/PHASES.md)
+- [Phase-by-phase implementation and code reuse blueprint](ROADMAP/PHASE_IMPLEMENTATION_BLUEPRINT.md)
 - [Acceptance criteria](ROADMAP/ACCEPTANCE_CRITERIA.md)
 - [Decision log](ARCHITECTURE/DECISION_LOG.md)
 - [Sources](REFERENCES/SOURCES.md)
