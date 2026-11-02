@@ -62,7 +62,7 @@ Intents  AccessibilityService  System APIs
 - `memory`: Room-backed task history and user-approved preferences.
 - `skills`: typed, permission-scoped workflows.
 - `safety`: approvals, risk classification, audit log.
-- `evaluation`: deterministic scenarios and trace export.
+- `evaluation`: deterministic scenarios and trace export.\n- `home-monitor` (optional): event-based camera monitoring, local face detection/recognition, known-person enrolment, unfamiliar-person alerts and retention.\n- `remote-access` (optional): private-network connectivity, authenticated event API, remote device revocation and audit.
 
 These are logical boundaries; avoid premature Gradle module proliferation.
 
@@ -120,7 +120,7 @@ Use replaceable model providers. Start with one local model for constrained inte
 
 Default local storage. Raw audio/screenshots transient by default. User-controlled retention, export and deletion. Redact passwords, OTPs, financial credentials and private message content from logs. Never put secrets into ordinary agent memory.
 
-## 10. Decision gates
+## 10. Optional home-security subsystem\n\nHome monitoring is a separate subsystem and must not be coupled to the core agent LLM. It uses CameraX/Camera2, motion/frame sampling, face detection, a dedicated face-embedding model and a local known-person registry. Only unrecognised/uncertain events generate snapshots by default. Remote viewing uses a private VPN/overlay network and an authenticated API; no public camera port is exposed. See [HOME_SECURITY_AND_REMOTE_ACCESS.md](HOME_SECURITY_AND_REMOTE_ACCESS.md).\n\n## 11. Decision gates
 
 - ADK Kotlin vs custom runtime: after minimal tool-calling POC.
 - Accessibility bridge implementation: after API 27 and modern physical-device tests.
