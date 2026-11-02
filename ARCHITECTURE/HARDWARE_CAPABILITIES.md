@@ -100,7 +100,11 @@ Every command must include task ID, timeout, cancellation, required permission, 
 11. Profile battery, thermal, memory and sensor sampling overhead.
 12. Add physical-device test evidence for every supported device/OS combination.
 
-## 5. Optional home-security monitoring\n\nA separate event-based home-monitoring subsystem is specified in [HOME_SECURITY_AND_REMOTE_ACCESS.md](HOME_SECURITY_AND_REMOTE_ACCESS.md). It uses a camera adapter, local face detector, separate face-embedding recognizer, consented known-person registry and secure remote event API. Do not treat face detection as identity recognition or use the general LLM to identify people. Camera uptime and privacy controls require dedicated physical-device testing.\n\n## 6. Reuse from the user's repositories
+## 5. Optional home-security monitoring
+
+A separate event-based home-monitoring subsystem is specified in [HOME_SECURITY_AND_REMOTE_ACCESS.md](HOME_SECURITY_AND_REMOTE_ACCESS.md). It uses a camera adapter, local face detector, separate face-embedding recognizer, consented known-person registry and secure remote event API. Do not treat face detection as identity recognition or use the general LLM to identify people. Camera uptime and privacy controls require dedicated physical-device testing.
+
+## 6. Reuse from the user's repositories
 
 Audit these candidates; do not assume they are reusable until source and tests are verified:
 
