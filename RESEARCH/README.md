@@ -14,6 +14,7 @@ Research is organized to separate primary platform rules, repository evidence, e
 | Source reuse | [Source-by-source reuse specification](SOURCE_BY_SOURCE_REUSE_SPECIFICATION.md) | Exact retain/adapt/rewrite/reject decisions; implementation not authorized |
 | Licensing | [License audit](OPEN_SOURCE_LICENSE_AUDIT.md) | MIT/Apache references are preferred; AGPL and BUSL require separate decisions |
 | Inference | [Model research](MODEL_AND_INFERENCE_RESEARCH.md) | Prototype ADK Kotlin + LiteRT-LM and custom adapter before committing |
+| Home security | [Home security and remote access](../ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md) | Separate CV pipeline needed; ML Kit detects but does not recognise people; camera uptime and secure remote access require physical validation |
 
 ## Evidence labels
 
