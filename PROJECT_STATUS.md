@@ -12,7 +12,7 @@
 
 ## 1. Product objective and non-negotiable constraints
 
-Build a real Android-native personal agent that can accept a goal (initially text and user-started speech), observe the current device/app state, plan, perform permitted actions, verify each result, recover safely and report what actually happened.
+Build a real Android-native personal agent that can accept a goal (initially text and user-started speech), observe the current device/app state, plan, perform permitted actions, verify each result, recover safely and report what actually happened. Add an optional, separately permissioned home-security mode: a device left at home performs local event-based face detection/known-person matching, alerts only on unfamiliar or uncertain faces, and provides authenticated remote access to event snapshots and device status.
 
 - Personal use and sideloaded installation are the primary deployment model. Google Play publication is not currently a requirement.
 - Kotlin/Android-native runtime is preferred.
@@ -35,6 +35,7 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 - Product assumptions, high-level architecture, platform constraints, research, source reuse decisions, safety contracts and phase plans are documented.
 - A source-by-source reuse specification exists, including class-level RETAIN / ADAPT / REWRITE / REJECT decisions and known defects.
 - Hardware capability architecture is documented.
+- Proposed home-security and secure remote-access architecture is documented; it is not implemented or physically validated.
 - No destination Android application implementation, integration build or physical-device acceptance run has been established by the documentation audit.
 - No model/runtime has been selected based on reproducible measurements on the target physical device.
 - Full transitive dependency/license clearance remains open.
@@ -54,12 +55,13 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 | 6 | Local model runtime, model catalogue and tool calling | Not started | Candidates researched; no runtime/model selected by physical-device benchmark. |
 | 7 | Memory, skills and user-approved learning | Not started | Design exists; no destination implementation. |
 | 8 | Wake word and long-running autonomy | Not started | Explicitly gated behind voice and lifecycle evidence. |
-| 9 | Hardening, device profiles and personal release | Not started | Requires all earlier gates and physical-device regression. |
+| 9 | Hardening, device profiles and personal release | Not started | Requires all earlier gates and physical-device regression. |\n| Optional parallel workstream | Home security monitoring and secure remote access | Proposed / not started | Separate camera, face detection/recognition, event retention, remote VPN/API and alerting pipeline; depends on device camera lifecycle, security controls and physical-device evidence. |
 
 **Important:** A written design, a donor repository implementation, or a test plan does not count as a feature implemented in this destination repository.
 
 ## 3. Canonical implementation roadmap
 
+An optional home-security workstream has been added in [HOME_SECURITY_AND_REMOTE_ACCESS.md](ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md). It is not a replacement for the core phases and must not delay or destabilise the core agent. Its prototype gates are: visible camera uptime, face detection, consented known-person recognition, unknown-event handling, secure remote access, notifications and hardening.\n
 The detailed sequence in [ROADMAP/PHASE_IMPLEMENTATION_BLUEPRINT.md](ROADMAP/PHASE_IMPLEMENTATION_BLUEPRINT.md) is the phase-level execution plan. [ROADMAP/PHASES.md](ROADMAP/PHASES.md) is its short index. This status file tracks progress and the next action.
 
 ### Phase 0 — Repository archaeology, research and requirements freeze
@@ -196,7 +198,7 @@ Task sequence:
 4. Complete a component-level dependency and license/provenance ledger for the subset actually proposed for reuse. Do not create a giant SBOM for components we will not use.
 5. Freeze 20–30 initial tasks with explicit initial state, allowed capabilities, expected final state, forbidden side effects, timeout and independent verifier.
 6. Close or defer each Phase 0 technical spike with a documented reason and decision owner.
-7. Review the implementation authorization checklist with the owner. Until explicit approval, stop at research/specification and documentation changes.
+7. Add the home-security camera/face-recognition/remote-access spike to the Phase 0 device and threat-model review.\n8. Review the implementation authorization checklist with the owner. Until explicit approval, stop at research/specification and documentation changes.
 
 **Do not start Phase 1 code implementation yet.** The project has not cleared Phase 0 and the previous explicit authorization state was NOT AUTHORIZED.
 
@@ -225,4 +227,4 @@ Task sequence:
 - No Android application source code, dependencies, build configuration or CI workflow changed in this session.
 - No app implementation or physical-device test was performed.
 - Implementation authorization remains **NOT GRANTED**.
-- Next: finish Phase 0 evidence gaps as listed in Section 6.
+- Added the optional home-security and secure remote-access requirement, with a dedicated architecture document.\n- Research indicates ML Kit face detection locates faces but does not identify individuals; a separate on-device face-embedding model is required. No such recognition model has been selected or benchmarked.\n- Remote access should use a private VPN/overlay network and authenticated application API, not an exposed public camera port.\n- Android camera foreground-service restrictions and OEM uptime are major feasibility gates; no 24/7 reliability claim is made.\n- No app code, dependencies, build configuration or CI workflow changed.\n- Next: finish Phase 0 evidence gaps, including target home-device camera uptime and CV model evaluation.
