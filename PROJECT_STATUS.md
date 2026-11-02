@@ -221,7 +221,7 @@ Task sequence:
 - Identified overlapping but distinct contract descriptions; deferred normative contract consolidation to Phase 1 rather than deleting evidence prematurely.
 - Established this file as the mandatory session-start checklist and canonical progress ledger.
 - Updated README navigation/working rules to point to this file; aligned the short phase roadmap with the detailed dependency-oriented phase sequence.
-- Created commit `4cff6ca` for this status file, `60f1049` for phase-roadmap alignment and `594510b` for README session-entry rules (subsequent status update is being recorded now).
+- Created commit `4cff6ca` for the initial status file, `60f1049` for phase-roadmap alignment, `594510b` for README session-entry rules, `3650fb4` for the final status update, `78c4643` for the detailed blueprint link and `81209e9` for the research-index link.
 - No Android application source code, dependencies, build configuration or CI workflow changed in this session.
 - No app implementation or physical-device test was performed.
 - Implementation authorization remains **NOT GRANTED**.
