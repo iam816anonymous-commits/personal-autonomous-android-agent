@@ -223,8 +223,10 @@ Task sequence:
 - Identified overlapping but distinct contract descriptions; deferred normative contract consolidation to Phase 1 rather than deleting evidence prematurely.
 - Established this file as the mandatory session-start checklist and canonical progress ledger.
 - Updated README navigation/working rules to point to this file; aligned the short phase roadmap with the detailed dependency-oriented phase sequence.
-- Created commit `4cff6ca` for the initial status file, `60f1049` for phase-roadmap alignment, `594510b` for README session-entry rules, `3650fb4` for the final status update, `78c4643` for the detailed blueprint link and `81209e9` for the research-index link.
-- No Android application source code, dependencies, build configuration or CI workflow changed in this session.
-- No app implementation or physical-device test was performed.
-- Implementation authorization remains **NOT GRANTED**.
-- Added the optional home-security and secure remote-access requirement, with a dedicated architecture document.\n- Research indicates ML Kit face detection locates faces but does not identify individuals; a separate on-device face-embedding model is required. No such recognition model has been selected or benchmarked.\n- Remote access should use a private VPN/overlay network and authenticated application API, not an exposed public camera port.\n- Android camera foreground-service restrictions and OEM uptime are major feasibility gates; no 24/7 reliability claim is made.\n- No app code, dependencies, build configuration or CI workflow changed.\n- Next: finish Phase 0 evidence gaps, including target home-device camera uptime and CV model evaluation.
+- Added the optional home-security and secure remote-access requirement, with a dedicated architecture document.
+- Research indicates ML Kit face detection locates faces but does not identify individuals; a separate on-device face-embedding model is required. No recognition model has been selected or benchmarked.
+- Recommended private VPN/overlay networking plus an authenticated application API; no public camera port should be exposed by default.
+- Android camera foreground-service restrictions and OEM uptime are major feasibility gates; no 24/7 reliability claim is made.
+- Updated the master architecture, hardware capability notes, Android platform constraints, README, roadmap and source index. No application code, dependencies, build configuration or CI workflow changed.
+- No app implementation or physical-device test was performed. Implementation authorization remains **NOT GRANTED**.
+- Next: close Phase 0 evidence gaps, including target home-device camera uptime and computer-vision model evaluation.
