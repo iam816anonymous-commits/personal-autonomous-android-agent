@@ -9,6 +9,7 @@ Research is organized to separate primary platform rules, repository evidence, e
 | Android platform | [Platform constraints](ANDROID_PLATFORM_CONSTRAINTS.md) | API 27 can be a compatibility target, not a universal capability baseline |
 | Accessibility policy | [Google Play policy](GOOGLE_PLAY_POLICY_RESEARCH.md) | General-purpose autonomous AccessibilityService control is prohibited for Play apps |
 | GitHub references | [Repository audit](OPEN_SOURCE_REPOSITORY_AUDIT.md) | Borrow patterns; most reference runtimes are host/ADB-based |
+| Source reuse | [Source-by-source reuse specification](SOURCE_BY_SOURCE_REUSE_SPECIFICATION.md) | Exact retain/adapt/rewrite/reject decisions; implementation not authorized |
 | Licensing | [License audit](OPEN_SOURCE_LICENSE_AUDIT.md) | MIT/Apache references are preferred; AGPL and BUSL require separate decisions |
 | Inference | [Model research](MODEL_AND_INFERENCE_RESEARCH.md) | Prototype ADK Kotlin + LiteRT-LM and custom adapter before committing |
 
