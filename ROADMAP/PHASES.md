@@ -83,6 +83,6 @@ Complete security/privacy/license review, physical-device regression, crash/ANR/
 6. Update PROJECT_STATUS.md after every work session and update the relevant detailed document/decision log when needed.
 7. Do not begin app implementation until Phase 0 is closed and explicit implementation authorization is recorded.
 
-## Optional parallel workstream — Home security monitoring and secure remote access
+## Out-of-scope future project — Standalone home-security app
 
-See [Home security and secure remote access architecture](../ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md). This is a separate optional subsystem, not another responsibility for the LLM. It depends on the Android shell, camera/hardware capability foundation, privacy/security controls and physical-device validation. Build in gated steps: camera foreground-service uptime; local face detection; consented known-person embedding/matching; unknown/uncertain event snapshots and deduplication; private VPN plus authenticated remote API; optional push notifications; overnight/network-failure hardening. No continuous recording by default. Do not begin implementation before explicit authorization.
+The home-security concept is explicitly excluded from this agent's phases, modules, dependencies, permissions and release criteria. See [standalone home-security app research](../ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md) for future reference only. It will be designed and built as a separate Android app, potentially installed on the same physical phone. Do not schedule work on it in this repository.
