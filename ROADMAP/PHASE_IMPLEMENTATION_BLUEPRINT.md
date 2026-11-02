@@ -103,6 +103,14 @@ A README is not evidence that a feature works. For every DIRECT/ADAPT decision, 
 
 **Exit evidence:** fresh snapshots on target apps; stale-node detection; correct redaction; no service crash/leak under rapid navigation; physical-device screenshots/tree evidence; documented API 27 and modern-device differences.
 
+
+
+## Dedicated hardware capability workstream (Phase 3A)
+
+This is a required workstream, not an optional enhancement. The agent must discover and use supported phone hardware through a typed hardware registry and permission-gated adapters. Scope, implementation steps, API 27 caveats, reuse candidates and acceptance criteria are documented in [Hardware capabilities](../ARCHITECTURE/HARDWARE_CAPABILITIES.md).
+
+First audit `agent-created-by-gemini` classes `HardwareManager.kt`, `DeviceCapabilityDetector.kt` and `ActuatorController.kt`; compare with `skill-agent` capability authorization and `mobile_agent` device profiling. Reuse verified code where possible; otherwise adapt or implement against the common hardware contracts. Hardware is not considered complete until physical-device effects are verified.
+
 ## Phase 3 — Deterministic device action layer and verification
 
 **Goal:** Make individual actions safe, bounded and observable before giving a model control.
