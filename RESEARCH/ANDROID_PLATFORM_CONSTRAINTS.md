@@ -39,7 +39,7 @@ For wake-word:
 - Measure false accepts, battery and thermal impact.
 - Test screen-off, Doze, app standby, process death, reboot and OEM power management.
 
-## 4. AccessibilityService — primary automation candidate
+## 4. Camera monitoring and background lifecycle\n\nAn optional home-security mode may keep the camera active while the device remains at home. This is subject to camera permission, foreground-service requirements, while-in-use restrictions, OEM process management and physical-device validation. On Android 14/API 34+ apps targeting the relevant SDK must declare the camera foreground-service type and permission; a camera service generally must be started while the app is visible because camera access is a while-in-use permission. Android 12+ also restricts background foreground-service starts. Do not assume the app can silently restart camera monitoring after process death or reboot. Keep a visible ongoing notification and explicit pause/stop controls.\n\nOfficial references: [foreground-service restrictions](https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start), [foreground-service changes](https://developer.android.com/develop/background-work/services/fgs/changes).\n\n## 5. AccessibilityService — primary automation candidate
 
 Because this is a personal-use sideloaded app, we can investigate AccessibilityService as a central device interaction mechanism without designing around Google Play publication restrictions.
 
@@ -54,7 +54,7 @@ Technical design:
 
 Important: AccessibilityService does not grant omnipotent control. Apps can hide semantics, secure windows can block capture, custom canvases may expose poor nodes, and Android/OEM behavior varies. It cannot legitimately bypass authentication or app sandboxing.
 
-## 5. Complementary control mechanisms
+## 6. Complementary control mechanisms
 
 - Explicit Android intents and app links for deterministic navigation.
 - App-specific APIs/deep links where supported.
@@ -64,7 +64,7 @@ Important: AccessibilityService does not grant omnipotent control. Apps can hide
 - Notification actions and widgets where supported.
 - ADB/Shizuku/root as optional advanced personal profiles only, with explicit setup and threat model. Not baseline requirements.
 
-## 6. Device controls and boundaries
+## 7. Device controls and boundaries
 
 Do not assume a normal app can:
 - toggle arbitrary secure settings;
@@ -74,11 +74,11 @@ Do not assume a normal app can:
 - execute privileged shell commands;
 - control work profiles or managed devices without the required privileges.
 
-## 7. Storage and process resilience
+## 8. Storage and process resilience
 
 Persist task ID, goal, plan version/current step, approval decisions, action intent/idempotency key, before/after state summary, retry/timeout counts and outcome. Do not persist screenshots/audio by default. Retention must be configurable.
 
-## 8. Sources
+## 9. Sources
 
 - Background execution: https://developer.android.com/about/versions/oreo/background
 - Foreground services: https://developer.android.com/develop/background-work/services/foreground-services
@@ -88,7 +88,7 @@ Persist task ID, goal, plan version/current step, approval decisions, action int
 - Accessibility guide: https://developer.android.com/guide/topics/ui/accessibility/service
 - Runtime permissions: https://developer.android.com/training/permissions/requesting
 
-## 9. Required proof-of-concepts
+## 10. Required proof-of-concepts
 
 - API 27 physical-device install and lifecycle.
 - AccessibilityService enable/disable, tree retrieval, actions, stale-node behavior and secure-window limitations.
