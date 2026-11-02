@@ -1,5 +1,7 @@
 # Phase-by-phase implementation and reuse blueprint
 
+**Session entry point and progress ledger:** [PROJECT_STATUS.md](../PROJECT_STATUS.md). Read it before every work session; it records the current phase, next task, blockers and authorization state. The short phase index in [PHASES.md](PHASES.md) follows the dependency order used in this detailed blueprint.
+
 **Status:** Research baseline; source-level reuse decisions remain provisional until each candidate passes build, test, API-compatibility and licence checks.  
 **Date:** 2026-11-02  
 **Product target:** Personal-use, sideloaded Android agent. API 27 is a desired compatibility baseline, not a promise of equal capability on every Android version.
