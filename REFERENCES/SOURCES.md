@@ -33,4 +33,13 @@ Announcement describes ADK Kotlin 1.0, Android-first on-device extensions, LiteR
 AndroidWorld describes 116 hand-crafted tasks across 20 real-world Android apps with dynamic task instantiation:
 https://google-research.github.io/android_world/
 Benchmark is a reference for evaluation design, not proof of API 27 or physical-device production behavior.
-\n\n## Home security and remote access\n- ML Kit face detection (detection only, not identity recognition): https://developers.google.com/ml-kit/vision/face-detection\n- ML Kit Android setup and image requirements: https://developers.google.com/ml-kit/vision/face-detection/android\n- Android foreground-service restrictions: https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start\n- Android foreground-service changes: https://developer.android.com/develop/background-work/services/fgs/changes\n- Tailscale private device connectivity: https://tailscale.com/docs/how-to/connect-to-devices\n- India DPDP Act 2023: https://www.indiacode.nic.in/indiacode/handle/123456789/22037?view_type=browse\n- MeitY DPDP Rules 2025: https://www.meity.gov.in/documents/act-and-policies/digital-personal-data-protection-rules-2025-gDOxUjMtQWa\n
+
+
+## Home security and remote access
+- ML Kit face detection (detection only, not identity recognition): https://developers.google.com/ml-kit/vision/face-detection
+- ML Kit Android setup and image requirements: https://developers.google.com/ml-kit/vision/face-detection/android
+- Android foreground-service restrictions: https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start
+- Android foreground-service changes: https://developer.android.com/develop/background-work/services/fgs/changes
+- Tailscale private device connectivity: https://tailscale.com/docs/how-to/connect-to-devices
+- India DPDP Act 2023: https://www.indiacode.nic.in/indiacode/handle/123456789/22037?view_type=browse
+- MeitY DPDP Rules 2025: https://www.meity.gov.in/documents/act-and-policies/digital-personal-data-protection-rules-2025-gDOxUjMtQWa
