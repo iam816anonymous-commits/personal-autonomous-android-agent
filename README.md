@@ -2,8 +2,10 @@
 
 Research-first workspace for a personal, local-first Android agent that understands goals, observes device/app state, plans, acts through permitted device capabilities, verifies outcomes and recovers from failures.
 
-> **Product target: personal use and sideloaded installation. Google Play publication is not a requirement.**  
-> **Status (2026-11-02): research and architecture baseline; no implementation has been validated yet.**
+> **Start every work session here:** [PROJECT_STATUS.md](PROJECT_STATUS.md). It is the canonical progress ledger, roadmap pointer, blocker list and session log. Read it before inspecting or changing anything; update it before ending the session.
+>
+> **Product target:** personal use and sideloaded installation. Google Play publication is not a requirement.
+> **Status (2026-11-02):** research/specification baseline; no destination app implementation has been validated.
 
 ## Product thesis
 
@@ -17,7 +19,7 @@ Build a reliable Android-native assistant—not a chat wrapper—that can:
 
 ## Distribution decision
 
-This is a **personal-use project**. We are not designing for Play Store publication. Therefore, we can prioritize sideloaded personal capabilities and investigate broader AccessibilityService-based UI automation, subject to Android's technical limits, user-enabled permissions, app sandboxing and privacy/security constraints.
+This is a **personal-use project**. We are not designing for Play Store publication. Prioritize capabilities useful in a directly installed app, subject to Android technical limits, user-enabled permissions, app sandboxing and privacy/security constraints.
 
 Google Play policy is retained as reference material only; it is not the primary product constraint. Do not misrepresent the app or bypass Android security protections.
 
@@ -30,16 +32,9 @@ Google Play policy is retained as reference material only; it is not the primary
 - Requiring Docker.
 - Requiring cloud connectivity or a large model for basic supported tasks.
 
-## Research-first sequence
-
-1. Confirm personal-device deployment assumptions and device/OS matrix.
-2. Audit open-source implementations and licenses at source level.
-3. Prototype AccessibilityService observation/actions, voice lifecycle, local inference/tool calling and process recovery.
-4. Choose architecture from measured evidence.
-5. Implement incrementally with physical-device tests and green CI.
-
 ## Repository map
 
+- [Project status, roadmap tracking and session log](PROJECT_STATUS.md)
 - [Research index](RESEARCH/README.md)
 - [Master architecture](ARCHITECTURE/MASTER_ARCHITECTURE.md)
 - [Android platform constraints](RESEARCH/ANDROID_PLATFORM_CONSTRAINTS.md)
@@ -63,14 +58,18 @@ Google Play policy is retained as reference material only; it is not the primary
 
 ## Working rules
 
-1. Date research claims and label hypotheses.
-2. Inspect source code and exact revisions before adopting libraries.
-3. Audit licenses for code, assets, models and transitive dependencies.
-4. Keep orchestration, inference, observation, actuation, memory and skills replaceable.
-5. Prefer Kotlin/Android-native runtime; use Python for research and host-side evaluation.
-6. No Docker dependency; use Windows-native tooling and physical devices.
-7. CI covers compilation, unit tests, lint/static analysis and dependency/license checks. Physical-device behavior is validated separately.
-8. Update the decision log when evidence changes a choice.
+1. Read [PROJECT_STATUS.md](PROJECT_STATUS.md) before every work session; inspect actual GitHub state rather than trusting chat history.
+2. Follow the canonical phase order and entry/exit gates unless the owner explicitly changes scope.
+3. Date research claims and label evidence as verified, observed, hypothesis or decision.
+4. Inspect exact source code and pinned revisions before adopting libraries or copying code.
+5. Audit licenses for code, assets, models and transitive dependencies before reuse.
+6. Keep orchestration, inference, observation, actuation, memory and skills replaceable.
+7. Prefer Kotlin/Android-native runtime; use Python for research/evaluation.
+8. No Docker dependency; use Windows-native tooling and physical devices.
+9. CI covers compilation, unit tests, lint/static analysis and dependency/license checks. Physical-device behavior is validated separately.
+10. After every work session, update PROJECT_STATUS.md with changes, test evidence, blockers, phase status and the next exact task.
+11. Never claim a test passed if it was not run. Never claim a feature is implemented because it is documented.
+12. Do not start app source-code implementation until Phase 0 is closed and explicit authorization is recorded.
 
 ## Current technical risks
 
@@ -89,4 +88,4 @@ Google Play policy is retained as reference material only; it is not the primary
 - ADK for Kotlin vs custom orchestration remains open pending a working proof-of-concept.
 - API 27 compatibility is desired but feature parity is not assumed.
 
-See [decision log](ARCHITECTURE/DECISION_LOG.md).
+See [decision log](ARCHITECTURE/DECISION_LOG.md) and [PROJECT_STATUS.md](PROJECT_STATUS.md).
