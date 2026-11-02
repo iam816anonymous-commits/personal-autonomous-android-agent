@@ -1,5 +1,7 @@
 # Research index
 
+**Project progress and next work item:** [PROJECT_STATUS.md](../PROJECT_STATUS.md). This index catalogs research; it is not the progress tracker.
+
 **Last reviewed:** 2026-11-02
 
 Research is organized to separate primary platform rules, repository evidence, experiments, and architectural conclusions.
