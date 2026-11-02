@@ -19,7 +19,7 @@ A device possessing a sensor or radio does not imply that an ordinary app can fr
 | Domain | Detect / observe | Potential agent actions | Important limits |
 |---|---|---|---|
 | Flash / torch | Camera IDs, flash availability, torch state | Turn torch on/off; strength only on supported newer APIs | Camera contention, camera permission/device behavior; strength API is newer than API 27 |
-| Camera | Front/back cameras, supported output sizes/facing/capabilities | User-approved photo/video capture, camera preview | CAMERA permission, privacy indicator/OS restrictions, lifecycle and camera contention |
+| Camera | Front/back cameras, supported output sizes/facing/capabilities | User-approved photo/video capture, camera preview, optional event-based home monitoring | CAMERA permission, camera foreground-service/while-in-use restrictions on modern Android, privacy indicator, lifecycle, OEM uptime and camera contention; no stealth or guaranteed 24/7 capture |
 | Microphone / audio | Input/output devices, audio route, recognition availability | User-started speech capture, play notification tones, adjust supported audio stream | Microphone permission and foreground-service rules; do not silently record |
 | Vibration / haptics | Vibrator presence and supported effect capability where API allows | Short vibration/haptic feedback | Newer effect capability APIs unavailable on API 27; fallback behavior must be reported |
 | Sensors | Accelerometer, gyroscope, proximity, light, magnetic field, pressure, step sensors when present | Read sensor data for explicit tasks; infer orientation/motion with confidence | Runtime availability, sampling/battery limits, privacy; background sensor restrictions vary |
@@ -100,7 +100,7 @@ Every command must include task ID, timeout, cancellation, required permission, 
 11. Profile battery, thermal, memory and sensor sampling overhead.
 12. Add physical-device test evidence for every supported device/OS combination.
 
-## 5. Reuse from the user's repositories
+## 5. Optional home-security monitoring\n\nA separate event-based home-monitoring subsystem is specified in [HOME_SECURITY_AND_REMOTE_ACCESS.md](HOME_SECURITY_AND_REMOTE_ACCESS.md). It uses a camera adapter, local face detector, separate face-embedding recognizer, consented known-person registry and secure remote event API. Do not treat face detection as identity recognition or use the general LLM to identify people. Camera uptime and privacy controls require dedicated physical-device testing.\n\n## 6. Reuse from the user's repositories
 
 Audit these candidates; do not assume they are reusable until source and tests are verified:
 
