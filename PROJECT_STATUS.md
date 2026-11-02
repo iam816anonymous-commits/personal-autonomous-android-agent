@@ -29,7 +29,7 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 
 ### Overall
 
-<badge>Research/specification baseline</badge>
+**Research/specification baseline**
 
 - The repository is a documentation-first project at the last verified baseline.
 - Product assumptions, high-level architecture, platform constraints, research, source reuse decisions, safety contracts and phase plans are documented.
@@ -220,6 +220,8 @@ Task sequence:
 - Identified phase-order/numbering drift between the compact roadmap and detailed blueprint.
 - Identified overlapping but distinct contract descriptions; deferred normative contract consolidation to Phase 1 rather than deleting evidence prematurely.
 - Established this file as the mandatory session-start checklist and canonical progress ledger.
+- Updated README navigation/working rules to point to this file; aligned the short phase roadmap with the detailed dependency-oriented phase sequence.
+- Created commit `4cff6ca` for this status file, `60f1049` for phase-roadmap alignment and `594510b` for README session-entry rules (subsequent status update is being recorded now).
 - No Android application source code, dependencies, build configuration or CI workflow changed in this session.
 - No app implementation or physical-device test was performed.
 - Implementation authorization remains **NOT GRANTED**.
