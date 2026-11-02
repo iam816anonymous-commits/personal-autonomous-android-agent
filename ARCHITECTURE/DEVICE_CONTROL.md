@@ -2,47 +2,41 @@
 
 ## Principle
 
-Prefer supported, narrow Android integrations over a single universal automation mechanism. All mechanisms are capability adapters, not planner privileges.
+For this personal sideloaded agent, AccessibilityService is a primary candidate for observing and interacting with Android app UIs. Keep all device control behind narrow capability adapters. The model does not receive direct Android API access.
 
-## Adapter candidates
+## Adapter priority
 
-1. Explicit Android intents and app links for launching known workflows.
-2. App-specific APIs/deep links/integrations where the target app supports them.
-3. Accessibility semantics for permitted, narrowly scoped use cases and appropriate distribution profile.
-4. Screenshot/visual observation for cases where semantic structure is unavailable, subject to capture permissions and policy.
-5. MediaProjection for user-consented screen capture use cases where applicable; not a universal silent screenshot API.
-6. Notification actions and widgets where user-visible and supported.
-7. Device-owner / managed-device APIs for dedicated enterprise-managed deployments only.
-8. ADB/Shizuku/root only as optional personal/developer profiles, never assumed in Play baseline.
+1. **AccessibilityService:** UI tree, node metadata, bounds, supported click/long-click/scroll/text actions and global navigation where available.
+2. **Explicit Android intents/app links:** preferred for deterministic launch and known workflows.
+3. **App-specific APIs/deep links:** when the target app provides them.
+4. **Screenshot/visual observation:** fallback for custom views or incomplete semantics; respect secure windows and capture permissions.
+5. **MediaProjection:** user-consented screen capture where applicable.
+6. **Notification actions/widgets:** where supported.
+7. **ADB/Shizuku/root:** optional advanced personal/developer profiles with explicit setup; not baseline.
+
+## AccessibilityService implementation requirements
+
+- User explicitly enables service in Android Settings.
+- Explain exactly what UI information can be observed and what actions can be performed.
+- Provide visible service status, pause/stop and emergency kill switch.
+- Take fresh UI snapshots before selecting targets.
+- Treat node IDs and coordinates as snapshot-local and stale after transitions.
+- Re-observe after each action and verify expected postcondition.
+- Redact sensitive UI fields before model input/logging.
+- Never use the service to bypass authentication, steal secrets or evade app security controls.
 
 ## Capability registry
 
-Each capability should declare:
-- platform API range;
-- OEM/device limitations;
-- required permissions and user setup;
-- distribution policy status;
-- foreground/background availability;
-- whether action is read-only or mutating;
-- reversibility and risk tier;
-- test evidence and known failure modes.
+Each capability declares API range, OEM limitations, permissions/setup, foreground/background behavior, read/write status, risk tier, reversibility and test evidence. At runtime expose only capabilities actually available and enabled.
 
-At runtime, the agent sees only capabilities actually available and enabled.
+## Grounding and recovery
 
-## Grounding
-
-- Prefer stable semantic selectors and explicit app intents.
-- Use bounds and screenshots only as snapshot-local evidence; UI coordinates go stale.
-- Every target must be grounded in a fresh observation.
-- Verify action result and re-observe before subsequent action.
-- Never assume a tap worked because the API returned without throwing.
+- Prefer semantic selectors and explicit intents.
+- Use coordinates only with a fresh screenshot and confidence threshold.
+- If a node becomes stale, observe again; do not blindly retry.
+- If the screen differs from expectation, stop and replan.
+- Verify action result and state transition before next action.
 
 ## Device lab
 
-Minimum test matrix:
-- Android 8.1/API 27 physical device (legacy baseline).
-- One Android 12/13 device (mid-generation permissions and speech behavior).
-- One Android 14+ device (modern foreground service/while-in-use behavior).
-- Multiple OEM battery modes if possible.
-
-Record model/device/build fingerprint, Android/API level, target SDK, permissions, memory pressure, screen state, network, OEM power mode, action result and verifier outcome.
+Test Android 8.1/API 27 physical device, Android 12/13, Android 14+ and multiple OEM battery modes. Record build fingerprint, API, target SDK, permissions, memory pressure, screen/network state, OEM power mode, action and verifier result.
