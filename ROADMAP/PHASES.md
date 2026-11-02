@@ -14,6 +14,9 @@ Tap-to-talk speech-to-text, English first, Telugu/Hindi evaluation, offline dete
 ## Phase 3 — Accessibility observation bridge
 Implement user-enabled AccessibilityService; inspect UI tree, package/activity, node metadata and bounds; add redaction and snapshot IDs. Test stale nodes, secure windows and OEM differences. **Exit:** reliable observation on target apps/devices.
 
+## Phase 3A — Hardware capability discovery and control
+Implement a hardware registry and typed adapters for available device hardware. Start with capability inventory, torch, vibration, audio feedback, sensors and battery/thermal state; then add permission-gated camera, microphone, location, Bluetooth, Wi-Fi/network, NFC, USB and telephony flows where public Android APIs allow. Separate hardware presence, API support, permission, runtime availability and verified state. **Exit:** hardware test screen and physical-device evidence; no unsupported or unverified operation reported as successful.
+
 ## Phase 4 — Agent core and safe actions
 Typed tool registry, planner, execution journal, app launch, grounded UI actions, approval gate, verifier and recovery. **Exit:** fixed task suite with zero unauthorized actions and verified final state.
 
