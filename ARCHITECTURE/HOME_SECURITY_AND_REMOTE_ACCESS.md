@@ -1,7 +1,9 @@
 # Home Security Monitoring and Secure Remote Access
 
-**Status:** Proposed optional subsystem; not implemented or physically validated.  
-**Product purpose:** Turn an owner-controlled Android device left at home into a privacy-conscious event-based security monitor that can be checked remotely.
+**Status:** Research specification for a separate future Android app; explicitly out of scope for `personal-autonomous-android-agent`. Not implemented or physically validated.  
+**Product purpose:** A standalone app that turns an owner-controlled Android device left at home into a privacy-conscious event-based security monitor that can be checked remotely.
+
+> **Scope boundary:** This app may be installed on the same physical Android phone as the autonomous agent, but it must have its own application/package, lifecycle, permissions, storage, security boundary and release plan. No shared modules, runtime integration, agent tools or dependencies are assumed.
 
 > This is a separate capability from the autonomous phone-control agent. It must not be treated as an extra prompt or responsibility of the general-purpose LLM.
 
