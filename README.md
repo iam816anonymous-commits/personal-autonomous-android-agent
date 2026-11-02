@@ -51,6 +51,7 @@ Google Play policy is retained as reference material only; it is not the primary
 - [Safety and approvals](ARCHITECTURE/SAFETY_AND_APPROVALS.md)
 - [Voice and wake-word](ARCHITECTURE/VOICE_AND_WAKE_WORD.md)
 - [Device control](ARCHITECTURE/DEVICE_CONTROL.md)
+- [Hardware capabilities](ARCHITECTURE/HARDWARE_CAPABILITIES.md)
 - [Model router](ARCHITECTURE/MODEL_ROUTER.md)
 - [Memory and learning](ARCHITECTURE/MEMORY_AND_LEARNING.md)
 - [Phases](ROADMAP/PHASES.md)
