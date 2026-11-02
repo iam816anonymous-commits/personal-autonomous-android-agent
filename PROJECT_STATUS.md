@@ -12,7 +12,7 @@
 
 ## 1. Product objective and non-negotiable constraints
 
-Build a real Android-native personal agent that can accept a goal (initially text and user-started speech), observe the current device/app state, plan, perform permitted actions, verify each result, recover safely and report what actually happened. Add an optional, separately permissioned home-security mode: a device left at home performs local event-based face detection/known-person matching, alerts only on unfamiliar or uncertain faces, and provides authenticated remote access to event snapshots and device status.
+Build a real Android-native personal agent that can accept a goal (initially text and user-started speech), observe the current device/app state, plan, perform permitted actions, verify each result, recover safely and report what actually happened. Home-security monitoring, face recognition and remote surveillance are explicitly out of scope for this agent. They will be designed and built later as a separate Android app that may be installed on the same physical phone.
 
 - Personal use and sideloaded installation are the primary deployment model. Google Play publication is not currently a requirement.
 - Kotlin/Android-native runtime is preferred.
@@ -35,7 +35,7 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 - Product assumptions, high-level architecture, platform constraints, research, source reuse decisions, safety contracts and phase plans are documented.
 - A source-by-source reuse specification exists, including class-level RETAIN / ADAPT / REWRITE / REJECT decisions and known defects.
 - Hardware capability architecture is documented.
-- Proposed home-security and secure remote-access architecture is documented; it is not implemented or physically validated.
+- A separate-app home-security research specification is retained for future reference; it is not part of this agent's architecture or implementation plan.
 - No destination Android application implementation, integration build or physical-device acceptance run has been established by the documentation audit.
 - No model/runtime has been selected based on reproducible measurements on the target physical device.
 - Full transitive dependency/license clearance remains open.
@@ -56,13 +56,13 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 | 7 | Memory, skills and user-approved learning | Not started | Design exists; no destination implementation. |
 | 8 | Wake word and long-running autonomy | Not started | Explicitly gated behind voice and lifecycle evidence. |
 | 9 | Hardening, device profiles and personal release | Not started | Requires all earlier gates and physical-device regression. |
-| Optional parallel workstream | Home security monitoring and secure remote access | Proposed / not started | Separate camera, face detection/recognition, event retention, remote VPN/API and alerting pipeline; depends on device camera lifecycle, security controls and physical-device evidence. |
+| Out-of-scope future project | Standalone home-security Android app | Deferred / separate project | Research specification retained in `ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md`; no dependency, module, phase or integration in this agent. It may be installed on the same phone as a separate app. |
 
 **Important:** A written design, a donor repository implementation, or a test plan does not count as a feature implemented in this destination repository.
 
 ## 3. Canonical implementation roadmap
 
-An optional home-security workstream has been added in [HOME_SECURITY_AND_REMOTE_ACCESS.md](ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md). It is not a replacement for the core phases and must not delay or destabilise the core agent. Its prototype gates are: visible camera uptime, face detection, consented known-person recognition, unknown-event handling, secure remote access, notifications and hardening.
+Home security is no longer part of this agent's scope. The retained [standalone home-security app research specification](ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md) is a future, separate project. It must not create modules, dependencies, permissions, services, roadmap work or integration requirements in this agent. Both apps may be installed on the same Android phone but must remain independently packaged and permission-controlled.
 
 The detailed sequence in [ROADMAP/PHASE_IMPLEMENTATION_BLUEPRINT.md](ROADMAP/PHASE_IMPLEMENTATION_BLUEPRINT.md) is the phase-level execution plan. [ROADMAP/PHASES.md](ROADMAP/PHASES.md) is its short index. This status file tracks progress and the next action.
 
@@ -168,7 +168,7 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 | `ARCHITECTURE/VOICE_AND_WAKE_WORD.md` | KEEP | Voice capture and wake-word lifecycle, deliberately separated. |
 | `ARCHITECTURE/DEVICE_CONTROL.md` | KEEP | Accessibility and device-control adapter strategy. |
 | `ARCHITECTURE/HARDWARE_CAPABILITIES.md` | KEEP | Dedicated hardware discovery/control subsystem. |
-| `ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md` | KEEP, OPTIONAL WORKSTREAM | Camera-based event monitoring, consented known-person matching, unfamiliar-face alerts, secure remote access and retention requirements. |
+| `ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md` | KEEP, SEPARATE FUTURE PROJECT REFERENCE | Standalone home-security Android app research only. Explicitly out of scope for this agent; no shared runtime or integration assumed. |
 | `ARCHITECTURE/MODEL_ROUTER.md` | KEEP | Runtime routing and model eligibility rules. |
 | `ARCHITECTURE/MEMORY_AND_LEARNING.md` | KEEP | Data classes, retention and safe learning. |
 | `ARCHITECTURE/DECISION_LOG.md` | KEEP, UPDATE ON DECISIONS | Append accepted/rejected decisions and rationale; do not use as progress tracker. |
@@ -201,8 +201,7 @@ Task sequence:
 4. Complete a component-level dependency and license/provenance ledger for the subset actually proposed for reuse. Do not create a giant SBOM for components we will not use.
 5. Freeze 20–30 initial tasks with explicit initial state, allowed capabilities, expected final state, forbidden side effects, timeout and independent verifier.
 6. Close or defer each Phase 0 technical spike with a documented reason and decision owner.
-7. Add the home-security camera/face-recognition/remote-access spike to the Phase 0 device and threat-model review.
-8. Review the implementation authorization checklist with the owner. Until explicit approval, stop at research/specification and documentation changes.
+7. Review the implementation authorization checklist with the owner. Until explicit approval, stop at research/specification and documentation changes.
 
 **Do not start Phase 1 code implementation yet.** The project has not cleared Phase 0 and the previous explicit authorization state was NOT AUTHORIZED.
 
@@ -216,8 +215,6 @@ Task sequence:
 - [ ] API 27 visual observation fallback and realistic screenshot limitations.
 - [ ] Encryption/key-management and backup/restore design.
 - [ ] Wake-word feasibility under Android/OEM lifecycle constraints.
-- [ ] Home-device camera foreground-service uptime, face-recognition model evaluation and false-match/false-reject measurements.
-- [ ] Private VPN/remote API authentication and alert-delivery design.
 - [ ] Explicit authorization for app source-code implementation.
 
 ## 8. Session log
@@ -229,14 +226,11 @@ Task sequence:
 - Identified overlapping but distinct contract descriptions; deferred normative contract consolidation to Phase 1 rather than deleting evidence prematurely.
 - Established this file as the mandatory session-start checklist and canonical progress ledger.
 - Updated README navigation/working rules to point to this file; aligned the short phase roadmap with the detailed dependency-oriented phase sequence.
-- Added the optional home-security and secure remote-access requirement, with a dedicated architecture document.
-- Research indicates ML Kit face detection locates faces but does not identify individuals; a separate on-device face-embedding model is required. No recognition model has been selected or benchmarked.
-- Recommended private VPN/overlay networking plus an authenticated application API; no public camera port should be exposed by default.
-- Android camera foreground-service restrictions and OEM uptime are major feasibility gates; no 24/7 reliability claim is made.
+- Initially documented home-security monitoring as an optional workstream in this agent. The owner then changed scope: remove it from this agent and defer it to a standalone Android app that may be installed on the same phone. The retained research document is reference material only.
 - Updated the master architecture, hardware capability notes, Android platform constraints, README, roadmap and source index. No application code, dependencies, build configuration or CI workflow changed.
 - No app implementation or physical-device test was performed. Implementation authorization remains **NOT GRANTED**.
-- Added `ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md` and indexed it from README, research index, roadmap, master architecture and platform/hardware documentation.
+- No home-security runtime, integration, module or implementation is planned in this repository. Update navigation to label the retained document as a separate future project reference.
 - Repaired literal escaped line breaks introduced during document updates and re-fetched the affected files.
 - Documentation commits for the new workstream include `c4731c3`, `baa48ee`, `e80cc05`, `720e7a2`, `378e4bd`, `3b43a67`, `624314f`, `ab3a099`, `734aa8b`, `375d131`, `73d1586`, `bc70a45`, `903027f`, `3747edf`, `ebd2c91` and `e6fd937`.
 - No application code, dependencies, build configuration, CI or physical-device tests changed.
-- Next: close Phase 0 evidence gaps, including target home-device camera uptime and computer-vision model evaluation.
+- Next: close the core agent's Phase 0 evidence gaps. Do not spend this project's Phase 0 effort on camera uptime, face recognition or remote home monitoring.
