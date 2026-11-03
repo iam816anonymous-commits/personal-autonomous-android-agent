@@ -28,9 +28,13 @@ data class PolicyContext(
 
 class ApprovalPolicy(
     private val clock: MonotonicClock,
-    private val approvalLifetimeMillis: Long = 60_000,\n    private val maxSnapshotAgeMillis: Long = 10_000,
+    private val approvalLifetimeMillis: Long = 60_000,
+    private val maxSnapshotAgeMillis: Long = 10_000,
 ) {
-    init {\n        require(approvalLifetimeMillis in 1_000L..300_000L)\n        require(maxSnapshotAgeMillis in 1_000L..60_000L)\n    }
+    init {
+        require(approvalLifetimeMillis in 1_000L..300_000L)
+        require(maxSnapshotAgeMillis in 1_000L..60_000L)
+    }
 
     fun evaluate(action: AgentAction, context: PolicyContext): PolicyDecision {
         val capability = context.capabilityStatuses[action.capability]
@@ -54,7 +58,10 @@ class ApprovalPolicy(
             if (current.id != snapshotBound) {
                 return PolicyDecision.Denied("Action target was grounded in a stale snapshot")
             }
-            if (clock.nowMillis() - current.capturedAtElapsedMillis !in 0L..maxSnapshotAgeMillis) {\n                return PolicyDecision.Denied("UI snapshot is stale")\n            }\n            if (!current.complete) {
+            if (clock.nowMillis() - current.capturedAtElapsedMillis !in 0L..maxSnapshotAgeMillis) {
+                return PolicyDecision.Denied("UI snapshot is stale")
+            }
+            if (!current.complete) {
                 return PolicyDecision.Denied("Incomplete UI snapshots cannot authorize mutation")
             }
             if (current.foregroundPackage != action.targetPackage) {
@@ -84,7 +91,11 @@ class ApprovalPolicy(
         ApprovalToken(
             actionDigest = digest(action),
             targetPackage = action.targetPackage,
-            snapshotId = when (action) {\n                is ClickAccessibleNode -> action.snapshotId\n                is SetAccessibleText -> action.snapshotId\n                else -> null\n            },
+            snapshotId = when (action) {
+                is ClickAccessibleNode -> action.snapshotId
+                is SetAccessibleText -> action.snapshotId
+                else -> null
+            },
             expiresAtElapsedMillis = Math.addExact(clock.nowMillis(), approvalLifetimeMillis),
             approvedByUser = true,
         )
