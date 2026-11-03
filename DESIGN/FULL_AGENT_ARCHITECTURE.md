@@ -1108,3 +1108,86 @@ This design synthesizes, rather than blindly copies, the inspected source patter
 The repository-by-repository analysis and pinned source links are in `RESEARCH/ANDROID_AUTONOMOUS_AGENT_REPOSITORY_DEEP_DIVE_2026-11-03.md`. Existing contracts, data model, performance budgets and test strategy remain complementary documents; this file is the integrated product architecture proposal.
 
 **Final design rule:** the model proposes; the policy authorizes; the Android adapter executes; the verifier proves; the journal remembers.
+
+---
+
+# 23. Reverse Engineering Agent (REA)
+
+REA is an app-behavior discovery subsystem. Its purpose is to learn repeatable, permitted workflows in installed apps and express them as versioned declarative skills.
+
+## 23.1 Observation boundary
+
+REA may inspect:
+- package identity, version and SDK metadata exposed by PackageManager;
+- visible accessibility nodes, labels, view IDs, bounds and interaction flags;
+- foreground package/activity and permitted lifecycle signals;
+- screen fingerprints captured from bounded, redacted snapshots;
+- state changes observed after user-authorized probes.
+
+REA does not imply:
+- reading another app's private databases, internal files or private APIs;
+- bypassing authentication, OTP, payment confirmation or app security;
+- silently capturing screenshots, credentials, clipboard or microphone data;
+- decompiling protected code or defeating anti-tamper controls.
+
+## 23.2 Discovery workflow
+
+1. Identify app package/version and check whether its UI can be observed.
+2. Capture a bounded semantic snapshot and redact password/secret fields.
+3. Group observations into screen fingerprints using package, visible labels and stable view identifiers.
+4. Ask the user to select or approve a low-risk exploration goal.
+5. Execute one probe at a time through the ordinary policy/approval/dispatch pipeline.
+6. Capture a new snapshot and verify the expected postcondition independently.
+7. Record the screen transition, target grounding, result and limitations.
+8. Repeat probes to measure stability and reject duplicate-label/decoy ambiguity.
+9. Propose a skill manifest only from observed steps; never infer an unobserved mutation.
+10. Validate the manifest against registered capabilities, action schemas, app version and evidence.
+11. Require explicit user approval before enabling the skill.
+12. Invalidate or mark the skill stale when package version, screen fingerprint or target semantics materially change.
+
+## 23.3 Skill evidence and compatibility
+
+A certified skill records:
+- exact package and app version;
+- versioned input/output schema;
+- ordered typed action steps;
+- preconditions and postconditions;
+- required capabilities and risk tier;
+- verified probe names and evidence digest;
+- known limitations and confidence;
+- creation provenance, approval and last validation time.
+
+A skill is not a universal selector script. Every execution re-observes the current screen, resolves a unique target and runs the normal guard. App updates or UI drift require revalidation.
+
+---
+
+# 24. Self-created tool system
+
+The agent may identify that a repeated task needs a new tool and create a tool definition. This is **controlled composition**, not unrestricted self-modifying code.
+
+## 24.1 Permitted creation path
+
+1. Detect a missing operation or repeated workflow.
+2. Search the existing tool registry and capability catalog.
+3. Define a versioned input schema and output/postcondition contract.
+4. Compose one to eight existing registered action templates.
+5. Bind inputs only through typed parameter references.
+6. Calculate the maximum risk across all steps; never lower an underlying action's risk.
+7. Validate capabilities, app scope, parameter types, action registrations, bounds and approval requirements.
+8. Run dry-run and deterministic tests against fixtures/probe apps.
+9. Present the exact tool definition, permissions and effects to the user.
+10. Persist a pending tool version; activate only after explicit user approval.
+11. Audit executions and disable the tool when its dependencies or app version become incompatible.
+
+## 24.2 Prohibited creation path
+
+- No generated shell commands or arbitrary scripts.
+- No generated Kotlin/Java, DEX, native libraries or dynamic class loading.
+- No reflection-based access to hidden Android APIs.
+- No arbitrary permission escalation or capability invention.
+- No bypass of the ordinary action registry, approval policy, journal or verifier.
+- No self-approval and no tool that can modify its own safety policy.
+
+## 24.3 Future extension boundary
+
+A later, separately reviewed developer mode may support compiling new first-party modules during development. That is not an in-app runtime capability and must use a build sandbox, code review, dependency/license checks, signed artifacts and explicit installation. The on-device agent remains restricted to declarative tool composition.
