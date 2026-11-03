@@ -4,7 +4,7 @@
 **Destination:** Personal Autonomous Android Agent  
 **Primary compatibility target:** Android 8.1 / API 27 (TECNO Camon i Click / IN6 family; exact RAM variant still needs physical confirmation)  
 **Deployment assumption:** Personal sideloaded app; no Google Play publication requirement at present  
-**Research scope:** 12 external repositories, selected source files, architecture documents, test fixtures, licenses, and official Android platform documentation. This is a curated engineering audit, not an exhaustive search of all GitHub.
+**Research scope:** 17 external repositories, selected source files, architecture documents, test fixtures, licenses, and official Android platform documentation. This is a curated engineering audit, not an exhaustive search of all GitHub.
 
 ## 1. Executive conclusion
 
@@ -21,7 +21,9 @@ The strongest references solve different parts of the problem:
 - **Maestro, Appium UiAutomator2 and OpenATX uiautomator2** are valuable automation and regression-testing references, not components to embed as the production agent.
 - **Mobile-Agent** contributes GUI grounding, progress tracking, reflection and memory research, but its multimodal models are not suitable as the default runtime on a low-resource API 27 phone.
 - **LangGraph** contributes checkpointing and durable execution concepts, but its server-oriented stack is not a good embedded Android dependency.
-- **Google LiteRT samples** show a strong local inference/model lifecycle and tool-calling example, but the inspected voice assistant requires Android 12/API 31 and multi-gigabyte models. It is not an API 27 solution.
+- **Google AI Edge Gallery and llama.cpp** are on-device LLM references, but the inspected Android apps require API 31 and API 33 respectively. They are not API 27 baselines.
+- **sherpa-onnx** provides Android-native Kotlin/JNI streaming ASR and keyword spotting samples with minSdk 21, making it a strong candidate for a separate API 27 voice-input proof-of-concept.
+- **Mobilerun Portal** exposes a sophisticated Android AccessibilityService, target-window resolver, gesture controller and MediaProjection fallback for API 26–29; it is AGPL-3.0 and has a broad remote-control surface, so study only and do not transplant its code.
 
 The correct strategy is to retain our Kotlin core, strengthen the Android execution boundary, use OpenDroid/Llamatik/Hermes patterns selectively, and use AndroidWorld/Maestro-style test fixtures to prove behavior.
 
@@ -42,6 +44,11 @@ The commit pins below identify the exact source snapshots inspected during this 
 | [appium/appium-uiautomator2-server](https://github.com/appium/appium-uiautomator2-server/tree/56bf27a222b9aa242e6a40cf87825b78b443b7be) — `56bf27a222b9aa242e6a40cf87825b78b443b7be` | Apache-2.0 | README, server model and instrumentation build/run approach | **Testing reference only.** Repository README says development moved to appium-android monorepo. |
 | [openatx/uiautomator2](https://github.com/openatx/uiautomator2/tree/5d373ad83a94d85ebfd088cacb58d06ac40a00d2) — `5d373ad83a94d85ebfd088cacb58d06ac40a00d2` | MIT | README, device-side HTTP server + Python client architecture, selector and hierarchy APIs | **Testing/diagnostics reference only.** Not a direct in-app dependency. |
 | [langchain-ai/langgraph](https://github.com/langchain-ai/langgraph/tree/3c916d750575b22c464790e9774494d810ccd322) — `3c916d750575b22c464790e9774494d810ccd322` | MIT | Checkpoint package and persistence/checkpointer docs | **Adapt checkpoint semantics.** Do not embed server-oriented Python/DB infrastructure. |
+| [MadeAgents/mobile-use](https://github.com/MadeAgents/mobile-use/tree/babec07fd0e5faa7e7bcc7d3d0ee2320f6b83347) — `babec07fd0e5faa7e7bcc7d3d0ee2320f6b83347` | MIT | HierarchicalAgent, MultiAgent, planner/operator/answer/reflector/progressor/note-taker composition and trajectory | **Adapt task-role separation and trajectory reflection; host ADB/VLM runtime is not an Android app.** |
+| [droidrun/mobilerun-portal](https://github.com/droidrun/mobilerun-portal/tree/00a77c01e2ee4fcc71889a3992bc1753d64e9ed9) — `00a77c01e2ee4fcc71889a3992bc1753d64e9ed9` | AGPL-3.0 | AccessibilityService, foreground window resolver, node/action APIs, gesture controller, API30 screenshot adapter, API26–29 MediaProjection screenshotter; minSdk 26 | **Reference-only. Do not copy code without explicit AGPL decision; remote-control/auto-accept features are out of scope.** |
+| [google-ai-edge/gallery](https://github.com/google-ai-edge/gallery/tree/6d09e2ea0823b0868800ef3b5752852715b58b91) — `6d09e2ea0823b0868800ef3b5752852715b58b91` | Apache-2.0 | Function_Calling_Guide, typed Action/Tool callback path, Android app Gradle config; minSdk 31 | **Reference-only for on-device model catalog and tool integration; too new for API 27.** |
+| [k2-fsa/sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx/tree/935e5ded3d949a8b557ac44ef4dad03a7d2038e7) — `935e5ded3d949a8b557ac44ef4dad03a7d2038e7` | Apache-2.0 | Android streaming ASR and KWS samples, Kotlin JNI wrappers, AudioRecord loop; minSdk 21 | **High-priority API 27 speech/KWS POC; audit each downloaded model's licence and memory footprint.** |
+| [ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp/tree/71efc559a00b236851f6ba00a629d776f2416d2b) — `71efc559a00b236851f6ba00a629d776f2416d2b` | MIT | C/C++ inference engine and Android Kotlin sample build; sample minSdk 33 | **Runtime research only; Android sample is not compatible with API 27 as shipped.** |
 | [google-ai-edge/litert-samples](https://github.com/google-ai-edge/litert-samples/tree/e98147beea80ee90f7f74ed975bca9c78667d87c) — `e98147beea80ee90f7f74ed975bca9c78667d87c` | Apache-2.0 | Android offline voice assistant README, tool execution source, model catalog/download architecture | **High-value inference/model-management reference, but not API 27-compatible as inspected.** Verify exact revision and model/runtime license before adoption. |
 
 ### Important distinction
@@ -254,7 +261,84 @@ Decision:
 - Reuse ADK RoomSessionService only if it coexists cleanly with our Room task journal. Do not store the authoritative device execution journal only as conversational session state.
 - Do not adopt the LiteRT-LM module until the build toolchain and physical-device model benchmark prove it can run within the target's actual RAM/storage budget.
 
-### 3.11 LiteRT samples — model lifecycle and tool calling
+### 3.12 MobileUse — reflection-driven long-horizon task decomposition
+
+Inspected source paths:
+
+- `mobile_use/agents/hierarchical_agent.py`
+- `mobile_use/agents/multi_agent.py`
+- `mobile_use/agents/sub_agent.py`
+- README and task/trajectory schema
+
+The hierarchical agent composes optional Planner, Operator, AnswerAgent, Reflector, TrajectoryReflector, GlobalReflector, Progressor, NoteTaker, TaskClassifier, TaskOrchestrator, TaskExtractor and TaskRewriter roles. It records an episode trajectory and supports pre-reflection, on-demand reflection and bounded action retries.
+
+Take the *separation of cognitive responsibilities*, not the swarm architecture. Our first release should use one planner plus one executor/verifier, with a progress summary and a recovery evaluator invoked only on divergence. MobileUse controls real devices through ADB and multimodal VLMs, so its runtime is not embeddable in our APK and its model cost is too high for the legacy device.
+
+### 3.13 Mobilerun Portal — Android accessibility and API 27 visual fallback
+
+Inspected source paths:
+
+- `app/src/main/java/com/mobilerun/portal/service/MobilerunAccessibilityService.kt`
+- `ActionDispatcher.kt`
+- `ForegroundApplicationWindowResolver.kt`
+- `GestureController.kt`
+- `AccessibilityScreenshotApi30.kt`
+- `MediaProjectionScreenshotter.kt`
+- `app/build.gradle.kts`
+
+The inspected app uses minSdk 26, Java/Kotlin bytecode target 1.8 and a dedicated AccessibilityService. It resolves the foreground package from window descriptors and inspected root nodes, rather than assuming the first node in a flattened list is the foreground app. It provides bounded gesture APIs and an API30 screenshot adapter. For API26–29, its screenshot path uses MediaProjection, which requires the user-visible consent flow.
+
+This is important for our device: **API27 can support a user-consented MediaProjection screenshot fallback even though AccessibilityService.takeScreenshot is unavailable.** That should remain an explicit opt-in visual observation mode, with a persistent visible capture state and no silent capture. The service's dispatchGesture path is a possible API27 gesture fallback, but we should prefer unique semantic node actions and use coordinate gestures only when the user approves the visual fallback.
+
+Do not reuse this code directly: the repository is AGPL-3.0. Its HTTP/WebSocket servers, reverse connection, WebRTC streaming, overlay, APK auto-install and auto-accept functions materially expand the attack surface and are outside our product scope. Use only the architectural observations.
+
+### 3.14 sherpa-onnx — API 27 speech recognition and keyword spotting
+
+Inspected source paths:
+
+- `android/README.md`
+- `android/SherpaOnnxKws/app/build.gradle`
+- `android/SherpaOnnxKws/app/src/main/AndroidManifest.xml`
+- `KeywordSpotter.kt`
+- `OnlineRecognizer.kt`
+- `MainActivity.kt`
+
+The Android examples declare minSdk 21, Java/Kotlin target 1.8 and use native JNI libraries. The repository lists Android support for arm32 and arm64 and includes streaming ASR, keyword spotting, VAD, TTS and related examples. The KWS example uses AudioRecord at 16 kHz mono PCM16 and explicitly avoids PCM float APIs that are newer than its minSdk.
+
+This is the strongest inspected candidate for a separate local voice proof-of-concept on API27. The sequence should be:
+1. User-started push-to-talk ASR first.
+2. Measure CPU, memory, latency and transcription accuracy on English speech.
+3. Add Telugu model support only after exact model availability and licence review.
+4. Evaluate wake-word spotting last, with visible listening status, battery/thermal measurements and a stop control.
+
+The Android runtime licence is Apache-2.0, but every ASR/KWS/TTS model artifact has its own licence and size. JNI/native ABI support must be checked for the exact device ABI.
+
+### 3.15 Google AI Edge Gallery — local model catalog and function calling
+
+Inspected source paths:
+
+- `Android/src/app/build.gradle.kts`
+- `Function_Calling_Guide.md`
+- `MobileActionsTools.kt`
+- `MobileActionsViewModel.kt`
+
+The app uses typed action classes, annotated function tools and a callback to route a recognized function into Android-side code. Its guide cleanly separates the tool schema from the app's actual Android action implementation. This is a useful architecture boundary.
+
+Two cautions:
+- The inspected app sets minSdk 31, so it cannot be our API27 runtime.
+- Its sample tool functions return a generic success response after invoking the action callback. Our design must not copy that success semantics: the callback may only queue/dispatch work. The model should receive the actual result after the action executor independently verifies the postcondition.
+
+### 3.16 llama.cpp Android sample — native inference reference
+
+Inspected source paths:
+
+- `README.md`
+- `examples/llama.android/app/build.gradle.kts`
+- `examples/llama.android/app/src/main/java/com/example/llama/MainActivity.kt`
+
+llama.cpp is a portable C/C++ inference runtime with an MIT root licence. The current Android sample uses minSdk 33, compileSdk 36 and Java 17, so the sample is not API27 compatible as shipped. A custom NDK build may have different compatibility, but that must be proven with the exact Android NDK, ABI and runtime path. Do not infer API27 support from the cross-platform C++ core alone.
+
+### 3.17 LiteRT samples — model lifecycle and tool calling
 
 The inspected Google offline voice assistant sample uses a recognizer, a tool-calling LLM and TTS. It declares tools, executes them in app code, sends tool results back to the model and checks Android's own state after setting an alarm. The model manager uses catalog metadata, free-space preflight, HTTPS, resumable download and SHA-256 verification.
 
@@ -493,6 +577,11 @@ Prefer new Kotlin implementations for Android-specific execution and safety poli
 - OpenDroid click targeting instrumentation test: https://github.com/JMAN730/opendroid/blob/7c5dcd40f465fd8affe6c227c332fba9af80a600/app/src/androidTest/java/com/opendroid/ai/accessibility/ClickTargetingAccuracyInstrumentationTest.kt
 - Mobilerun Manager: https://github.com/droidrun/mobilerun/blob/11dcdebdec9ea99f172dd7e80af7ba1eadbeb6c8/mobilerun/agent/manager/manager_agent.py
 - Mobilerun Executor: https://github.com/droidrun/mobilerun/blob/11dcdebdec9ea99f172dd7e80af7ba1eadbeb6c8/mobilerun/agent/executor/executor_agent.py
+- MobileUse: https://github.com/MadeAgents/mobile-use/tree/babec07fd0e5faa7e7bcc7d3d0ee2320f6b83347
+- Mobilerun Portal AccessibilityService: https://github.com/droidrun/mobilerun-portal/blob/00a77c01e2ee4fcc71889a3992bc1753d64e9ed9/app/src/main/java/com/mobilerun/portal/service/MobilerunAccessibilityService.kt
+- sherpa-onnx Android KWS: https://github.com/k2-fsa/sherpa-onnx/blob/935e5ded3d949a8b557ac44ef4dad03a7d2038e7/android/SherpaOnnxKws/app/src/main/java/com/k2fsa/sherpa/onnx/KeywordSpotter.kt
+- Google AI Edge Gallery: https://github.com/google-ai-edge/gallery/tree/6d09e2ea0823b0868800ef3b5752852715b58b91
+- llama.cpp Android sample: https://github.com/ggml-org/llama.cpp/tree/71efc559a00b236851f6ba00a629d776f2416d2b/examples/llama.android
 - Google ADK Kotlin: https://github.com/google/adk-kotlin/tree/b961c9e4aa50c79dbf4c17d870ab5629424a5e49
 - ADK RoomSessionService: https://github.com/google/adk-kotlin/blob/b961c9e4aa50c79dbf4c17d870ab5629424a5e49/core/src/androidMain/kotlin/com/google/adk/kt/sessions/room/RoomSessionService.kt
 - Llamatik AgentExecutionEngine: https://github.com/llamatik/Llamatik/blob/10f3a99d5f74d727c43b3e1475b8931403e592d2/sdk-agent/src/commonMain/kotlin/com/llamatik/sdk/agent/runtime/AgentExecutionEngine.kt
