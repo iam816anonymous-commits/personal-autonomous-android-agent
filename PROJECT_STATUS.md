@@ -31,7 +31,7 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 
 **Kotlin/JVM core plus initial Android application/integration source tranche; CI build passed, physical device validation pending**
 
-- The repository now contains a Kotlin/JVM core and a first Android application module; the Android build has not yet been validated.
+- The repository contains a Kotlin/JVM core and an Android application module. GitHub Actions run 41612516639 passed core compilation/tests, three Android verifier unit tests and :app:assembleDebug on commit e3ea4db83d33cc127097427dcabc5358de559d3c; no Android source changed after that passing run.
 - Product assumptions, high-level architecture, platform constraints, research, source reuse decisions, safety contracts and phase plans are documented.
 - A source-by-source reuse specification exists, including class-level RETAIN / ADAPT / REWRITE / REJECT decisions and known defects.
 - Hardware capability architecture is documented.
@@ -48,11 +48,11 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 | Phase | Name | Status | Evidence / remaining work |
 |---|---|---|---|
 | 0 | Repository archaeology, research and requirements freeze | **In progress (Argon validation complete; awaiting Owner sign-off)** | Argon Phase 0 deliverables are archived under `ENGINEERING/ARGON/` (`DONOR_BUILD_TEST_MATRIX.md`, `DONOR_SOURCE_PROVENANCE_AND_LICENSE_LEDGER.md`, `DONOR_REVISION_AND_DIFF_REPORT.md`, `INITIAL_TASK_BENCHMARK.md`, `PHASE_0_TECHNICAL_SPIKES.md`, plus the development handoff). Awaiting Owner confirmation of final device matrix/API 27 mandate, first-party donor license declaration, benchmark approval, and Phase 1 start authorization. |
-| 1 | Buildable Android shell and stable contracts | **Prototype source added; build gate open** | Hermes-inspired platform-neutral core plus Android :app module added. Android app shell, AccessibilityService observer/dispatcher/verifier, capability discovery, Room WAL journal, Keystore encryption and WorkManager adapter are source-present. Kotlin/JVM core CI passed previously; Android :app:assembleDebug is now in CI and must be checked on the latest commit. Physical-device tests remain NOT RUN. See `IMPLEMENTATION/KOTLIN_PORT/HERMES_KOTLIN_PORT_REVIEW.md`. |
+| 1 | Buildable Android shell and stable contracts | **Prototype source added; CI build passed; device gate open** | Kotlin/JVM core and API 27-minimum Android :app module compile in CI. Run 41612516639 passed core compile/tests, 3 Android verifier tests and debug APK assembly. No API 27 physical install/smoke test yet. See IMPLEMENTATION/KOTLIN_PORT/HERMES_KOTLIN_PORT_REVIEW.md and IMPLEMENTATION/ANDROID/README.md. |
 | 2 | Accessibility observation bridge | **Initial adapter source added; device validation pending** | User-enabled service, bounded 250-node semantic observer and stale-target checks added under app/; API 27/OEM behavior NOT RUN on physical device. |
 | 3A | Hardware capability discovery and control | **Partial** | Initial capability registry reports accessibility and app-launch availability; torch/vibration/Wi-Fi/Bluetooth hardware adapters are NOT IMPLEMENTED. |
 | 3 | Deterministic device action layer and verification | **Initial accessibility actions added; integration validation pending** | Launch, semantic click and set-text dispatch plus fresh-snapshot postcondition verifier are source-present; action UI approval and physical verification remain incomplete. |
-| 4 | Single-agent orchestration and autonomous execution loop | Not started | Target loop described; no destination implementation. |
+| 4 | Single-agent orchestration and autonomous execution loop | **Platform-neutral core prototype; end-to-end app flow not wired** | Bounded observe-plan-validate-approve-dispatch-observe-verify orchestration exists in :core; Android composition root exists. No complete task-entry/session UI, durable recovery or end-to-end physical run. |
 | 5 | Voice input and command interpretation | Not started | Design/research exists; no destination speech pipeline validated. |
 | 6 | Local model runtime, model catalogue and tool calling | Not started | Candidates researched; no runtime/model selected by physical-device benchmark. |
 | 7 | Memory, skills and user-approved learning | Not started | Design exists; no destination implementation. |
@@ -298,3 +298,13 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 - Key compatibility finding: the inspected Google LiteRT offline voice assistant sample requires minSdk 31 and its sample models occupy approximately 2.81 GB; it is a modern-device reference, not an API 27 baseline.
 - No application source code changed in this research session. No new build or physical-device test was run. The previous successful CI evidence remains run 41612516639 at commit e3ea4db83d33cc127097427dcabc5358de559d3c.
 - Next task: review the research decisions against the current destination source, then implement the durable Room task state machine and crash-recovery reconciliation before expanding hardware or model features.
+
+
+### 2026-11-03 — Research status correction
+
+- Corrected the Android build status: CI run 41612516639 passed :core:compileKotlin, :core:test, :app:testDebugUnitTest (3 tests) and :app:assembleDebug at source commit e3ea4db83d33cc127097427dcabc5358de559d3c. Later app source changes were not made; documentation updates followed.
+- Phase 1 is a buildable prototype with CI passing, not physically accepted. Phase 4 has a platform-neutral orchestrator prototype, but no end-to-end task UI, durable recovery or device acceptance.
+- Research index now links the 2026-11-03 11-repository deep dive. The LiteRT samples snapshot is pinned to e98147beea80ee90f7f74ed975bca9c78667d87c.
+- Exact API 27 screenshot limitation is documented: AccessibilityService.takeScreenshot requires API 30; global screenshot action requires API 28. API 27 should use semantic tree observation, with visual capture only through an explicitly consented MediaProjection flow if needed.
+- No code changes or new tests were performed in this research session.
+- Next engineering task: replace the append-only Room journal with a transactional task/step state machine and implement safe recovery reconciliation before adding more action tools.
