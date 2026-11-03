@@ -40,8 +40,9 @@ The Kotlin tranche in this repository is an independent implementation informed 
 
 This is a source tranche, **not a buildable Android application yet**.
 
-- No Android Gradle project, Gradle wrapper, manifest, application module or CI workflow exists in this branch at this point.
-- Kotlin sources have not been compiled or unit-tested. Mark build/test status **NOT RUN**.
+- A Kotlin/JVM Gradle project and GitHub Actions workflow now compile/test the platform-neutral core. No Android Gradle application plugin/module, wrapper, manifest, application module, Room implementation or device integration exists yet.
+- Kotlin core compilation: **PASS** on GitHub Actions run `41609551659` (commit `199cd7120d42534a642589aa332ce41f366d789f`).
+- Unit tests: **PASS** on the same run; seven test cases are present in `core/src/test/kotlin/com/personalagent/core/AgentCoreTest.kt`.
 - No Room-backed task journal or memory store exists yet.
 - No encryption adapter, Android Keystore integration or FTS implementation exists yet.
 - No Android AccessibilityService, platform capability probe, device action adapter, independent Android verifier, WorkManager adapter or model provider exists yet.
