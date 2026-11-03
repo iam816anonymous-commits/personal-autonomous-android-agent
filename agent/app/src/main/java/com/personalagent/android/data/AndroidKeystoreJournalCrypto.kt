@@ -17,7 +17,7 @@ class AndroidKeystoreJournalCrypto(private val alias: String = "personal-agent-j
         require(iv.size == IV_BYTES)
         return byteArrayOf(VERSION) + iv + encrypted
     }
-    fun decrypt(envelope: ByteArray): ByteArray {
+    override fun decrypt(envelope: ByteArray): ByteArray {
         require(envelope.size > 1 + IV_BYTES && envelope[0] == VERSION)
         val iv = envelope.copyOfRange(1, 1 + IV_BYTES)
         val ciphertext = envelope.copyOfRange(1 + IV_BYTES, envelope.size)
