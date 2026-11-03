@@ -6,11 +6,14 @@ import com.personalagent.android.data.AndroidKeystoreJournalCrypto
 import com.personalagent.android.data.RoomDurableExecutionJournal
 import com.personalagent.android.data.RoomTaskStepJournal
 import com.personalagent.android.data.TaskJournalDatabase
+import com.personalagent.android.rea.AndroidReverseEngineeringController
 
 class AgentApplication : Application() {
     lateinit var journal: RoomTaskStepJournal
         private set
     lateinit var durableJournal: RoomDurableExecutionJournal
+        private set
+    lateinit var reaController: AndroidReverseEngineeringController
         private set
 
     override fun onCreate() {
@@ -22,5 +25,6 @@ class AgentApplication : Application() {
         val crypto = AndroidKeystoreJournalCrypto()
         journal = RoomTaskStepJournal(database.taskStepDao(), crypto)
         durableJournal = RoomDurableExecutionJournal(database, crypto)
+        reaController = AndroidReverseEngineeringController(this)
     }
 }
