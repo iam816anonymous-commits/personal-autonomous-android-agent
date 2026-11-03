@@ -290,7 +290,7 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 ### 2026-11-03 — Expanded GitHub repository research
 
 - Added `RESEARCH/ANDROID_AUTONOMOUS_AGENT_REPOSITORY_DEEP_DIVE_2026-11-03.md`.
-- Inspected 12 repositories at pinned snapshots or default-branch snapshots: OpenDroid, Mobilerun, Llamatik, Hermes, AndroidWorld, Mobile-Agent, Maestro, Appium UiAutomator2 server, OpenATX uiautomator2, LangGraph and Google LiteRT samples.
+- Inspected 17 repositories at pinned snapshots or default-branch snapshots: OpenDroid, Mobilerun, Llamatik, Hermes, AndroidWorld, Mobile-Agent, Maestro, Appium UiAutomator2 server, OpenATX uiautomator2, LangGraph and Google LiteRT samples.
 - Source-level inspection included OpenDroid PlanManager/AgentLoop/PlanValidator/ReEvaluationEngine/AccessibilityNodeTraversal/ActionDispatcher/Room history/model downloader/click-targeting instrumentation tests; Mobilerun Manager/Executor/shared state/tool registry/UI state retry; Llamatik runtime/permission/confirmation/workflow/memory; Hermes loop/approval/SQLite state; AndroidWorld M3A; LiteRT phone tools and offline voice assistant architecture.
 - Recorded repository commit pins and root license observations, and separated direct Android-native code from host/ADB automation, benchmark frameworks, model/runtime examples and conceptual references.
 - Key architecture conclusion: build one durable observe-plan-validate-approve-dispatch-observe-verify loop; persist every step transition; never replay uncertain non-idempotent actions; require unique target grounding and independent postcondition verification.
@@ -308,3 +308,14 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 - Exact API 27 screenshot limitation is documented: AccessibilityService.takeScreenshot requires API 30; global screenshot action requires API 28. API 27 should use semantic tree observation, with visual capture only through an explicitly consented MediaProjection flow if needed.
 - No code changes or new tests were performed in this research session.
 - Next engineering task: replace the append-only Room journal with a transactional task/step state machine and implement safe recovery reconciliation before adding more action tools.
+
+
+### 2026-11-03 — Android, speech and local-inference repository expansion
+
+- Expanded the GitHub deep dive from 12 to 17 repositories: added MobileUse, Mobilerun Portal, Google AI Edge Gallery, sherpa-onnx and llama.cpp, with commit pins and file-level findings.
+- Mobilerun Portal confirms a MediaProjection screenshot path for API 26–29 (user consent required), while AccessibilityService.takeScreenshot is API30. It also demonstrates dispatchGesture, which is API24 but requires android:canPerformGestures=true. The destination manifest does not currently request that capability; gesture dispatch remains NOT IMPLEMENTED.
+- Mobilerun Portal is AGPL-3.0. Treat as reference-only; do not transplant its code without an explicit licensing decision. Its reverse control, auto-accept and streaming features are outside this app's scope.
+- sherpa-onnx provides Android Kotlin/JNI streaming ASR and keyword spotting examples with minSdk21. It is now the highest-priority API27 speech proof-of-concept candidate, subject to model licence, ABI, memory, CPU and accuracy tests.
+- Google AI Edge Gallery sample sets minSdk31; llama.cpp's current Android example sets minSdk33. Neither sample is API27 compatible as shipped. A native runtime's cross-platform core does not prove old Android compatibility.
+- No application source code changed. No build, voice or physical-device test was run in this research pass.
+- Next engineering task remains durable Room task/step state transitions and crash-recovery reconciliation. After that, create isolated POCs for ADK Kotlin cloud-model orchestration and sherpa-onnx push-to-talk ASR before selecting model/runtime dependencies.
