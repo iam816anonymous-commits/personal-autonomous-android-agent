@@ -38,10 +38,11 @@ class AndroidAgentRuntime(
             .register(ToolDescriptor(CapabilityId("accessibility.set_text"), "Set text in a grounded editable node", RiskLevel.MODERATE,
                 setOf(KClassName("set_accessible_text"))))
             .build()
+        val observer = AndroidAccessibilityObserver()
         return AgentOrchestrator(
             planner = planner,
-            observer = AndroidAccessibilityObserver(),
-            dispatcher = AndroidActionDispatcher(),
+            observer = observer,
+            dispatcher = AndroidActionDispatcher(observer),
             verifier = AndroidPostconditionVerifier(),
             registry = registry,
             policy = approvalPolicy,
