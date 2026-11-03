@@ -4,7 +4,7 @@
 **Project:** Personal Autonomous Android Agent  
 **Canonical status file:** This document  
 **Product target:** Personal-use Android agent, installed by sideloading on the owner's devices  
-**Implementation authorization:** **GRANTED FOR PHASED DEVELOPMENT** — the owner instructed development to begin on 2026-11-03. Phase 1 application code remains blocked until the Phase 0 exit gate is evidenced and reviewed; this authorization does not waive any phase, safety, provenance, test or physical-device gate.
+**Implementation authorization:** **LIMITED KOTLIN CORE PROTOTYPE AUTHORIZED** — on 2026-11-03 the owner explicitly requested Hermes-inspired Kotlin implementation. This authorizes the platform-neutral core prototype only. Android application packaging, device adapters, Room persistence and physical-device-dependent features remain gated by the unresolved Phase 0 owner decisions; no safety, provenance, test or device gate is waived.
 
 > **Mandatory session rule:** Before doing any work in this repository, read this file first. Then inspect the current GitHub branch/HEAD and the relevant source files. Do not rely on a previous chat summary as proof of repository state. At the end of every work session, update this file with what changed, evidence, current phase, blockers and the exact next task.
 
@@ -199,7 +199,7 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 ## 6. Current next task
 
 **Active phase:** Phase 0 — Repository archaeology, research and requirements freeze (Argon validation complete; ready for ChatGPT review pass and Owner gate sign-off).  
-**Next task:** Review the five Phase 0 Argon deliverables on branch `phase-0-argon-handoff`, obtain Owner confirmation on the four Owner gate items in `ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §7, and upon approval begin Phase 1 (minimal buildable multi-module Kotlin shell, canonical `:core-contracts`, `:core-policy`, Room `TaskStepJournal`, redacted logger, global stop control, and deterministic CI).
+**Next task:** Add reproducible Kotlin build/test infrastructure for `IMPLEMENTATION/KOTLIN_PORT/`, compile the current source and add deterministic tests. Before Android packaging or hardware-dependent integration, reconcile the TECNO IN6 hardware/RAM identity and close the remaining Phase 0 owner gates.
 
 ## 7. Blockers and unresolved decisions
 
@@ -212,7 +212,7 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 - [x] Local inference CPU/GPU/RAM constraints on `TECNO IN6` (`ARMv8.0-A` Cortex-A53 without `dotprod`/`fp16`; `libOpenCL.so` blocked; Vulkan `1.0.58` verified) resolved (`ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §3, `ADR-008`).
 - [x] Wake-word feasibility under Android/OEM lifecycle constraints resolved (`ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §4, `ADR-009`).
 - [x] Encryption/key-management (`AndroidKeyStore` AES-256-GCM) and backup/restore design resolved (`ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §5, `ADR-010`).
-- [ ] **Owner Gate 4:** Explicit Owner authorization to transition from Phase 0 to Phase 1 application source-code implementation after reviewing Phase 0 evidence.
+- [x] **Owner Gate 4 (limited scope):** Owner explicitly requested Hermes-inspired Kotlin source implementation on 2026-11-03. This authorizes the platform-neutral core prototype only; it does not waive Owner Gates 1–3 or authorize Android packaging/device integration.
 
 ## 8. Session log
 
@@ -226,9 +226,7 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 - The TECNO IN6 RAM/device-variant discrepancy in the Phase 0 spike remains unresolved; no hardware-specific model or memory budget was derived from this prototype.
 - Next: create reproducible Kotlin build/test infrastructure, compile and test the core, then reconcile Phase 0 owner gates before Android integration.
 
-## 9. Session log (historical)
-
-## 8. Session log (historical)
+## Historical session log
 
 ### 2026-11-02 — Documentation control baseline
 
