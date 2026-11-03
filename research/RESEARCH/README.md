@@ -1,6 +1,6 @@
 # Research index
 
-**Project progress and next work item:** [PROJECT_STATUS.md](../PROJECT_STATUS.md). This index catalogs research; it is not the progress tracker.
+**Project progress and next work item:** [PROJECT_STATUS.md](../../PROJECT_STATUS.md). This index catalogs research; it is not the progress tracker.
 
 **Last reviewed:** 2026-11-03
 

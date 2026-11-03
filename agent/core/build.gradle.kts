@@ -2,15 +2,6 @@ plugins {
     kotlin("jvm")
 }
 
-kotlin {
-    jvmToolchain(17)
-    sourceSets {
-        main {
-            kotlin.srcDir("../IMPLEMENTATION/KOTLIN_PORT/src/main/kotlin")
-        }
-    }
-}
-
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 

@@ -23,7 +23,7 @@ android {
 ksp { arg("room.schemaLocation", projectDir.resolve("schemas").absolutePath) }
 
 dependencies {
-    implementation(project(":core"))
+    implementation(project(":agent:core"))
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.activity:activity-ktx:1.9.3")

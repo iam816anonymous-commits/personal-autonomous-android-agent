@@ -1,102 +1,23 @@
 # Personal Autonomous Android Agent
 
-Research-first workspace for a personal, local-first Android agent that understands goals, observes device/app state, plans, acts through permitted device capabilities, verifies outcomes and recovers from failures.
+A Kotlin-native, local-first Android agent with controlled app observation, planning, execution, verification, recovery, REA (Reverse Engineering Agent), reusable skills and declarative self-created tools.
 
-> **Start every work session here:** [PROJECT_STATUS.md](PROJECT_STATUS.md). It is the canonical progress ledger, roadmap pointer, blocker list and session log. Read it before inspecting or changing anything; update it before ending the session.
->
-> **Product target:** personal use and sideloaded installation. Google Play publication is not a requirement.
-> **Status (2026-11-03):** Kotlin/JVM core and initial Android app/integration source are present; Android build and physical-device acceptance are pending.
+## Repository layout
 
-## Product thesis
+- [`agent/`](agent/README.md) — the actual product implementation: Android application, Kotlin execution core, platform adapters and tests.
+- [`research/`](research/README.md) — all research, architecture, design, roadmap, donor audits, benchmarks, licensing and engineering evidence.
+- [`PROJECT_STATUS.md`](PROJECT_STATUS.md) — canonical progress ledger, current phase, verified test evidence and next engineering task.
+- [`.github/workflows/`](.github/workflows/) — CI workflows.
+- Root Gradle files — build orchestration only; implementation modules live under `agent/`.
 
-Build a reliable Android-native assistant—not a chat wrapper—that can:
-- Accept voice/text goals, ultimately including an optional "Hey Jarvis" wake phrase.
-- Observe app/device state through AccessibilityService, supported APIs, intents and user-consented visual capture where technically available.
-- Plan and execute multi-step tasks using bounded atomic actions.
-- Verify each state transition and recover from UI drift, timeouts, app crashes and model errors.
-- Work offline for supported tasks with models selected against measured device resources.
-- Keep memory, history, permissions and data retention inspectable and user-controlled.
+## Build
 
+Gradle modules are `:agent:core` and `:agent:app`.
 
-## Distribution decision
+```bash
+gradle :agent:core:test
+gradle :agent:app:testDebugUnitTest
+gradle :agent:app:assembleDebug
+```
 
-This is a **personal-use project**. We are not designing for Play Store publication. Prioritize capabilities useful in a directly installed app, subject to Android technical limits, user-enabled permissions, app sandboxing and privacy/security constraints.
-
-Google Play policy is retained as reference material only; it is not the primary product constraint. Do not misrepresent the app or bypass Android security protections.
-
-## Non-goals
-
-- Hidden surveillance or silent recording.
-- Bypassing lock screens, authentication or app security boundaries.
-- Unrestricted arbitrary shell/code execution from model output.
-- Claiming success without postcondition verification.
-- Requiring Docker.
-- Requiring cloud connectivity or a large model for basic supported tasks.
-
-## Repository map
-
-- [Project status, roadmap tracking and session log](PROJECT_STATUS.md)
-- [Android application module](app/)
-- [Argon Phase 0 archive (all handoff and evidence documents)](ENGINEERING/ARGON/README.md)
-- [Research index](RESEARCH/README.md)
-- [Master architecture](ARCHITECTURE/MASTER_ARCHITECTURE.md)
-- [Full agent architecture, including REA and controlled self-created tools](DESIGN/FULL_AGENT_ARCHITECTURE.md)
-- [Android platform constraints](RESEARCH/ANDROID_PLATFORM_CONSTRAINTS.md)
-- [Open-source repository audit](RESEARCH/OPEN_SOURCE_REPOSITORY_AUDIT.md)
-- [Source-by-source reuse specification](RESEARCH/SOURCE_BY_SOURCE_REUSE_SPECIFICATION.md)
-- [License audit](RESEARCH/OPEN_SOURCE_LICENSE_AUDIT.md)
-- [Model/inference research](RESEARCH/MODEL_AND_INFERENCE_RESEARCH.md)
-- [Google Play policy reference](RESEARCH/GOOGLE_PLAY_POLICY_RESEARCH.md)
-- [Execution engine](ARCHITECTURE/AGENT_EXECUTION_ENGINE.md)
-- [Safety and approvals](ARCHITECTURE/SAFETY_AND_APPROVALS.md)
-- [Voice and wake-word](ARCHITECTURE/VOICE_AND_WAKE_WORD.md)
-- [Device control](ARCHITECTURE/DEVICE_CONTROL.md)
-- [Hardware capabilities](ARCHITECTURE/HARDWARE_CAPABILITIES.md)
-- [Separate future project: home-security app research (out of scope)](ARCHITECTURE/HOME_SECURITY_AND_REMOTE_ACCESS.md)
-- [Model router](ARCHITECTURE/MODEL_ROUTER.md)
-- [Memory and learning](ARCHITECTURE/MEMORY_AND_LEARNING.md)
-- [Phases](ROADMAP/PHASES.md)
-- [Phase-by-phase implementation and code reuse blueprint](ROADMAP/PHASE_IMPLEMENTATION_BLUEPRINT.md)
-- [Acceptance criteria](ROADMAP/ACCEPTANCE_CRITERIA.md)
-- [Decision log](ARCHITECTURE/DECISION_LOG.md)
-- [Sources](REFERENCES/SOURCES.md)
-
-## Working rules
-
-1. Read [PROJECT_STATUS.md](PROJECT_STATUS.md) before every work session; inspect actual GitHub state rather than trusting chat history.
-2. Follow the canonical phase order and entry/exit gates unless the owner explicitly changes scope.
-3. Date research claims and label evidence as verified, observed, hypothesis or decision.
-4. Inspect exact source code and pinned revisions before adopting libraries or copying code.
-5. Audit licenses for code, assets, models and transitive dependencies before reuse.
-6. Keep orchestration, inference, observation, actuation, memory and skills replaceable.
-7. Prefer Kotlin/Android-native runtime; use Python for research/evaluation.
-8. No Docker dependency; use Windows-native tooling and physical devices.
-9. CI covers compilation, unit tests, lint/static analysis and dependency/license checks. Physical-device behavior is validated separately.
-10. After every work session, update PROJECT_STATUS.md with changes, test evidence, blockers, phase status and the next exact task.
-11. Never claim a test passed if it was not run. Never claim a feature is implemented because it is documented.
-12. Keep Phase 0 evidence gates visible. Explicit owner requests may authorize a scoped implementation tranche, but do not treat that authorization as device acceptance, license clearance or benchmark sign-off.
-
-## REA and self-created tools
-
-The implementation branch adds an app-behavior reverse-engineering subsystem (REA) that studies user-authorized, visible accessibility surfaces and verified interaction probes, then certifies versioned declarative skills. It does not extract private app data or bypass authentication.
-
-The self-tool factory composes only pre-registered native actions using typed schemas, capability checks and risk ceilings. It does not generate or execute arbitrary scripts, shell commands, Kotlin/Java, DEX or native code. Tool persistence and end-user management UI remain follow-up work.
-
-## Current technical risks
-
-- Android background execution and microphone rules vary by OS/target SDK.
-- API 27 is a legacy compatibility target; modern capabilities may be unavailable.
-- Accessibility trees and coordinates can be stale or incomplete; every action needs fresh grounding and verification.
-- Small local models may produce invalid plans/tool calls.
-- Always-on wake-word has battery, lifecycle and privacy implications.
-- OEM battery management may terminate long-running services.
-
-## Current decisions
-
-- Personal/sideloaded deployment is the primary target.
-- Kotlin-native Android runtime is preferred.
-- AccessibilityService is a key candidate for device observation and interaction, to be prototyped on target devices.
-- ADK for Kotlin vs custom orchestration remains open pending a working proof-of-concept.
-- API 27 compatibility is desired but feature parity is not assumed.
-
-See [decision log](ARCHITECTURE/DECISION_LOG.md) and [PROJECT_STATUS.md](PROJECT_STATUS.md).
+Read [PROJECT_STATUS.md](PROJECT_STATUS.md) before continuing implementation. Documentation is not proof of implementation; CI is not proof of physical-device behavior.

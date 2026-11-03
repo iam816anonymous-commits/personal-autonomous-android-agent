@@ -4,4 +4,6 @@ dependencyResolutionManagement {
     repositories { google(); mavenCentral() }
 }
 rootProject.name = "personal-autonomous-android-agent"
-include(":core", ":app")
+include(":agent:core", ":agent:app")
+project(":agent:core").projectDir = file("agent/core")
+project(":agent:app").projectDir = file("agent/app")

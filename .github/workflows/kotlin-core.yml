@@ -22,10 +22,10 @@ jobs:
         with:
           gradle-version: "8.10.2"
       - name: Compile Kotlin core
-        run: gradle :core:compileKotlin
+        run: gradle :agent:core:compileKotlin
       - name: Run unit tests
-        run: gradle :core:test
+        run: gradle :agent:core:test
       - name: Run Android adapter unit tests
-        run: gradle :app:testDebugUnitTest
+        run: gradle :agent:app:testDebugUnitTest
       - name: Assemble API 27 Android application
-        run: gradle :app:assembleDebug
+        run: gradle :agent:app:assembleDebug
