@@ -70,7 +70,6 @@ class SelfToolFactory {
     fun create(definition: GeneratedToolDefinition, context: ToolValidationContext): ToolFactoryResult {
         val errors = mutableListOf<String>()
         if (!context.userApproved) errors += "Tool creation requires explicit user approval"
-        val parameterNames = definition.parameters.map { it.name }.toSet()
         val missingCapabilities = definition.requiredCapabilities - context.approvedCapabilities
         if (missingCapabilities.isNotEmpty()) errors += "Capabilities not approved: ${missingCapabilities.joinToString { it.value }}"
         if (definition.maximumRisk.severity > context.maximumAllowedRisk.severity) errors += "Tool exceeds allowed risk ceiling"
