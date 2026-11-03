@@ -29,7 +29,7 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 
 ### Overall
 
-**Kotlin/JVM core plus initial Android application/integration source tranche; Android build validation pending**
+**Kotlin/JVM core plus initial Android application/integration source tranche; CI build passed, physical device validation pending**
 
 - The repository now contains a Kotlin/JVM core and a first Android application module; the Android build has not yet been validated.
 - Product assumptions, high-level architecture, platform constraints, research, source reuse decisions, safety contracts and phase plans are documented.
@@ -38,7 +38,7 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 - A separate-app home-security research specification is retained for future reference; it is not part of this agent's architecture or implementation plan.
 - A platform-neutral Kotlin core is under `IMPLEMENTATION/KOTLIN_PORT/`; an Android application module is now added under `app/` and depends on `:core`.
 - A Kotlin/JVM Gradle build and seven unit tests now exist. GitHub Actions run `41609551659` passed `:core:compileKotlin` and `:core:test` at commit `199cd7120d42534a642589aa332ce41f366d789f`.
-- Initial Android sources now include the API 27 app shell, manifest and AccessibilityService, bounded semantic observer, typed dispatcher, independent postcondition verifier, capability registry, Room WAL task journal, AES-GCM Android Keystore note encryption and a WorkManager due-signal adapter. These sources are not yet build-verified; no instrumentation or physical-device acceptance run has been performed.
+- Initial Android sources now include the API 27 app shell, manifest and AccessibilityService, bounded semantic observer, typed dispatcher, independent postcondition verifier, capability registry, Room WAL task journal, AES-GCM Android Keystore note encryption and a WorkManager due-signal adapter. These sources compiled in CI and three verifier unit tests passed; no AccessibilityService instrumentation or physical-device acceptance run has been performed.
 - No model/runtime has been selected based on reproducible measurements on the target physical device.
 - Full transitive dependency/license clearance remains open.
 - The implementation authorization checklist in the source reuse specification is not complete.
@@ -285,3 +285,16 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 - Consolidated Argon handoff and five Phase 0 deliverables under ENGINEERING/ARGON/ and added an archive index. Old top-level ENGINEERING copies were removed after copying the source documents.
 - Known limitations: no hardware torch/vibration/Wi-Fi/Bluetooth adapters; no end-user approval screen; no app-wide stop control; no durable scheduler job-state store; no Android instrumentation tests; no crash-recovery reconciliation for in-flight non-idempotent actions; no physical device run.
 - Next: inspect latest GitHub Actions run on this branch, fix Android compile errors, then add app/journal/observer tests before device acceptance.
+
+
+### 2026-11-03 — Expanded GitHub repository research
+
+- Added `RESEARCH/ANDROID_AUTONOMOUS_AGENT_REPOSITORY_DEEP_DIVE_2026-11-03.md`.
+- Inspected 11 repositories at pinned snapshots or default-branch snapshots: OpenDroid, Mobilerun, Llamatik, Hermes, AndroidWorld, Mobile-Agent, Maestro, Appium UiAutomator2 server, OpenATX uiautomator2, LangGraph and Google LiteRT samples.
+- Source-level inspection included OpenDroid PlanManager/AgentLoop/PlanValidator/ReEvaluationEngine/AccessibilityNodeTraversal/ActionDispatcher/Room history/model downloader/click-targeting instrumentation tests; Mobilerun Manager/Executor/shared state/tool registry/UI state retry; Llamatik runtime/permission/confirmation/workflow/memory; Hermes loop/approval/SQLite state; AndroidWorld M3A; LiteRT phone tools and offline voice assistant architecture.
+- Recorded repository commit pins and root license observations, and separated direct Android-native code from host/ADB automation, benchmark frameworks, model/runtime examples and conceptual references.
+- Key architecture conclusion: build one durable observe-plan-validate-approve-dispatch-observe-verify loop; persist every step transition; never replay uncertain non-idempotent actions; require unique target grounding and independent postcondition verification.
+- Critical API 27 finding: AccessibilityService.takeScreenshot is API 30 and global screenshot action is API 28. The API 27 baseline must use semantic accessibility observation and user-consented MediaProjection only if visual capture is required. Cite official API documentation and AOSP restricted screen reading references in the deep dive.
+- Key compatibility finding: the inspected Google LiteRT offline voice assistant sample requires minSdk 31 and its sample models occupy approximately 2.81 GB; it is a modern-device reference, not an API 27 baseline.
+- No application source code changed in this research session. No new build or physical-device test was run. The previous successful CI evidence remains run 41612516639 at commit e3ea4db83d33cc127097427dcabc5358de559d3c.
+- Next task: review the research decisions against the current destination source, then implement the durable Room task state machine and crash-recovery reconciliation before expanding hardware or model features.
