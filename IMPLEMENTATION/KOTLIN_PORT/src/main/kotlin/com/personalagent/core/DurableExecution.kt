@@ -115,4 +115,5 @@ interface DurableExecutionJournal {
     suspend fun transition(taskId: TaskId, actionId: ActionId, next: DispatchState,
                            nowElapsedMillis: Long, note: String? = null): JournalDecision
     suspend fun loadRecoverable(): List<DurableActionRecord>
+    suspend fun reconcileAfterProcessDeath(): List<DurableActionRecord>
 }
