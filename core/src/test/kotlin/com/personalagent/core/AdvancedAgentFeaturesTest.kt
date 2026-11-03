@@ -185,4 +185,40 @@ class AdvancedAgentFeaturesTest {
         assertFalse(model.observedScreens.first().normalizedVisibleLabels.any { it.contains("otp") || it.contains("123456") })
     }
 
+    @Test
+    fun generatedToolRegistryRequiresApprovalAndMonotonicVersions() {
+        val cap = CapabilityId("app.launch")
+        val kind = KClassName("launch_application")
+        val definition = GeneratedToolDefinition(
+            id = "launch-notes",
+            version = 1,
+            description = "Launch notes app",
+            parameters = listOf(ToolParameter("packageName", ToolParameterType.PACKAGE_NAME)),
+            steps = listOf(
+                ToolStepTemplate(
+                    actionKind = kind,
+                    capability = cap,
+                    parameterBindings = mapOf("packageName" to "$"+"packageName"),
+                    risk = RiskLevel.LOW,
+                ),
+            ),
+            requiredCapabilities = setOf(cap),
+            maximumRisk = RiskLevel.LOW,
+            createdFromSkillId = null,
+        )
+        val context = ToolValidationContext(
+            approvedCapabilities = setOf(cap),
+            registeredActionKinds = setOf(kind),
+            registeredActionSchemas = mapOf(kind to mapOf("packageName" to ToolParameterType.PACKAGE_NAME)),
+            maximumAllowedRisk = RiskLevel.LOW,
+            userApproved = true,
+        )
+        val registry = GeneratedToolRegistry()
+        assertIs<ToolFactoryResult.Created>(registry.createAndActivate(definition, context))
+        assertEquals(definition, registry.find(definition.id))
+        assertIs<ToolFactoryResult.Rejected>(registry.createAndActivate(definition, context))
+        assertTrue(registry.revoke(definition.id))
+        assertEquals(null, registry.find(definition.id))
+    }
+
 }
