@@ -12,7 +12,7 @@ This is the first Android framework adapter layer over the platform-neutral :cor
 - Capability discovery for app launch and accessibility observation/mutation.
 - Room task-step journal using WAL. Journal note payloads are encrypted with AES-256-GCM using an Android Keystore key; metadata columns remain queryable.
 - WorkManager unique-work scheduling adapter. The worker emits a due signal only; it does not execute a model-generated action.
-- AndroidAgentRuntime composition root. A missing approval provider defaults to denial.
+- AndroidAgentRuntime composition root and an explicit AlertDialog-backed AndroidApprovalProvider. A missing approval provider defaults to denial; the dialog provider must be invoked from a visible Activity lifecycle scope and is not yet wired into a complete task-entry UI.
 
 ## Safety properties and deliberate restrictions
 
@@ -31,7 +31,7 @@ CI runs :core:compileKotlin, :core:test and :app:assembleDebug. A successful CI 
 ## Not implemented
 
 - Hardware torch, vibration, Wi-Fi, Bluetooth, camera and sensor control adapters.
-- User approval UI, global stop control and runtime diagnostics screen.
+- End-to-end task-entry UI wiring, global stop control and runtime diagnostics screen.
 - Durable scheduler job database and receiver/worker-to-orchestrator handoff.
 - In-flight task recovery and safe process-death reconciliation.
 - Android instrumentation tests and TECNO API 27 smoke tests.
