@@ -13,12 +13,13 @@ class AndroidCapabilityRegistry(private val context: Context) {
         val running = AgentAccessibilityService.current() != null
         val now = SystemClock.elapsedRealtime()
         val click = CapabilityId("accessibility.click")
+        val setText = CapabilityId("accessibility.set_text")
         val observe = CapabilityId("device.observe")
         val launch = CapabilityId("app.launch")
         fun accessibility(id: CapabilityId) = CapabilityStatus(
             id, null, Build.VERSION.SDK_INT >= 21, enabled, running, now,
             if (enabled && running) null else "Enable the agent Accessibility service in Settings")
-        return mapOf(click to accessibility(click), observe to accessibility(observe),
+        return mapOf(click to accessibility(click), setText to accessibility(setText), observe to accessibility(observe),
             launch to CapabilityStatus(launch, null, true, true, true, now))
     }
     private fun isAccessibilityEnabled(): Boolean {
