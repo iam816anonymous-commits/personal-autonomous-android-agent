@@ -71,3 +71,14 @@ One modest local model may handle intent normalization, constrained planning and
 ## Decision gate
 
 No model is chosen until it completes the same reproducible benchmark on a physical target device, with peak memory and action success recorded.
+
+
+## TECNO IN6 Vulkan evidence update — 2026-11-03
+
+The latest device-side APK report confirms ordinary-app Vulkan 1.0.58 compute on the Mali-G71 for vector-add workloads up to 1,048,576 float elements, with zero reported incorrect outputs. This is a useful compute capability signal, but it is **not** evidence that a neural-network inference runtime or any specific model backend works.
+
+OpenCL remains unavailable to the tested ordinary APK because the vendor library is outside its linker namespace. Shell-level OpenCL tests are not representative of a normal sideloaded application.
+
+Do not select Vulkan as the model runtime until a small neural-network proof-of-concept demonstrates supported operators, numerical correctness, model load success, peak process memory, latency and thermal stability. The source report also identifies a command-buffer one-time-submit reuse issue; repeated workload timings remain provisional pending correction and rerun.
+
+Source: [TECNO IN6 GPUProbe APK validation report](https://github.com/iam816anonymous-commits/tecno-os/blob/in6-linux-bringup-infrastructure-4378631429758063630/docs/hardware/gpuprobe-apk-validation-2026-11-02.md).
