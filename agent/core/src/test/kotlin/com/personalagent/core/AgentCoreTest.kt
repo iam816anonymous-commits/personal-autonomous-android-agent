@@ -34,6 +34,28 @@ class AgentCoreTest {
         }
     }
 
+    private class FakeTaskSessionJournal : TaskSessionJournal {
+        private val records = linkedMapOf<TaskId, TaskSessionRecord>()
+        override suspend fun create(record: TaskSessionRecord): Boolean {
+            if (record.taskId in records || record.state != TaskSessionState.CREATED) return false
+            records[record.taskId] = record
+            return true
+        }
+        override suspend fun transition(
+            taskId: TaskId, next: TaskSessionState, nowEpochMillis: Long, reason: String?,
+        ): TaskSessionDecision {
+            val current = records[taskId] ?: return TaskSessionDecision.Reject("missing")
+            val decision = TaskSessionProtocol.transition(current, next, nowEpochMillis, reason)
+            if (decision is TaskSessionDecision.Accept) records[taskId] = decision.record
+            return decision
+        }
+        override suspend fun get(taskId: TaskId) = records[taskId]
+        override suspend fun loadActive() = records.values.filter {
+            it.state !in setOf(TaskSessionState.COMPLETED, TaskSessionState.FAILED, TaskSessionState.CANCELLED)
+        }
+        override suspend fun reconcileAfterProcessRestart(nowEpochMillis: Long) = records.values.toList()
+    }
+
     private fun usable(id: CapabilityId) = CapabilityStatus(
         id = id,
         hardwarePresent = true,
@@ -182,6 +204,8 @@ class AgentCoreTest {
                 override suspend fun append(record: TaskStepRecord) { records += record }
             },
             durableJournal = FakeDurableJournal(),
+            taskSessions = FakeTaskSessionJournal(),
+            epochClock = EpochClock { 100 },
             clock = clock,
         )
 
@@ -218,6 +242,8 @@ class AgentCoreTest {
                 override suspend fun append(record: TaskStepRecord) = Unit
             },
             durableJournal = FakeDurableJournal(),
+            taskSessions = FakeTaskSessionJournal(),
+            epochClock = EpochClock { 100 },
             clock = clock,
         ).run(TaskId("task-2"), "Open notes", mapOf(capability to usable(capability)))
         assertEquals(TaskState.RECOVERY_REQUIRED, outcome.state)
