@@ -21,6 +21,8 @@ For this personal sideloaded agent, AccessibilityService is a primary candidate 
 - Provide visible service status, pause/stop and emergency kill switch.
 - Take fresh UI snapshots before selecting targets.
 - Treat node IDs and coordinates as snapshot-local and stale after transitions.
+- Bind every mutating accessibility target to a short-lived snapshot lease. Before click/text dispatch, re-observe the foreground tree and require the same package and semantic fingerprint; reject expired, incomplete, evicted or changed snapshots. Never treat a dispatch-time node lookup alone as proof that the original screen is still active.
+- Node identifiers include semantic role and visible non-secret labels; password contents/descriptions must not contribute to target identifiers.
 - Re-observe after each action and verify expected postcondition.
 - Redact sensitive UI fields before model input/logging.
 - Never use the service to bypass authentication, steal secrets or evade app security controls.

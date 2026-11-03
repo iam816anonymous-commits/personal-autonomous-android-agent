@@ -29,7 +29,7 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 
 ### Overall
 
-**Kotlin/JVM core plus Android integration on main; first durable task-session persistence tranche on feature branch; CI/device validation pending**
+**Durable task-session lifecycle merged; Phase 2 snapshot-grounding hardening in progress; physical-device validation remains open**
 
 - The repository contains executable modules under `agent/core/` and `agent/app/`. GitHub Actions run 41612516639 is historical baseline evidence for the earlier source state; subsequent Android source changes were made and require their own CI/device validation.
 - Product assumptions, high-level architecture, platform constraints, research, source reuse decisions, safety contracts and phase plans are documented.
@@ -48,10 +48,10 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 | Phase | Name | Status | Evidence / remaining work |
 |---|---|---|---|
 | 0 | Repository archaeology, research and requirements freeze | **In progress (Argon validation complete; awaiting Owner sign-off)** | Argon Phase 0 deliverables are archived under `research/ENGINEERING/ARGON/` (`DONOR_BUILD_TEST_MATRIX.md`, `DONOR_SOURCE_PROVENANCE_AND_LICENSE_LEDGER.md`, `DONOR_REVISION_AND_DIFF_REPORT.md`, `INITIAL_TASK_BENCHMARK.md`, `PHASE_0_TECHNICAL_SPIKES.md`, plus the development handoff). Awaiting Owner confirmation of final device matrix/API 27 mandate, first-party donor license declaration, benchmark approval, and Phase 1 start authorization. |
-| 1 | Buildable Android shell and stable contracts | **Prototype plus durable task-session journal added; current branch CI pending; device gate open** | Added a versioned task-session state protocol, Room `task_sessions` table (schema migration 2→3), AES-GCM encrypted goal/reason fields, and startup reconciliation of interrupted task/action records. Four core lifecycle tests added. The orchestrator now creates and transitions durable sessions, persists approval boundaries, records terminal outcomes, and marks interrupted dispatch cancellation as RECOVERY_REQUIRED. Task-entry UI is not yet wired. No Room migration instrumentation test or API 27 physical install/smoke test yet. |
-| 2 | Accessibility observation bridge | **Initial adapter source added; device validation pending** | User-enabled service, bounded 250-node semantic observer and stale-target checks added under app/; API 27/OEM behavior NOT RUN on physical device. |
+| 1 | Buildable Android shell and stable contracts | **Durable task-session journal and orchestrator integration merged; device gate open** | Room `task_sessions` schema v3, migration 2→3, AES-GCM encrypted goal/reason fields, startup reconciliation, and orchestrator lifecycle integration are merged. GitHub Actions run 41648745101 passed core compile/tests, Android adapter tests and debug APK assembly on the merge commit. Startup recovery is exposed through `AgentApplication.awaitStartupRecovery()`; future task-entry code must await it. Task-entry UI, Room migration instrumentation coverage and API 27 physical install/smoke test remain open. |
+| 2 | Accessibility observation bridge | **Initial adapter plus fresh-screen snapshot leases added; branch CI/device validation pending** | Added a bounded 16-entry/10-second semantic snapshot lease registry. Click and set-text dispatch now re-observe the foreground tree and reject expired, incomplete, evicted or changed screens. Node IDs bind semantic role and visible non-secret labels without hashing password contents. Four JVM lease tests added. API 27/OEM behavior NOT RUN on physical device. |
 | 3A | Hardware capability discovery and control | **Partial** | Initial capability registry reports accessibility and app-launch availability; torch/vibration/Wi-Fi/Bluetooth hardware adapters are NOT IMPLEMENTED. |
-| 3 | Deterministic device action layer and verification | **Initial accessibility actions added; integration validation pending** | Launch, semantic click and set-text dispatch plus fresh-snapshot postcondition verifier are source-present; action UI approval and physical verification remain incomplete. |
+| 3 | Deterministic device action layer and verification | **Initial accessibility actions with stale-screen rejection added; integration validation pending** | Launch, semantic click and set-text dispatch plus independent postcondition verifier are source-present. Click/text now require a matching live snapshot lease. Explicit action-approval UI and physical verification remain incomplete. |
 | 4 | Single-agent orchestration and autonomous execution loop | **Platform-neutral core prototype; end-to-end app flow not wired** | Bounded observe-plan-validate-approve-dispatch-observe-verify orchestration exists in :agent:core; Android composition root exists. No complete task-entry/session UI, durable recovery or end-to-end physical run. |
 | 5 | Voice input and command interpretation | Not started | Design/research exists; no destination speech pipeline validated. |
 | 6 | Local model runtime, model catalogue and tool calling | Not started | Candidates researched; no runtime/model selected by physical-device benchmark. |
@@ -408,3 +408,16 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 - Not yet implemented: task-entry/execution UI, Room migration instrumentation tests, mandatory call-site enforcement of the startup-recovery barrier, and physical-device validation.
 - Validation: GitHub Actions run for the latest feature-branch commit is pending at the time of this entry; do not treat source creation as a passing build.
 - Next exact task: inspect and fix the feature-branch CI result; then integrate task-session transitions into the orchestrator and add persistence/migration tests before moving to the next dependent stage.
+
+
+### 2026-11-03 — Phase 2: fresh snapshot grounding for mutations
+
+- Created branch `feature/phase-2-fresh-snapshot-grounding` from the merged Stage 1 baseline.
+- Added platform-neutral `SnapshotLeaseRegistry`: leases are bounded to 16 entries and 10 seconds, require complete snapshots, and compare the current semantic fingerprint and foreground package with the snapshot that originally grounded the target.
+- Wired AndroidAccessibilityObserver to remember complete redacted snapshots and re-observe before any accessibility click or text mutation. AndroidActionDispatcher rejects expired, evicted, incomplete or semantically changed screens before obtaining the target node.
+- Shared one observer instance between the Android orchestrator and dispatcher so the lease used for planning is the lease checked at dispatch.
+- Strengthened node IDs with view identity, role flags and non-secret visible labels. Password contents and descriptions are deliberately excluded from the node identity digest.
+- Added four core tests: equivalent fresh screen accepted, changed screen/package rejected, expired/missing/incomplete lease rejected, and bounded-cache eviction.
+- Updated DEVICE_CONTROL.md with the new grounding invariant.
+- Validation: branch CI pending at the time of this entry; physical API 27/OEM test NOT RUN. No automated UI dispatch instrumentation test has been run.
+- Next exact task: verify CI, then add an Android instrumentation/manual-device acceptance path for observer/dispatcher behavior. Do not add gesture/coordinate fallbacks until semantic targeting is proven on the physical device.

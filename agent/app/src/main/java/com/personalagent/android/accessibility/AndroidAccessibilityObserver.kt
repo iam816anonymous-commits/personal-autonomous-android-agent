@@ -8,7 +8,15 @@ import java.util.UUID
 class AndroidAccessibilityObserver(
     private val serviceProvider: () -> AgentAccessibilityService? = AgentAccessibilityService::current,
 ) : DeviceObserver {
+    private val snapshotLeases = SnapshotLeaseRegistry()
+
     override suspend fun observe(): DeviceSnapshot = observeNow()
+
+    /** Re-observes the foreground tree and verifies that the leased semantic screen is unchanged. */
+    fun isSnapshotCurrent(expectedSnapshotId: SnapshotId): Boolean {
+        val current = runCatching { observeNow() }.getOrNull() ?: return false
+        return snapshotLeases.matches(expectedSnapshotId, current, SystemClock.elapsedRealtime())
+    }
 
     /** Bounded synchronous snapshot for the AccessibilityService event worker. */
     fun observeNow(): DeviceSnapshot {
@@ -19,13 +27,15 @@ class AndroidAccessibilityObserver(
         val nodes = ArrayList<UiNodeSnapshot>(MAX_NODES)
         traverse(root, nodes)
         if (nodes.isEmpty()) error("Active window exposed no semantic nodes; refusing opaque-window actions")
-        return DeviceSnapshot(
+        val snapshot = DeviceSnapshot(
             id = SnapshotId(UUID.randomUUID().toString()),
             capturedAtElapsedMillis = SystemClock.elapsedRealtime(),
             foregroundPackage = nodes.first().packageName,
             nodes = nodes, complete = nodes.size < MAX_NODES,
             source = EvidenceSource.ACCESSIBILITY_TREE,
         ).redacted()
+        snapshotLeases.remember(snapshot)
+        return snapshot
     }
     private fun traverse(root: AccessibilityNodeInfo, out: MutableList<UiNodeSnapshot>) {
         val stack = ArrayDeque<AccessibilityNodeInfo>()
@@ -37,11 +47,19 @@ class AndroidAccessibilityObserver(
                     val rect = android.graphics.Rect().also { node.getBoundsInScreen(it) }
                     val pkg = node.packageName?.toString() ?: continue
                     val text = node.text?.toString()
+                    val description = node.contentDescription?.toString()
+                    val password = node.isPassword
                     val viewId = node.viewIdResourceName
-                    val stable = digest(pkg + "|" + viewId + "|" + node.className + "|" + text + "|" + rect)
+                    // Never incorporate password contents or descriptions into a target identifier.
+                    val stable = digest(
+                        pkg + "|" + viewId + "|" + node.className + "|" +
+                            (if (password) "" else text.orEmpty()) + "|" +
+                            (if (password) "" else description.orEmpty()) + "|" +
+                            node.isClickable + "|" + node.isEditable + "|" + password + "|" + rect,
+                    )
                     out += UiNodeSnapshot(stable, text?.take(500),
-                        node.contentDescription?.toString()?.take(500), viewId, pkg,
-                        node.isClickable, node.isEditable, node.isPassword,
+                        description?.take(500), viewId, pkg,
+                        node.isClickable, node.isEditable, password,
                         ScreenBounds(rect.left, rect.top, rect.right, rect.bottom))
                     for (i in node.childCount - 1 downTo 0) node.getChild(i)?.let(stack::add)
                 } finally { node.recycle() }

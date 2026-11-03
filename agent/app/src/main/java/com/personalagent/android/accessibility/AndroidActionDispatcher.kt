@@ -8,6 +8,7 @@ import kotlinx.coroutines.withContext
 import java.security.MessageDigest
 
 class AndroidActionDispatcher(
+    private val observer: AndroidAccessibilityObserver = AndroidAccessibilityObserver(),
     private val serviceProvider: () -> AgentAccessibilityService? = AgentAccessibilityService::current,
 ) : AgentActionDispatcher {
     override suspend fun dispatch(action: AgentAction): ActionExecutionResult = withContext(Dispatchers.Main) {
@@ -27,6 +28,9 @@ class AndroidActionDispatcher(
         return ActionExecutionResult.Dispatched("Launch intent submitted; foreground state must be verified")
     }
     private fun click(action: ClickAccessibleNode): ActionExecutionResult {
+        if (!observer.isSnapshotCurrent(action.snapshotId)) {
+            return ActionExecutionResult.Rejected("Screen changed or snapshot lease expired; observe again before clicking")
+        }
         val service = serviceProvider() ?: return ActionExecutionResult.Rejected("Accessibility service disabled")
         val active = service.rootInActiveWindow ?: return ActionExecutionResult.Rejected("No active root")
         val root = AccessibilityNodeInfo.obtain(active); active.recycle()
@@ -43,6 +47,9 @@ class AndroidActionDispatcher(
         } finally { root.recycle() }
     }
     private fun setText(action: SetAccessibleText): ActionExecutionResult {
+        if (!observer.isSnapshotCurrent(action.snapshotId)) {
+            return ActionExecutionResult.Rejected("Screen changed or snapshot lease expired; observe again before entering text")
+        }
         val service = serviceProvider() ?: return ActionExecutionResult.Rejected("Accessibility service disabled")
         val active = service.rootInActiveWindow ?: return ActionExecutionResult.Rejected("No active root")
         val root = AccessibilityNodeInfo.obtain(active); active.recycle()
@@ -67,7 +74,13 @@ class AndroidActionDispatcher(
                 val node = stack.removeLast()
                 val rect = android.graphics.Rect().also { node.getBoundsInScreen(it) }
                 val pkg = node.packageName?.toString().orEmpty()
-                val value = digest(pkg + "|" + node.viewIdResourceName + "|" + node.className + "|" + node.text + "|" + rect)
+                val password = node.isPassword
+                val value = digest(
+                    pkg + "|" + node.viewIdResourceName + "|" + node.className + "|" +
+                        (if (password) "" else node.text?.toString().orEmpty()) + "|" +
+                        (if (password) "" else node.contentDescription?.toString().orEmpty()) + "|" +
+                        node.isClickable + "|" + node.isEditable + "|" + password + "|" + rect,
+                )
                 if (value == expected) {
                     stack.forEach { it.recycle() }; stack.clear(); return node
                 }
