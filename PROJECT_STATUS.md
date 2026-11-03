@@ -319,3 +319,12 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 - Google AI Edge Gallery sample sets minSdk31; llama.cpp's current Android example sets minSdk33. Neither sample is API27 compatible as shipped. A native runtime's cross-platform core does not prove old Android compatibility.
 - No application source code changed. No build, voice or physical-device test was run in this research pass.
 - Next engineering task remains durable Room task/step state transitions and crash-recovery reconciliation. After that, create isolated POCs for ADK Kotlin cloud-model orchestration and sherpa-onnx push-to-talk ASR before selecting model/runtime dependencies.
+
+
+### 2026-11-03 — Full agent architecture designed
+
+- Added `DESIGN/FULL_AGENT_ARCHITECTURE.md` as the integrated product and engineering architecture baseline.
+- Design covers product behavior, component/module boundaries, single authoritative control loop, typed contracts, durable task state machine, crash recovery, model routing, ADK Kotlin evaluation boundary, capability/permission model, risk and approval, accessibility/API 27 constraints, hardware adapters, speech, memory, declarative skills, scheduler, Room schema, privacy/security, model artifact lifecycle, evaluation corpus, release gates and phased implementation backlog.
+- Architecture is based on the 17-repository deep dive and the existing API contracts, data model, performance budgets and test strategy. It does not claim the design is implemented.
+- No application source code changed and no build or device tests were run in this design session.
+- Immediate implementation priority remains: transactional Room task/step/action journal, startup recovery and uncertain-dispatch reconciliation, exact-target guard tests, then explicit approval UI.
