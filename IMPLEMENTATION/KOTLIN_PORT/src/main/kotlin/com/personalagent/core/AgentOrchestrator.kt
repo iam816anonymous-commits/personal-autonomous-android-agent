@@ -81,7 +81,11 @@ class AgentOrchestrator(
                         return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, "Action is not registered for this capability")
                     }
 
-                    if (action.risk.severity > descriptor.riskCeiling.severity) {\n                        return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, "Action exceeds the registered tool risk ceiling")\n                    }\n\n                    val initialDecision = policy.evaluate(action, PolicyContext(capabilityStatuses, snapshot = snapshot))
+                    if (action.risk.severity > descriptor.riskCeiling.severity) {
+                        return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, "Action exceeds the registered tool risk ceiling")
+                    }
+
+                    val initialDecision = policy.evaluate(action, PolicyContext(capabilityStatuses, snapshot = snapshot))
                     val approval = when (initialDecision) {
                         PolicyDecision.Allowed -> null
                         is PolicyDecision.Denied -> return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, initialDecision.reason)
@@ -130,7 +134,9 @@ class AgentOrchestrator(
                 }
                 TaskOutcome(taskId, TaskState.FAILED, verifiedCount, "Maximum action count reached")
             }
-        } catch (timeout: TimeoutCancellationException) {\n            TaskOutcome(taskId, TaskState.RECOVERY_REQUIRED, verifiedCount, "Execution time budget expired; observe device state before retrying")\n        } catch (cancelled: CancellationException) {
+        } catch (timeout: TimeoutCancellationException) {
+            TaskOutcome(taskId, TaskState.RECOVERY_REQUIRED, verifiedCount, "Execution time budget expired; observe device state before retrying")
+        } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {
             TaskOutcome(taskId, TaskState.FAILED, verifiedCount, failure.message ?: "Execution failed")
