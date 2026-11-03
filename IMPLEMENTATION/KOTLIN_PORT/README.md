@@ -19,7 +19,7 @@ Hermes source inspected: `NousResearch/hermes-agent`, branch `main`, inspected 2
 
 ## Deliberate limitations
 
-This is a platform-neutral core tranche, not yet a complete Android application. It contains no Android API calls, Room database implementation, AccessibilityService, model SDK, WorkManager adapter, Gradle build, or physical-device proof. Those belong in the corresponding Android integration phases and must not be represented as implemented.
+This is a platform-neutral Kotlin core tranche, not yet a complete Android application. It contains no Android API calls, Room database implementation, AccessibilityService, model SDK, WorkManager adapter or physical-device proof. A Kotlin/JVM Gradle build and GitHub Actions compile/test workflow now validate the core independently of Android. Those belong in the corresponding Android integration phases and must not be represented as implemented.
 
 The initial core is dependency-free Kotlin. Android-specific implementations will be injected behind interfaces. All model output remains untrusted input and must be decoded into these closed types before dispatch.
 
