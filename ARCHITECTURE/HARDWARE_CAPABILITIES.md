@@ -158,3 +158,20 @@ For each physical device, record model, build fingerprint, Android/API, ABI and 
 - UsbManager: https://developer.android.com/reference/android/hardware/usb/UsbManager
 - Location permissions: https://developer.android.com/develop/sensors-and-location/location/permissions
 - Audio capture: https://developer.android.com/media/platform/mediarecorder
+
+
+## TECNO IN6 / H633 GPU evidence update — 2026-11-03
+
+A newer device-side GPUProbe report was added to the `tecno-os` repository at commit `d2aeac357141e75b601a935869abb8944ad0d41d` (four commits after the previously pinned hardware reference). Source: [GPUProbe APK validation report](https://github.com/iam816anonymous-commits/tecno-os/blob/in6-linux-bringup-infrastructure-4378631429758063630/docs/hardware/gpuprobe-apk-validation-2026-11-02.md).
+
+**Confirmed in an ordinary API 27 APK:**
+- Device: TECNO IN6 / H633, Android 8.1.0 / API 27, Mali-G71, Vulkan 1.0.58.
+- Vulkan compute vector-add workloads up to 1,048,576 float elements completed with zero reported incorrect outputs.
+- Vulkan reports a 2,048 MiB memory heap, but this is not dedicated VRAM or a guaranteed per-app allocation budget.
+- APK-level OpenCL loading failed because `libOpenCL.so` was unavailable in the app linker namespace. Earlier shell-level OpenCL success does not make OpenCL available to an ordinary app.
+
+**Not established:** neural-network inference support, runtime/operator compatibility, quantized model execution, AI inference speed, sustained GPU throughput, GPU temperature/utilization or a stable memory budget.
+
+**Evidence caveat:** the GPUProbe source appears to reuse a command buffer recorded with `VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT`. The report itself flags this contract conflict. Treat repeated-dispatch stability and timing as provisional until the command-buffer lifecycle is corrected and rerun.
+
+**Engineering implication:** Vulkan compute is a viable experimental path for a small proof-of-concept, not a selected inference backend. Do not mark GPU/NPU AI acceleration as supported based on vector-add alone. A candidate runtime must pass ordinary-APK correctness, operator coverage, peak PSS/RSS, latency, thermal and long-run stability tests.

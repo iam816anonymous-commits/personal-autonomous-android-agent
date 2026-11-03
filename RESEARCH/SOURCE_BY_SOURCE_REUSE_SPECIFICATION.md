@@ -1,6 +1,6 @@
 # Source-by-Source Reuse Specification
 
-**Status:** Research specification — implementation not authorized  
+**Status:** Research specification — staged development authorized; donor transplantation remains gated on Phase 0 exit criteria  
 **Date:** 2026-11-02  
 **Destination:** iam816anonymous-commits/personal-autonomous-android-agent
 
@@ -8,7 +8,7 @@
 
 This document turns the source audit into actionable decisions for the Personal Autonomous Android Agent. It identifies exact classes, files and design documents to retain, adapt, rewrite or reject.
 
-This is a specification only. It does not authorize code integration, application implementation, or a repository-wide merge.
+This remains a specification, not permission to transplant donor code immediately. The owner authorized phased development on 2026-11-03; code integration and destination app implementation remain blocked until the Phase 0 exit criteria in `PROJECT_STATUS.md` are evidenced and reviewed. No repository-wide merge is authorized.
 
 ### Decision labels
 
@@ -41,9 +41,9 @@ Decisions are tied to these branch heads. Re-check each branch and file before i
 | [mobile_agent](https://github.com/iam816anonymous-commits/mobile_agent) | android-local-agent-os-base-65071498209142568 | 863723f7aa4b42137ff4ce07e26e541e402ff5a8 | Modular Android-agent reference |
 | [skill-agent](https://github.com/iam816anonymous-commits/skill-agent) | phase-0-specifications-14452037546145599308 | 86cfa6960b1341ed53b987f5a50b1c623ec18ad4 | Security and skill specification |
 | [agent-1](https://github.com/iam816anonymous-commits/agent-1) | jules-10149456198484707000-5b5421da | 6d0c3002fc4c716dea2ffcba31339f0de79fd087 | Domain/evaluation/provenance reference |
-| [tecno-os](https://github.com/iam816anonymous-commits/tecno-os) | in6-linux-bringup-infrastructure-4378631429758063630 | c8a23e359de5b30297ca731f713b89077e056cfc | Device hardware reference only |
+| [tecno-os](https://github.com/iam816anonymous-commits/tecno-os) | in6-linux-bringup-infrastructure-4378631429758063630 | d2aeac357141e75b601a935869abb8944ad0d41d | Device hardware reference only |
 
-Destination repository snapshot: 8a0a353f74bb9485a675983e84f28ecb473d70b9.
+Destination repository snapshot: 8a0a353f74bb9485a675983e84f28ecb473d70b9.\n\nThe tecno-os reference was revalidated on 2026-11-03 and advanced four commits beyond the prior pin. The current reference pin is updated to the branch head above; the new GPUProbe report is evidence only and its command-buffer lifecycle caveat must be retained.
 
 ### Licence and provenance gate
 

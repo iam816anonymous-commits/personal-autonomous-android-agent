@@ -1,10 +1,10 @@
 # Project Status and Operating Log
 
-**Last updated:** 2026-11-02  
+**Last updated:** 2026-11-03  
 **Project:** Personal Autonomous Android Agent  
 **Canonical status file:** This document  
 **Product target:** Personal-use Android agent, installed by sideloading on the owner's devices  
-**Implementation authorization:** **NOT GRANTED** — documentation/research maintenance is authorized; app source-code implementation remains gated pending explicit approval.
+**Implementation authorization:** **GRANTED FOR PHASED DEVELOPMENT** — the owner instructed development to begin on 2026-11-03. Phase 1 application code remains blocked until the Phase 0 exit gate is evidenced and reviewed; this authorization does not waive any phase, safety, provenance, test or physical-device gate.
 
 > **Mandatory session rule:** Before doing any work in this repository, read this file first. Then inspect the current GitHub branch/HEAD and the relevant source files. Do not rely on a previous chat summary as proof of repository state. At the end of every work session, update this file with what changed, evidence, current phase, blockers and the exact next task.
 
@@ -192,7 +192,7 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 ## 6. Current next task
 
 **Active phase:** Phase 0 — Repository archaeology, research and requirements freeze.  
-**Next task:** Close the remaining Phase 0 evidence gaps before any app implementation.
+**Next task:** Execute the Gemini Argon Phase 0 donor-validation handoff in `ENGINEERING/ARGON_DEVELOPMENT_HANDOFF.md`, close the remaining evidence gaps, and review the Phase 0 exit gate before Phase 1 implementation.
 
 Task sequence:
 1. Confirm the exact target physical devices (model, Android version/API, ABI, available storage and memory) and classify API 27 as required or best-effort.
@@ -234,3 +234,23 @@ Task sequence:
 - Documentation commits for the new workstream include `c4731c3`, `baa48ee`, `e80cc05`, `720e7a2`, `378e4bd`, `3b43a67`, `624314f`, `ab3a099`, `734aa8b`, `375d131`, `73d1586`, `bc70a45`, `903027f`, `3747edf`, `ebd2c91` and `e6fd937`.
 - No application code, dependencies, build configuration, CI or physical-device tests changed.
 - Next: close the core agent's Phase 0 evidence gaps. Do not spend this project's Phase 0 effort on camera uptime, face recognition or remote home monitoring.
+
+
+### 2026-11-03 — Gemini Argon development handoff and repository revalidation
+
+- The owner instructed that development should begin. Recorded authorization for phased development; Phase 1 source implementation remains blocked until Phase 0 exit evidence is complete and reviewed. No phase gate was waived.
+- Re-read this status file first, then inspected the current `main` tree and HEAD. Current destination `main` HEAD is `5b86207998c66d106a93ae551101e233af090701`; the repository remains documentation-only with no destination Android application source.
+- The latest destination commit status is pending with zero reported status checks. This is not a green CI result.
+- Revalidated donor branch heads. `agent-created-by-gemini`, `mobile_agent`, `skill-agent` and `agent-1` still match the recorded pins. `tecno-os` advanced four commits to `d2aeac357141e75b601a935869abb8944ad0d41d`; the newly added GPU APK validation report must be reviewed and reconciled.
+- Observed current donor CI evidence: `agent-created-by-gemini` latest visible run for its pinned commit succeeded, but its workflow makes release build non-blocking and does not establish physical-device behavior. `mobile_agent` has no recent Actions runs returned. `agent-1` latest visible run for its pinned commit failed. `skill-agent` is specification-only.
+- Created `ENGINEERING/ARGON_DEVELOPMENT_HANDOFF.md` on branch `phase-0-argon-handoff`, assigning Argon clean-checkout builds/tests, donor provenance/licence analysis, benchmark scenarios and technical spikes; assigning ChatGPT architecture/evidence reconciliation, safety review, integration control and phase-gate verification.
+- No destination app source, Gradle configuration, dependency, CI workflow or physical-device test was added or changed. No donor code was transplanted.\n- Reviewed the newer TECNO IN6 GPUProbe report. Updated `ARCHITECTURE/HARDWARE_CAPABILITIES.md` and `RESEARCH/MODEL_AND_INFERENCE_RESEARCH.md` with the verified ordinary-APK Vulkan vector-add result and explicit limitations: no neural-network runtime is proven; APK OpenCL loading fails; repeated-dispatch evidence remains provisional due to a one-time-submit command-buffer reuse issue. Updated the tecno-os reference pin in the reuse specification to its current branch head.
+- Next: execute the Argon handoff; confirm exact target-device matrix with the owner; inspect the newer `tecno-os` GPU report; complete donor clean-build/test/licence evidence and benchmark before Phase 1.
+
+
+### Owner clarification — primary target device (2026-11-03)
+
+- The owner confirmed the newer 16 GB RAM phone is not the main target. The primary device is TECNO Camon i Click / IN6 / H633, Android 8.1.0 / API 27. Do not block progress on the newer phone model.
+- Treat API 27 as the primary compatibility baseline. Newer Android support is additive and must not compromise API 27.
+- Product objective is maximum legitimate user-authorized device control through ordinary app APIs, runtime permissions and explicitly enabled system services. No root-only, privileged, private-API or security-bypass promises.
+- Argon handoff section 9 updated with this target decision and its engineering consequences.
