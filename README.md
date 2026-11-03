@@ -40,6 +40,7 @@ Google Play policy is retained as reference material only; it is not the primary
 - [Argon Phase 0 archive (all handoff and evidence documents)](ENGINEERING/ARGON/README.md)
 - [Research index](RESEARCH/README.md)
 - [Master architecture](ARCHITECTURE/MASTER_ARCHITECTURE.md)
+- [Full agent architecture, including REA and controlled self-created tools](DESIGN/FULL_AGENT_ARCHITECTURE.md)
 - [Android platform constraints](RESEARCH/ANDROID_PLATFORM_CONSTRAINTS.md)
 - [Open-source repository audit](RESEARCH/OPEN_SOURCE_REPOSITORY_AUDIT.md)
 - [Source-by-source reuse specification](RESEARCH/SOURCE_BY_SOURCE_REUSE_SPECIFICATION.md)
@@ -74,6 +75,12 @@ Google Play policy is retained as reference material only; it is not the primary
 10. After every work session, update PROJECT_STATUS.md with changes, test evidence, blockers, phase status and the next exact task.
 11. Never claim a test passed if it was not run. Never claim a feature is implemented because it is documented.
 12. Keep Phase 0 evidence gates visible. Explicit owner requests may authorize a scoped implementation tranche, but do not treat that authorization as device acceptance, license clearance or benchmark sign-off.
+
+## REA and self-created tools
+
+The implementation branch adds an app-behavior reverse-engineering subsystem (REA) that studies user-authorized, visible accessibility surfaces and verified interaction probes, then certifies versioned declarative skills. It does not extract private app data or bypass authentication.
+
+The self-tool factory composes only pre-registered native actions using typed schemas, capability checks and risk ceilings. It does not generate or execute arbitrary scripts, shell commands, Kotlin/Java, DEX or native code. Tool persistence and end-user management UI remain follow-up work.
 
 ## Current technical risks
 

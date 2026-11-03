@@ -8,6 +8,32 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class AgentCoreTest {
+    private class FakeDurableJournal : DurableExecutionJournal {
+        private val records = linkedMapOf<Pair<TaskId, ActionId>, DurableActionRecord>()
+        override suspend fun insertPrepared(record: DurableActionRecord): Boolean {
+            val key = record.taskId to record.actionId
+            if (key in records || record.dispatchState != DispatchState.PREPARED) return false
+            records[key] = record
+            return true
+        }
+        override suspend fun transition(
+            taskId: TaskId, actionId: ActionId, next: DispatchState,
+            nowElapsedMillis: Long, note: String?,
+        ): JournalDecision {
+            val key = taskId to actionId
+            val current = records[key] ?: return JournalDecision.Reject("missing")
+            val result = DurableActionProtocol.transition(current, next, nowElapsedMillis, note)
+            if (result is JournalDecision.Accept) records[key] = result.record
+            return result
+        }
+        override suspend fun loadRecoverable() = records.values.filter {
+            it.dispatchState in setOf(DispatchState.PREPARED, DispatchState.DISPATCHING, DispatchState.DISPATCHED, DispatchState.OUTCOME_UNKNOWN)
+        }
+        override suspend fun reconcileAfterProcessDeath() = records.values.map {
+            (DurableActionProtocol.recoverAfterProcessDeath(it) as JournalDecision.Accept).record
+        }
+    }
+
     private fun usable(id: CapabilityId) = CapabilityStatus(
         id = id,
         hardwarePresent = true,
@@ -155,6 +181,7 @@ class AgentCoreTest {
             journal = object : TaskStepJournal {
                 override suspend fun append(record: TaskStepRecord) { records += record }
             },
+            durableJournal = FakeDurableJournal(),
             clock = clock,
         )
 
@@ -190,6 +217,7 @@ class AgentCoreTest {
             journal = object : TaskStepJournal {
                 override suspend fun append(record: TaskStepRecord) = Unit
             },
+            durableJournal = FakeDurableJournal(),
             clock = clock,
         ).run(TaskId("task-2"), "Open notes", mapOf(capability to usable(capability)))
         assertEquals(TaskState.RECOVERY_REQUIRED, outcome.state)

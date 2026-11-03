@@ -1,6 +1,6 @@
 # Project Status and Operating Log
 
-**Last updated:** 2026-11-03  
+**Last updated:** 2026-11-03 18:55 IST  
 **Project:** Personal Autonomous Android Agent  
 **Canonical status file:** This document  
 **Product target:** Personal-use Android agent, installed by sideloading on the owner's devices  
@@ -29,7 +29,7 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 
 ### Overall
 
-**Kotlin/JVM core plus initial Android application/integration source tranche; CI build passed, physical device validation pending**
+**Kotlin/JVM core plus Android integration; durable journal/REA/tool-factory implementation in PR #4; CI and physical device validation pending**
 
 - The repository contains a Kotlin/JVM core and an Android application module. GitHub Actions run 41612516639 passed core compilation/tests, three Android verifier unit tests and :app:assembleDebug on commit e3ea4db83d33cc127097427dcabc5358de559d3c; no Android source changed after that passing run.
 - Product assumptions, high-level architecture, platform constraints, research, source reuse decisions, safety contracts and phase plans are documented.
@@ -328,3 +328,44 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 - Architecture is based on the 17-repository deep dive and the existing API contracts, data model, performance budgets and test strategy. It does not claim the design is implemented.
 - No application source code changed and no build or device tests were run in this design session.
 - Immediate implementation priority remains: transactional Room task/step/action journal, startup recovery and uncertain-dispatch reconciliation, exact-target guard tests, then explicit approval UI.
+
+
+### 2026-11-03 — Durable execution, REA and self-tool implementation tranche
+
+- Created branch `feature/durable-engine-rea-tool-factory` and draft PR #4: https://github.com/iam816anonymous-commits/personal-autonomous-android-agent/pull/4
+- Added platform-neutral durable action lifecycle contracts: `PREPARED → DISPATCHING → DISPATCHED → VERIFIED`, with explicit `REJECTED`, `FAILED` and `OUTCOME_UNKNOWN` terminal/recovery states.
+- Added startup process-death reconciliation rules. A process death during `DISPATCHING` or `DISPATCHED` becomes `OUTCOME_UNKNOWN`; no automatic replay is allowed. The protocol only permits retry after safe rejection or verified non-application under bounded conditions.
+- Added a Room `action_attempts` table, unique task/action key, migration 1→2, transactional insert/transition methods and a recovery reconciliation query. Sensitive notes are encrypted through the existing JournalCrypto boundary.
+- Wired the durable Room journal into AgentApplication and made AgentOrchestrator require a durable journal. The orchestrator now commits action intent and dispatch state before calling the Android dispatcher, then commits dispatch result and verification separately.
+- Added REA app-surface data contracts for app identity/version, screen fingerprints, transitions and interaction probes. Skill certification rejects mismatched app versions, unverified probe evidence, insufficient confidence and invalid/unapproved skill manifests.
+- Added a declarative SelfToolFactory. It can compose only registered action kinds and approved capabilities; it cannot create executable Kotlin/Java/shell/DEX/JNI code. Tool creation is bounded, risk checked and user approved.
+- Added tests for uncertain non-idempotent dispatch recovery, state transition validation, tool factory rejection/creation and REA evidence gating; existing orchestrator tests now inject a durable journal.
+- Added `.github/workflows/android-agent-ci.yml` to run core compilation/tests, Android unit tests and debug APK assembly on PRs and main pushes.
+- CI evidence: **PENDING / NOT VERIFIED**. The GitHub connector has not returned a workflow run for the new workflow/PR yet. No local Gradle execution was available in this session.
+- Physical TECNO API 27 installation, AccessibilityService interaction, Room migration on-device and REA probes: **NOT RUN**.
+- Current work is a source implementation tranche, not a complete REA runtime, a UI-integrated tool builder, or a release-ready app.
+- Next exact work: obtain a CI run and fix all compile/test failures; then add app-facing REA capture/probe workflow, explicit approval UI and durable task recovery integration. Do not merge PR #4 until CI passes and review is complete.
+
+
+#### Implementation tranche follow-up
+
+- Added `ReverseEngineeringSession`: bounded screen fingerprint capture, transition graph collection, app-package scoping and secret-redacted labels from the existing accessibility observer.
+- Added `AndroidReverseEngineeringController` and exposed it from `AgentApplication`. A caller must explicitly begin inspection for a selected installed package, capture current foreground screens, record verified probes and finish/cancel the session.
+- Tightened self-tool creation: every step must reference a registered action and its exact argument schema; typed parameter bindings must match the action argument types.
+- Added a REA test for screen fingerprint transitions and password/OTP redaction.
+- Found and reused the existing `.github/workflows/kotlin-core.yml` workflow. It runs on `feature/**` pushes and pull requests to main, including core tests and Android APK assembly. The newly added duplicate workflow was removed.
+- Latest PR #4 head at the time of this update: `fa380d901c5e0fe4b0bc846eda32be5dea66506b`. CI result remains **NOT VERIFIED** through the available status endpoint; do not claim green.
+
+
+#### CI validation and first integration fix
+
+- GitHub Actions run **41644788869** on the earlier implementation head passed `:core:compileKotlin` and `:core:test`, then failed at `:app:testDebugUnitTest` because `AndroidAgentRuntime` did not pass the newly required `DurableExecutionJournal` constructor dependency. APK assembly was skipped on that failed attempt.
+- Fixed the composition root: `AndroidAgentRuntime` now receives and injects `RoomDurableExecutionJournal` into `AgentOrchestrator`.
+- GitHub Actions run **41645034090** then passed all steps:
+  - `:core:compileKotlin` — PASS
+  - `:core:test` — PASS
+  - `:app:testDebugUnitTest` — PASS
+  - `:app:assembleDebug` — PASS
+- This is CI evidence for compilation, JVM/unit tests and APK assembly only. It is not proof of installation or runtime behavior on TECNO API 27.
+- The new REA controller is exposed from `AgentApplication`; end-user REA controls/screens and durable generated-tool persistence remain follow-up work.
+- Current phase remains implementation/integration; PR #4 remains draft and unmerged. Physical device validation, actual third-party app exploration and Room migration testing on a device remain NOT RUN.
