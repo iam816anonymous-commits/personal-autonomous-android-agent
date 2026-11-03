@@ -81,7 +81,7 @@ class AgentOrchestrator(
                         return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, "Action is not registered for this capability")
                     }
 
-                    val initialDecision = policy.evaluate(action, PolicyContext(capabilityStatuses, snapshot = snapshot))
+                    if (action.risk.severity > descriptor.riskCeiling.severity) {\n                        return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, "Action exceeds the registered tool risk ceiling")\n                    }\n\n                    val initialDecision = policy.evaluate(action, PolicyContext(capabilityStatuses, snapshot = snapshot))
                     val approval = when (initialDecision) {
                         PolicyDecision.Allowed -> null
                         is PolicyDecision.Denied -> return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, initialDecision.reason)
