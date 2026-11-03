@@ -85,7 +85,7 @@ class SelfToolFactory {
             if (step.capability !in definition.requiredCapabilities) errors += "Step ${index + 1} uses an undeclared capability"
             if (step.risk.severity > definition.maximumRisk.severity) errors += "Step ${index + 1} exceeds the tool risk ceiling"
             step.parameterBindings.forEach { (argumentName, binding) ->
-                val parameter = binding.removePrefix("\\$")
+                val parameter = binding.removePrefix("\$")
                 val declared = definition.parameters.firstOrNull { it.name == parameter }
                 val expectedType = actionSchema?.get(argumentName)
                 if (declared == null) {
