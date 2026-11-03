@@ -355,3 +355,17 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 - Added a REA test for screen fingerprint transitions and password/OTP redaction.
 - Found and reused the existing `.github/workflows/kotlin-core.yml` workflow. It runs on `feature/**` pushes and pull requests to main, including core tests and Android APK assembly. The newly added duplicate workflow was removed.
 - Latest PR #4 head at the time of this update: `fa380d901c5e0fe4b0bc846eda32be5dea66506b`. CI result remains **NOT VERIFIED** through the available status endpoint; do not claim green.
+
+
+#### CI validation and first integration fix
+
+- GitHub Actions run **41644788869** on the earlier implementation head passed `:core:compileKotlin` and `:core:test`, then failed at `:app:testDebugUnitTest` because `AndroidAgentRuntime` did not pass the newly required `DurableExecutionJournal` constructor dependency. APK assembly was skipped on that failed attempt.
+- Fixed the composition root: `AndroidAgentRuntime` now receives and injects `RoomDurableExecutionJournal` into `AgentOrchestrator`.
+- GitHub Actions run **41645034090** then passed all steps:
+  - `:core:compileKotlin` — PASS
+  - `:core:test` — PASS
+  - `:app:testDebugUnitTest` — PASS
+  - `:app:assembleDebug` — PASS
+- This is CI evidence for compilation, JVM/unit tests and APK assembly only. It is not proof of installation or runtime behavior on TECNO API 27.
+- The new REA controller is exposed from `AgentApplication`; end-user REA controls/screens and durable generated-tool persistence remain follow-up work.
+- Current phase remains implementation/integration; PR #4 remains draft and unmerged. Physical device validation, actual third-party app exploration and Room migration testing on a device remain NOT RUN.
