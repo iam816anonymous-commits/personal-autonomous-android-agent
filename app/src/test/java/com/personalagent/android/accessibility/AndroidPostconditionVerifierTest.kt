@@ -3,6 +3,7 @@ package com.personalagent.android.accessibility
 import com.personalagent.core.*
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlinx.coroutines.runBlocking
 
 class AndroidPostconditionVerifierTest {
     private fun snapshot(id: String, elapsed: Long, foreground: String) = DeviceSnapshot(
@@ -16,7 +17,7 @@ class AndroidPostconditionVerifierTest {
         source = EvidenceSource.ACCESSIBILITY_TREE,
     )
 
-    @Test fun verifiesOnlyAgainstANewerSnapshot() {
+    @Test fun verifiesOnlyAgainstANewerSnapshot() = runBlocking {
         val before = snapshot("before", 100, "com.example.app")
         val after = snapshot("after", 200, "com.example.app")
         val action = LaunchApplication(ActionId("launch"), "com.example.app")
@@ -24,14 +25,14 @@ class AndroidPostconditionVerifierTest {
         assertTrue(result is VerificationResult.Verified)
     }
 
-    @Test fun refusesTheSameSnapshotAsEvidence() {
+    @Test fun refusesTheSameSnapshotAsEvidence() = runBlocking {
         val before = snapshot("same", 100, "com.example.app")
         val action = LaunchApplication(ActionId("launch"), "com.example.app")
         val result = AndroidPostconditionVerifier().verify(action, before, before)
         assertTrue(result is VerificationResult.Inconclusive)
     }
 
-    @Test fun failsWhenExpectedForegroundPackageIsAbsent() {
+    @Test fun failsWhenExpectedForegroundPackageIsAbsent() = runBlocking {
         val before = snapshot("before", 100, "com.other.app")
         val after = snapshot("after", 200, "com.other.app")
         val action = LaunchApplication(ActionId("launch"), "com.example.app")
