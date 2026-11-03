@@ -1,7 +1,7 @@
 # Phase 0 Donor Clean-Checkout Build, Test, Lint, and CI Matrix
 
 **Date:** 2026-11-03  
-**Workstream:** Gemini 4 Argon — Phase 0 Donor Validation (`ENGINEERING/ARGON_DEVELOPMENT_HANDOFF.md` §2, §4, §5)  
+**Workstream:** Gemini 4 Argon — Phase 0 Donor Validation (`ENGINEERING/ARGON/ARGON_DEVELOPMENT_HANDOFF.md` §2, §4, §5)  
 **Destination Repository:** `https://github.com/iam816anonymous-commits/personal-autonomous-android-agent`  
 **Validation Branch:** `phase-0-argon-handoff`  
 
@@ -169,7 +169,7 @@ Inspection via `unzip -l app/build/outputs/apk/debug/app-debug.apk | grep "\.so$
 
 - **Repository URL:** `https://github.com/iam816anonymous-commits/tecno-os.git`
 - **Branch / Commits Inspected:**
-  - Recorded pin in `ENGINEERING/ARGON_DEVELOPMENT_HANDOFF.md`: `c8a23e359de5b30297ca731f713b89077e056cfc`
+  - Recorded pin in `ENGINEERING/ARGON/ARGON_DEVELOPMENT_HANDOFF.md`: `c8a23e359de5b30297ca731f713b89077e056cfc`
   - Current branch head on `in6-linux-bringup-infrastructure-4378631429758063630`: `d2aeac357141e75b601a935869abb8944ad0d41d` (4 commits ahead; `tests/host/` is identical between both commits).
 - **Host Python Validation Suite (`tests/host/test_*.py`):** Executed individually with `python3 <test_file>` (Log: `/tmp/phase0-logs/tecno-os-host-tests.log`).
 

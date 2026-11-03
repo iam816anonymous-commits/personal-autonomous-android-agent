@@ -1,7 +1,7 @@
 # Phase 0 Technical Spikes, Architectural Decisions, and Owner Gate Checklist
 
 **Date:** 2026-11-03  
-**Workstream:** Gemini 4 Argon — Phase 0 Donor Validation (`ENGINEERING/ARGON_DEVELOPMENT_HANDOFF.md` §2.8, §5)  
+**Workstream:** Gemini 4 Argon — Phase 0 Donor Validation (`ENGINEERING/ARGON/ARGON_DEVELOPMENT_HANDOFF.md` §2.8, §5)  
 **Destination Repository:** `https://github.com/iam816anonymous-commits/personal-autonomous-android-agent`  
 **Validation Branch:** `phase-0-argon-handoff`  
 
@@ -107,7 +107,7 @@ Inspection of `/tmp/phase0-donors/tecno-os/inventory/cpuinfo.txt`, `inventory/pr
 
 ## Spike 6 — Overlapping Donor Implementations: Single Owner Per Responsibility
 
-Per `PROJECT_STATUS.md` §3 (Phase 0 exit gate item 6) and `ENGINEERING/ARGON_DEVELOPMENT_HANDOFF.md` §2.4, the table below resolves every overlapping class across the donor repositories and designates a **single canonical owner module and implementation strategy** for Phase 1+:
+Per `PROJECT_STATUS.md` §3 (Phase 0 exit gate item 6) and `ENGINEERING/ARGON/ARGON_DEVELOPMENT_HANDOFF.md` §2.4, the table below resolves every overlapping class across the donor repositories and designates a **single canonical owner module and implementation strategy** for Phase 1+:
 
 | Architectural Responsibility | Overlapping Donor Implementations Inspected | Designated Canonical Owner Module (Destination Repo) | Selected Implementation Strategy |
 |---|---|---|---|
@@ -130,5 +130,5 @@ The following items cannot be inferred from source code or container builds and 
 |---|---|---|---|---|
 | **1** | **Target Physical Device Matrix & API 27 Mandate** | `tecno-os` proves the owner has a **TECNO Spark 2 (`TECNO IN6`, `MT6763`, Android 8.1.0 API 27, `arm64-v8a`, 2 GB RAM, 16 GB storage)**, while donor repos also reference modern API 34 devices. | Set `minSdk = 26` (covering API 27 `TECNO IN6` as **Tier-1 Mandatory Supported Hardware** in Semantic Accessibility Tree + Deterministic/Tier-1 135M–500M Model mode) and `targetSdk = 34` (supporting modern Android 11–14+ devices with API 30+ visual fallback). | Owner confirmation of: (a) complete list of target physical phones (model, Android version/API, RAM), and (b) whether API 27 (`TECNO IN6`) is mandatory for Release 1.0. |
 | **2** | **First-Party Donor Repository License Declaration** | `agent-created-by-gemini`, `mobile_agent`, `skill-agent`, and `agent-1` are owned by `iam816anonymous-commits` (`Vivek`), but **none of the four repositories contain a root `LICENSE` file**. | Owner authorizes reuse of first-party `iam816anonymous-commits` donor code under **Apache License 2.0** (or MIT) in the destination repository and adds a root `LICENSE` file to the destination repository. | Written owner confirmation in `PROJECT_STATUS.md` / PR review (or adding `LICENSE` to donor/destination repos). |
-| **3** | **Approval of the Frozen 26-Scenario Task Benchmark & Risk Policy** | `ENGINEERING/INITIAL_TASK_BENCHMARK.md` defines 26 deterministic scenarios and the 14 fail-closed architectural contracts (`BM-01` to `BM-26`). | Freeze `INITIAL_TASK_BENCHMARK.md` (26 scenarios) and the 5-tier risk policy in `ARCHITECTURE/SAFETY_AND_APPROVALS.md` as the Phase 1–9 acceptance baseline. | Owner sign-off on `ENGINEERING/INITIAL_TASK_BENCHMARK.md`. |
-| **4** | **Authorization to Begin Phase 1 Application Code Implementation** | `PROJECT_STATUS.md` and `ENGINEERING/ARGON_DEVELOPMENT_HANDOFF.md` §1 & §7 block Phase 1 Gradle/Kotlin creation until Phase 0 deliverables are reviewed and accepted. | Once items 1–3 above are confirmed, authorize **Phase 1 only** (minimal buildable multi-module Kotlin shell, canonical `:core-contracts`, `:core-policy`, Room `TaskStepJournal`, redacted logger, global stop control, and deterministic CI). | Explicit owner instruction to proceed from Phase 0 to Phase 1 after reviewing this branch (`phase-0-argon-handoff`). |
+| **3** | **Approval of the Frozen 26-Scenario Task Benchmark & Risk Policy** | `ENGINEERING/ARGON/INITIAL_TASK_BENCHMARK.md` defines 26 deterministic scenarios and the 14 fail-closed architectural contracts (`BM-01` to `BM-26`). | Freeze `INITIAL_TASK_BENCHMARK.md` (26 scenarios) and the 5-tier risk policy in `ARCHITECTURE/SAFETY_AND_APPROVALS.md` as the Phase 1–9 acceptance baseline. | Owner sign-off on `ENGINEERING/ARGON/INITIAL_TASK_BENCHMARK.md`. |
+| **4** | **Authorization to Begin Phase 1 Application Code Implementation** | `PROJECT_STATUS.md` and `ENGINEERING/ARGON/ARGON_DEVELOPMENT_HANDOFF.md` §1 & §7 block Phase 1 Gradle/Kotlin creation until Phase 0 deliverables are reviewed and accepted. | Once items 1–3 above are confirmed, authorize **Phase 1 only** (minimal buildable multi-module Kotlin shell, canonical `:core-contracts`, `:core-policy`, Room `TaskStepJournal`, redacted logger, global stop control, and deterministic CI). | Explicit owner instruction to proceed from Phase 0 to Phase 1 after reviewing this branch (`phase-0-argon-handoff`). |

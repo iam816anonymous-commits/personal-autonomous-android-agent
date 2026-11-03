@@ -5,7 +5,7 @@ Research-first workspace for a personal, local-first Android agent that understa
 > **Start every work session here:** [PROJECT_STATUS.md](PROJECT_STATUS.md). It is the canonical progress ledger, roadmap pointer, blocker list and session log. Read it before inspecting or changing anything; update it before ending the session.
 >
 > **Product target:** personal use and sideloaded installation. Google Play publication is not a requirement.
-> **Status (2026-11-02):** research/specification baseline; no destination app implementation has been validated.
+> **Status (2026-11-03):** Kotlin/JVM core and initial Android app/integration source are present; Android build and physical-device acceptance are pending.
 
 ## Product thesis
 
@@ -36,6 +36,8 @@ Google Play policy is retained as reference material only; it is not the primary
 ## Repository map
 
 - [Project status, roadmap tracking and session log](PROJECT_STATUS.md)
+- [Android application module](app/)
+- [Argon Phase 0 archive (all handoff and evidence documents)](ENGINEERING/ARGON/README.md)
 - [Research index](RESEARCH/README.md)
 - [Master architecture](ARCHITECTURE/MASTER_ARCHITECTURE.md)
 - [Android platform constraints](RESEARCH/ANDROID_PLATFORM_CONSTRAINTS.md)
@@ -71,7 +73,7 @@ Google Play policy is retained as reference material only; it is not the primary
 9. CI covers compilation, unit tests, lint/static analysis and dependency/license checks. Physical-device behavior is validated separately.
 10. After every work session, update PROJECT_STATUS.md with changes, test evidence, blockers, phase status and the next exact task.
 11. Never claim a test passed if it was not run. Never claim a feature is implemented because it is documented.
-12. Do not start app source-code implementation until Phase 0 is closed and explicit authorization is recorded.
+12. Keep Phase 0 evidence gates visible. Explicit owner requests may authorize a scoped implementation tranche, but do not treat that authorization as device acceptance, license clearance or benchmark sign-off.
 
 ## Current technical risks
 

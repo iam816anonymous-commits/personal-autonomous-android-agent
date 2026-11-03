@@ -25,3 +25,7 @@ jobs:
         run: gradle :core:compileKotlin
       - name: Run unit tests
         run: gradle :core:test
+      - name: Run Android adapter unit tests
+        run: gradle :app:testDebugUnitTest
+      - name: Assemble API 27 Android application
+        run: gradle :app:assembleDebug

@@ -1,7 +1,7 @@
 # Phase 0 Donor Source Provenance, Discrepancy Audit, and License Ledger
 
 **Date:** 2026-11-03  
-**Workstream:** Gemini 4 Argon — Phase 0 Donor Validation (`ENGINEERING/ARGON_DEVELOPMENT_HANDOFF.md` §2.4, §2.5, §5)  
+**Workstream:** Gemini 4 Argon — Phase 0 Donor Validation (`ENGINEERING/ARGON/ARGON_DEVELOPMENT_HANDOFF.md` §2.4, §2.5, §5)  
 **Destination Repository:** `https://github.com/iam816anonymous-commits/personal-autonomous-android-agent`  
 **Validation Branch:** `phase-0-argon-handoff`  
 
@@ -133,7 +133,7 @@ Merged commit `1c7d8aa` ("Implement verified execution, safety redaction, and ho
 
 ## 5. Candidate Transitive Dependency and License Ledger
 
-Per `ENGINEERING/ARGON_DEVELOPMENT_HANDOFF.md` §2.5 and `PROJECT_STATUS.md` §6.4, this ledger covers **only the candidate dependencies proposed for the destination Android agent** (plus rejected donor dependencies explicitly flagged to prevent accidental inclusion). Every license below was verified directly from the dependency's Maven `.pom` metadata in the Gradle cache (`~/.gradle/caches/modules-2/files-2.1/.../*.pom`):
+Per `ENGINEERING/ARGON/ARGON_DEVELOPMENT_HANDOFF.md` §2.5 and `PROJECT_STATUS.md` §6.4, this ledger covers **only the candidate dependencies proposed for the destination Android agent** (plus rejected donor dependencies explicitly flagged to prevent accidental inclusion). Every license below was verified directly from the dependency's Maven `.pom` metadata in the Gradle cache (`~/.gradle/caches/modules-2/files-2.1/.../*.pom`):
 
 ### 5.1 Approved Candidate Dependencies for Phase 1–7 Destination Architecture
 
