@@ -8,7 +8,10 @@ import java.util.UUID
 class AndroidAccessibilityObserver(
     private val serviceProvider: () -> AgentAccessibilityService? = AgentAccessibilityService::current,
 ) : DeviceObserver {
-    override suspend fun observe(): DeviceSnapshot {
+    override suspend fun observe(): DeviceSnapshot = observeNow()
+
+    /** Bounded synchronous snapshot for the AccessibilityService event worker. */
+    fun observeNow(): DeviceSnapshot {
         val service = serviceProvider() ?: error("Accessibility service is not enabled")
         val activeRoot = service.rootInActiveWindow ?: error("No accessible active window")
         val root = AccessibilityNodeInfo.obtain(activeRoot)
