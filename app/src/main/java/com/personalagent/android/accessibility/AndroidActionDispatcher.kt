@@ -65,7 +65,7 @@ class AndroidActionDispatcher(
         try {
             while (stack.isNotEmpty()) {
                 val node = stack.removeLast()
-                val rect = android.graphics.Rect().also(node::getBoundsInScreen)
+                val rect = android.graphics.Rect().also { node.getBoundsInScreen(it) }
                 val pkg = node.packageName?.toString().orEmpty()
                 val value = digest(pkg + "|" + node.viewIdResourceName + "|" + node.className + "|" + node.text + "|" + rect)
                 if (value == expected) {
