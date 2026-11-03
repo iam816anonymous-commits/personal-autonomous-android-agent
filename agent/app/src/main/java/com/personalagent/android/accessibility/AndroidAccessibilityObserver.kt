@@ -7,8 +7,16 @@ import java.util.UUID
 
 class AndroidAccessibilityObserver(
     private val serviceProvider: () -> AgentAccessibilityService? = AgentAccessibilityService::current,
-) : DeviceObserver {
+ ) : DeviceObserver {
+    private val snapshotLeases = SnapshotLeaseRegistry()
+
     override suspend fun observe(): DeviceSnapshot = observeNow()
+
+    /** Re-observes the foreground tree and verifies that the leased semantic screen is unchanged. */
+    fun isSnapshotCurrent(expectedSnapshotId: SnapshotId): Boolean {
+        val current = runCatching { observeNow() }.getOrNull() ?: return false
+        return snapshotLeases.matches(expectedSnapshotId, current, SystemClock.elapsedRealtime())
+    }
 
     /** Bounded synchronous snapshot for the AccessibilityService event worker. */
     fun observeNow(): DeviceSnapshot {
@@ -19,13 +27,15 @@ class AndroidAccessibilityObserver(
         val nodes = ArrayList<UiNodeSnapshot>(MAX_NODES)
         traverse(root, nodes)
         if (nodes.isEmpty()) error("Active window exposed no semantic nodes; refusing opaque-window actions")
-        return DeviceSnapshot(
+        val snapshot = DeviceSnapshot(
             id = SnapshotId(UUID.randomUUID().toString()),
             capturedAtElapsedMillis = SystemClock.elapsedRealtime(),
             foregroundPackage = nodes.first().packageName,
             nodes = nodes, complete = nodes.size < MAX_NODES,
             source = EvidenceSource.ACCESSIBILITY_TREE,
         ).redacted()
+        snapshotLeases.remember(snapshot)
+        return snapshot
     }
     private fun traverse(root: AccessibilityNodeInfo, out: MutableList<UiNodeSnapshot>) {
         val stack = ArrayDeque<AccessibilityNodeInfo>()
