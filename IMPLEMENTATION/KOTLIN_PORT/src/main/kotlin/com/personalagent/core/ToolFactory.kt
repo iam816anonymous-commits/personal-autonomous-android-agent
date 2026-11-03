@@ -27,7 +27,7 @@ data class ToolStepTemplate(
     init {
         require(parameterBindings.size <= 12)
         require(parameterBindings.all { (key, value) ->
-            key.matches(Regex("[a-z][a-zA-Z0-9_]{0,40}")) && value.matches(Regex("""\\$[a-z][a-zA-Z0-9_]{0,40}"""))
+            key.matches(Regex("[a-z][a-zA-Z0-9_]{0,40}")) && value.matches(Regex("""\$[a-z][a-zA-Z0-9_]{0,40}"""))
         })
     }
 }
