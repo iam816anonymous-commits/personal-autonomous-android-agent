@@ -17,6 +17,8 @@ class AndroidAgentRuntime(
     private val appContext = context.applicationContext
     private val capabilities = AndroidCapabilityRegistry(appContext)
     private val clock = MonotonicClock { SystemClock.elapsedRealtime() }
+    /** UI must call issueUserApproval only after a real, explicit confirmation gesture. */
+    val approvalPolicy: ApprovalPolicy = ApprovalPolicy(clock)
 
     fun discoverCapabilities(): Map<CapabilityId, CapabilityStatus> = capabilities.discover()
 
@@ -40,7 +42,7 @@ class AndroidAgentRuntime(
             dispatcher = AndroidActionDispatcher(),
             verifier = AndroidPostconditionVerifier(),
             registry = registry,
-            policy = ApprovalPolicy(clock),
+            policy = approvalPolicy,
             approvalProvider = approvalProvider,
             journal = journal,
             clock = clock,
