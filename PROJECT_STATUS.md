@@ -213,7 +213,7 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 - [x] Local inference CPU/GPU/RAM constraints on `TECNO IN6` (`ARMv8.0-A` Cortex-A53 without `dotprod`/`fp16`; `libOpenCL.so` blocked; Vulkan `1.0.58` verified) resolved (`ENGINEERING/ARGON/PHASE_0_TECHNICAL_SPIKES.md` §3, `ADR-008`).
 - [x] Wake-word feasibility under Android/OEM lifecycle constraints resolved (`ENGINEERING/ARGON/PHASE_0_TECHNICAL_SPIKES.md` §4, `ADR-009`).
 - [x] Encryption/key-management (`AndroidKeyStore` AES-256-GCM) and backup/restore design resolved (`ENGINEERING/ARGON/PHASE_0_TECHNICAL_SPIKES.md` §5, `ADR-010`).
-- [x] **Owner Gate 4 (limited scope):** Owner explicitly requested Hermes-inspired Kotlin source implementation on 2026-11-03. This authorizes the platform-neutral core prototype only; it does not waive Owner Gates 1–3 or authorize Android packaging/device integration.
+- [x] **Owner Gate 4 (limited scope):** Owner explicitly requested Hermes-inspired Kotlin source implementation on 2026-11-03. This authorizes the platform-neutral core and the scoped initial Android integration source tranche requested on 2026-11-03; it does not waive Owner Gates 1–3, establish physical-device acceptance, or authorize unrestricted features.
 
 ## 8. Session log
 
@@ -282,6 +282,6 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 - Added AgentAccessibilityService, bounded semantic AndroidAccessibilityObserver, typed AndroidActionDispatcher (launch/click/set-text only), AndroidPostconditionVerifier, AndroidCapabilityRegistry, RoomTaskStepJournal (WAL), AES-256-GCM AndroidKeystoreJournalCrypto, and unique-work AgentWorkScheduler.
 - Journal note payloads are encrypted; task/action/state metadata remains queryable. Auto-backup is disabled in the manifest. No UI is yet wired to approve a protected action; the core must continue to fail closed without a real explicit-approval UI.
 - Added Android debug APK assembly to GitHub Actions. Build result for this new app tranche: PENDING / NOT YET VERIFIED at the time this entry was written. Physical TECNO API 27 validation: NOT RUN.
-- Consolidated Argon handoff and six Phase 0 artifacts under ENGINEERING/ARGON/ and added an archive index. Old top-level ENGINEERING copies were removed after copying the source documents.
+- Consolidated Argon handoff and five Phase 0 deliverables under ENGINEERING/ARGON/ and added an archive index. Old top-level ENGINEERING copies were removed after copying the source documents.
 - Known limitations: no hardware torch/vibration/Wi-Fi/Bluetooth adapters; no end-user approval screen; no app-wide stop control; no durable scheduler job-state store; no Android instrumentation tests; no crash-recovery reconciliation for in-flight non-idempotent actions; no physical device run.
 - Next: inspect latest GitHub Actions run on this branch, fix Android compile errors, then add app/journal/observer tests before device acceptance.
