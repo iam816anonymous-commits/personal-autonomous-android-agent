@@ -1,10 +1,10 @@
 # Project Status and Operating Log
 
-**Last updated:** 2026-11-02  
+**Last updated:** 2026-11-03  
 **Project:** Personal Autonomous Android Agent  
 **Canonical status file:** This document  
 **Product target:** Personal-use Android agent, installed by sideloading on the owner's devices  
-**Implementation authorization:** **NOT GRANTED** — documentation/research maintenance is authorized; app source-code implementation remains gated pending explicit approval.
+**Implementation authorization:** **GRANTED FOR PHASED DEVELOPMENT** — the owner instructed development to begin on 2026-11-03. Phase 1 application code remains blocked until the Phase 0 exit gate is evidenced and reviewed; this authorization does not waive any phase, safety, provenance, test or physical-device gate.
 
 > **Mandatory session rule:** Before doing any work in this repository, read this file first. Then inspect the current GitHub branch/HEAD and the relevant source files. Do not rely on a previous chat summary as proof of repository state. At the end of every work session, update this file with what changed, evidence, current phase, blockers and the exact next task.
 
@@ -45,7 +45,7 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 
 | Phase | Name | Status | Evidence / remaining work |
 |---|---|---|---|
-| 0 | Repository archaeology, research and requirements freeze | **In progress** | Core audits and reuse specification exist. Still need final device/OS matrix, donor clean builds/tests, complete selected-dependency/license provenance, benchmark freeze and unresolved technical spikes. |
+| 0 | Repository archaeology, research and requirements freeze | **In progress (Argon validation complete; awaiting Owner sign-off)** | Argon Phase 0 deliverables completed on `phase-0-argon-handoff` (`DONOR_BUILD_TEST_MATRIX.md`, `DONOR_SOURCE_PROVENANCE_AND_LICENSE_LEDGER.md`, `DONOR_REVISION_AND_DIFF_REPORT.md`, `INITIAL_TASK_BENCHMARK.md`, `PHASE_0_TECHNICAL_SPIKES.md`). Awaiting Owner confirmation of final device matrix/API 27 mandate, first-party donor license declaration, benchmark approval, and Phase 1 start authorization. |
 | 1 | Buildable Android shell and stable contracts | Not started | No destination app/build evidence recorded. |
 | 2 | Accessibility observation bridge | Not started | Architecture and source candidates documented; no destination implementation or physical-device evidence. |
 | 3A | Hardware capability discovery and control | Not started | Subsystem design documented; no adapters or device verification. |
@@ -71,15 +71,15 @@ The detailed sequence in [ROADMAP/PHASE_IMPLEMENTATION_BLUEPRINT.md](ROADMAP/PHA
 **Objective:** Establish what exists, what is safe/legal to reuse, what device capabilities are actually available, and what must be built.
 
 Exit gate:
-- [ ] Confirm target device/OS/ABI matrix and supported feature-degradation policy.
+- [ ] Confirm target device/OS/ABI matrix and supported feature-degradation policy (Owner confirmation required; recommended baseline recorded in `ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §7).
 - [x] Record personal-use/sideloading requirement.
-- [x] Complete initial source-by-source class reuse specification.
-- [ ] Build selected donor repositories from clean checkout; run their unit tests, lint/static analysis and debug build.
-- [ ] Complete exact source revision, dependency and transitive licence/provenance ledger for components selected for reuse.
-- [ ] Compare overlapping donor implementations and select one owner per responsibility.
-- [ ] Freeze the initial physical-device task benchmark and independent verifiers.
-- [ ] Complete threat model, privacy/data-retention rules and unresolved technical experiment list.
-- [ ] Resolve or explicitly defer ADK Kotlin/LiteRT-LM versus custom runtime, API 27 visual observation fallback, wake-word feasibility and encryption/backup design.
+- [x] Complete initial source-by-source class reuse specification (`RESEARCH/SOURCE_BY_SOURCE_REUSE_SPECIFICATION.md` + full 46-class audit in `ENGINEERING/DONOR_SOURCE_PROVENANCE_AND_LICENSE_LEDGER.md`).
+- [x] Build selected donor repositories from clean checkout; run their unit tests, lint/static analysis and debug build (`ENGINEERING/DONOR_BUILD_TEST_MATRIX.md`).
+- [x] Complete exact source revision, dependency and transitive licence/provenance ledger for components selected for reuse (`ENGINEERING/DONOR_SOURCE_PROVENANCE_AND_LICENSE_LEDGER.md` & `ENGINEERING/DONOR_REVISION_AND_DIFF_REPORT.md`; pending Owner root `LICENSE` confirmation for first-party donor repos).
+- [x] Compare overlapping donor implementations and select one owner per responsibility (`ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §6).
+- [x] Freeze the initial physical-device task benchmark and independent verifiers (`ENGINEERING/INITIAL_TASK_BENCHMARK.md` — 26 scenarios + 14 failure-mode contracts, pending Owner sign-off).
+- [x] Complete threat model, privacy/data-retention rules and unresolved technical experiment list (`ARCHITECTURE/SAFETY_AND_APPROVALS.md`, `ENGINEERING/INITIAL_TASK_BENCHMARK.md` §3, `ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md`).
+- [x] Resolve or explicitly defer ADK Kotlin/LiteRT-LM versus custom runtime, API 27 visual observation fallback, wake-word feasibility and encryption/backup design (`ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §1–§5 & `ARCHITECTURE/DECISION_LOG.md` ADR-006..ADR-010).
 
 ### Phase 1 — Buildable Android shell and stable contracts
 
@@ -176,6 +176,12 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 | `ENGINEERING/DATA_MODEL.md` | KEEP, CONSOLIDATE LATER | Proposed persistence schema; refine only when persistence is implemented. |
 | `ENGINEERING/TEST_STRATEGY.md` | KEEP | Test layers, physical-device policy and benchmark methodology. |
 | `ENGINEERING/PERFORMANCE_BUDGETS.md` | KEEP | Measurement plan and provisional budgets; replace assumptions with measurements. |
+| `ENGINEERING/ARGON_DEVELOPMENT_HANDOFF.md` | KEEP | Phase 0 division of work and clean-build protocol between Argon, ChatGPT review pass, and Owner. |
+| `ENGINEERING/DONOR_BUILD_TEST_MATRIX.md` | KEEP (Phase 0 Deliverable) | Clean-checkout build, unit test, lint, APK, and CI failure root-cause matrix across all 5 donor repos. |
+| `ENGINEERING/DONOR_SOURCE_PROVENANCE_AND_LICENSE_LEDGER.md` | KEEP (Phase 0 Deliverable) | File-level provenance, 46-class audit of `agent-created-by-gemini`, and POM-verified transitive dependency license ledger. |
+| `ENGINEERING/DONOR_REVISION_AND_DIFF_REPORT.md` | KEEP (Phase 0 Deliverable) | Pinned commit vs branch head comparison and unmerged branch diff audit across all 5 donor repos. |
+| `ENGINEERING/INITIAL_TASK_BENCHMARK.md` | KEEP (Phase 0 Deliverable) | 26 deterministic task scenarios across 8 categories + 14 mandatory fail-closed architectural test contracts. |
+| `ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` | KEEP (Phase 0 Deliverable) | Evidence and decisions for all 5 technical spikes, overlapping donor ownership resolution, and Owner gate checklist. |
 | `ROADMAP/PHASES.md` | KEEP, ALIGN WITH BLUEPRINT | Short phase index. Phase names/order must match the detailed blueprint and this file. |
 | `ROADMAP/PHASE_IMPLEMENTATION_BLUEPRINT.md` | KEEP | Detailed phase steps, reuse mapping, technical gates and required evidence. |
 | `ROADMAP/ACCEPTANCE_CRITERIA.md` | KEEP | Cross-cutting acceptance checklist; add phase-specific tests as implementation begins. |
@@ -191,31 +197,21 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 
 ## 6. Current next task
 
-**Active phase:** Phase 0 — Repository archaeology, research and requirements freeze.  
-**Next task:** Close the remaining Phase 0 evidence gaps before any app implementation.
-
-Task sequence:
-1. Confirm the exact target physical devices (model, Android version/API, ABI, available storage and memory) and classify API 27 as required or best-effort.
-2. Re-fetch the five first-party donor repositories at pinned commits; verify the branch/commit still matches the reuse specification.
-3. Clean-build and run tests/lint on the selected donor candidates; record exact commands and outputs. Do not claim success from prior summaries.
-4. Complete a component-level dependency and license/provenance ledger for the subset actually proposed for reuse. Do not create a giant SBOM for components we will not use.
-5. Freeze 20–30 initial tasks with explicit initial state, allowed capabilities, expected final state, forbidden side effects, timeout and independent verifier.
-6. Close or defer each Phase 0 technical spike with a documented reason and decision owner.
-7. Review the implementation authorization checklist with the owner. Until explicit approval, stop at research/specification and documentation changes.
-
-**Do not start Phase 1 code implementation yet.** The project has not cleared Phase 0 and the previous explicit authorization state was NOT AUTHORIZED.
+**Active phase:** Phase 0 — Repository archaeology, research and requirements freeze (Argon validation complete; ready for ChatGPT review pass and Owner gate sign-off).  
+**Next task:** Review the five Phase 0 Argon deliverables on branch `phase-0-argon-handoff`, obtain Owner confirmation on the four Owner gate items in `ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §7, and upon approval begin Phase 1 (minimal buildable multi-module Kotlin shell, canonical `:core-contracts`, `:core-policy`, Room `TaskStepJournal`, redacted logger, global stop control, and deterministic CI).
 
 ## 7. Blockers and unresolved decisions
 
-- [ ] Exact current target-device matrix and whether API 27 is a hard requirement.
-- [ ] Donor repositories' clean build/test/lint evidence at pinned revisions.
-- [ ] Full license/provenance review for the exact selected code and transitive dependencies.
-- [ ] Canonical first-release task benchmark and independent verifiers.
-- [ ] ADK Kotlin + LiteRT-LM versus custom Kotlin orchestration/inference proof-of-concept.
-- [ ] API 27 visual observation fallback and realistic screenshot limitations.
-- [ ] Encryption/key-management and backup/restore design.
-- [ ] Wake-word feasibility under Android/OEM lifecycle constraints.
-- [ ] Explicit authorization for app source-code implementation.
+- [ ] **Owner Gate 1:** Exact current target-device matrix and confirmation that API 27 (`TECNO IN6`) is mandatory Tier-1 supported hardware in Semantic Accessibility Tree mode (`ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §7).
+- [x] Donor repositories' clean build/test/lint evidence at pinned revisions (`ENGINEERING/DONOR_BUILD_TEST_MATRIX.md`).
+- [x] Component-level provenance and POM-verified transitive dependency license ledger (`ENGINEERING/DONOR_SOURCE_PROVENANCE_AND_LICENSE_LEDGER.md`), **pending Owner Gate 2:** explicit Owner license declaration (`Apache-2.0` / `MIT`) for the four first-party donor repositories that currently lack a root `LICENSE` file.
+- [x] Canonical first-release task benchmark (26 scenarios) and independent verifiers drafted (`ENGINEERING/INITIAL_TASK_BENCHMARK.md`), **pending Owner Gate 3:** Owner sign-off.
+- [x] ADK Kotlin + LiteRT-LM versus custom Kotlin orchestration/inference spike completed (`ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §1, `ADR-006`).
+- [x] API 27 visual observation fallback and realistic screenshot limitations resolved (`ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §2, `ADR-007`).
+- [x] Local inference CPU/GPU/RAM constraints on `TECNO IN6` (`ARMv8.0-A` Cortex-A53 without `dotprod`/`fp16`; `libOpenCL.so` blocked; Vulkan `1.0.58` verified) resolved (`ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §3, `ADR-008`).
+- [x] Wake-word feasibility under Android/OEM lifecycle constraints resolved (`ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §4, `ADR-009`).
+- [x] Encryption/key-management (`AndroidKeyStore` AES-256-GCM) and backup/restore design resolved (`ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §5, `ADR-010`).
+- [ ] **Owner Gate 4:** Explicit Owner authorization to transition from Phase 0 to Phase 1 application source-code implementation after reviewing Phase 0 evidence.
 
 ## 8. Session log
 
@@ -234,3 +230,30 @@ Task sequence:
 - Documentation commits for the new workstream include `c4731c3`, `baa48ee`, `e80cc05`, `720e7a2`, `378e4bd`, `3b43a67`, `624314f`, `ab3a099`, `734aa8b`, `375d131`, `73d1586`, `bc70a45`, `903027f`, `3747edf`, `ebd2c91` and `e6fd937`.
 - No application code, dependencies, build configuration, CI or physical-device tests changed.
 - Next: close the core agent's Phase 0 evidence gaps. Do not spend this project's Phase 0 effort on camera uptime, face recognition or remote home monitoring.
+
+### 2026-11-03 — Gemini Argon development handoff and repository revalidation
+
+- The owner instructed that development should begin. Recorded authorization for phased development; Phase 1 source implementation remains blocked until Phase 0 exit evidence is complete and reviewed. No phase gate was waived.
+- Re-read this status file first, then inspected the current `main` tree and HEAD. Current destination `main` HEAD is `5b86207998c66d106a93ae551101e233af090701`; the repository remains documentation-only with no destination Android application source.
+- The latest destination commit status is pending with zero reported status checks. This is not a green CI result.
+- Revalidated donor branch heads. `agent-created-by-gemini`, `mobile_agent`, `skill-agent` and `agent-1` still match the recorded pins. `tecno-os` advanced four commits to `d2aeac357141e75b601a935869abb8944ad0d41d`; the newly added GPU APK validation report must be reviewed and reconciled.
+- Observed current donor CI evidence: `agent-created-by-gemini` latest visible run for its pinned commit succeeded, but its workflow makes release build non-blocking and does not establish physical-device behavior. `mobile_agent` has no recent Actions runs returned. `agent-1` latest visible run for its pinned commit failed. `skill-agent` is specification-only.
+- Created `ENGINEERING/ARGON_DEVELOPMENT_HANDOFF.md` on branch `phase-0-argon-handoff`, assigning Argon clean-checkout builds/tests, donor provenance/licence analysis, benchmark scenarios and technical spikes; assigning ChatGPT architecture/evidence reconciliation, safety review, integration control and phase-gate verification.
+- No destination app source, Gradle configuration, dependency, CI workflow or physical-device test was added or changed. No donor code was transplanted.
+- Reviewed the newer TECNO IN6 GPUProbe report. Updated `ARCHITECTURE/HARDWARE_CAPABILITIES.md` and `RESEARCH/MODEL_AND_INFERENCE_RESEARCH.md` with the verified ordinary-APK Vulkan vector-add result and explicit limitations: no neural-network runtime is proven; APK OpenCL loading fails; repeated-dispatch evidence remains provisional due to a one-time-submit command-buffer reuse issue. Updated the tecno-os reference pin in the reuse specification to its current branch head.
+- Next: execute the Argon handoff; confirm exact target-device matrix with the owner; inspect the newer `tecno-os` GPU report; complete donor clean-build/test/licence evidence and benchmark before Phase 1.
+
+### 2026-11-03 — Gemini 4 Argon Phase 0 donor validation execution
+
+- Cloned all 5 donor repositories at their exact recorded commits into isolated `/tmp/phase0-donors/` worktrees (`agent-created-by-gemini` @ `90f5cf3ca0eca324f91a43ba96fab72c2e2de5ed`, `mobile_agent` @ `863723f7aa4b42137ff4ce07e26e541e402ff5a8`, `skill-agent` @ `86cfa6960b1341ed53b987f5a50b1c623ec18ad4`, `agent-1` @ `6d0c3002fc4c716dea2ffcba31339f0de79fd087`, and `tecno-os` @ `c8a23e359de5b30297ca731f713b89077e056cfc` / `d2aeac357141e75b601a935869abb8944ad0d41d`).
+- Executed clean-checkout builds, unit tests, `lintDebug`, release builds, and dependency reports (`ENGINEERING/DONOR_BUILD_TEST_MATRIX.md`):
+  - `agent-created-by-gemini`: `:app:testDebugUnitTest` **PASS** (13 suites, 74 tests, 0 failures); `:app:assembleDebug` **PASS** (`18,858,256` bytes, no `libllama-bridge.so` packaged); `:app:lintDebug` **FAIL** (1 error `PermissionImpliesUnsupportedChromeOsHardware`, 86 warnings); `:app:assembleRelease` **FAIL** (R8 syntax error at `app/proguard-rules.pro:14:29`, masked in GitHub Actions Run `40505149792` by `continue-on-error: true` and `|| true`).
+  - `mobile_agent`: `:app:assembleDebug` **PASS** (`17,846,968` bytes, packages `libllm_inference_engine_jni.so` which links blocked `libOpenCL.so`); `test` **PASS** with only **1 test** across the entire repo (`:ai` `PlannerTest`, while 5 of 6 modules have `NO-SOURCE`); `:app:lintDebug` **FAIL** (`QueryAllPackagesPermission`); `:memory` is missing KSP/KAPT `room-compiler`, so `AgentDatabase_Impl` is never generated.
+  - `agent-1`: `:core:test` (5 tests) and `:infrastructure:test` (6 tests) **PASS** (11 JVM tests total); `:app:testDebugUnitTest`, `:app:lintDebug`, and `:app:assembleDebug` **FAIL** (reproducing GitHub Actions Run `37294356933` Step 9 failure) due to 3 stacked defects: missing root `gradle.properties` (`android.useAndroidX=true`), 512 MiB default heap GC thrash at `:app:mergeExtDexDebug`, and missing `app/src/main/res/` directory at `:app:processDebugResources`.
+  - `skill-agent`: verified specification-only (**NOT RUN**).
+  - `tecno-os`: ran all 9 host Python test suites (`tests/host/test_*.py`): 4 **PASS** (`test_boot_safety`, `test_initramfs_shebang`, `test_inventory`, `test_kernel_config`), 5 **BLOCKED** by missing Linux kernel cross-compilation tools (`cpp`, `cpio`, `aarch64-linux-gnu-gcc`) in the Android container.
+- Audited all 46 Kotlin source files in `agent-created-by-gemini` (`ENGINEERING/DONOR_SOURCE_PROVENANCE_AND_LICENSE_LEDGER.md`), documenting what PR #3 (`1c7d8aa`) fixed vs remaining critical defects (`StepVerifier.verify()` lines `93-118` still returning unconditional `StepStatus.SUCCESS` for `ControlActuator`, `Delay`, `StartTimer`, `WebResearch`, and `else`; `UiSnapshot.monotonicTimestampMs` still defaulting to `System.currentTimeMillis()`; fake empty-string SHA-256 hashes `e3b0c442...` in `ModelCatalog`; `0.8 * sizeBytes` download check; 34 unrecorded classes audited and classified).
+- Produced all 5 Phase 0 deliverables (`DONOR_BUILD_TEST_MATRIX.md`, `DONOR_SOURCE_PROVENANCE_AND_LICENSE_LEDGER.md`, `DONOR_REVISION_AND_DIFF_REPORT.md`, `INITIAL_TASK_BENCHMARK.md`, `PHASE_0_TECHNICAL_SPIKES.md`) and recorded `ADR-006` through `ADR-010` in `ARCHITECTURE/DECISION_LOG.md`.
+- No destination Android application code, Gradle build files, or merges to `main` were performed.
+- Next: ChatGPT review pass and Owner confirmation of the 4 gate items in `ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §7 before starting Phase 1.
+
