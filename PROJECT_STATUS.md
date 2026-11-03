@@ -290,7 +290,7 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 ### 2026-11-03 — Expanded GitHub repository research
 
 - Added `RESEARCH/ANDROID_AUTONOMOUS_AGENT_REPOSITORY_DEEP_DIVE_2026-11-03.md`.
-- Inspected 11 repositories at pinned snapshots or default-branch snapshots: OpenDroid, Mobilerun, Llamatik, Hermes, AndroidWorld, Mobile-Agent, Maestro, Appium UiAutomator2 server, OpenATX uiautomator2, LangGraph and Google LiteRT samples.
+- Inspected 12 repositories at pinned snapshots or default-branch snapshots: OpenDroid, Mobilerun, Llamatik, Hermes, AndroidWorld, Mobile-Agent, Maestro, Appium UiAutomator2 server, OpenATX uiautomator2, LangGraph and Google LiteRT samples.
 - Source-level inspection included OpenDroid PlanManager/AgentLoop/PlanValidator/ReEvaluationEngine/AccessibilityNodeTraversal/ActionDispatcher/Room history/model downloader/click-targeting instrumentation tests; Mobilerun Manager/Executor/shared state/tool registry/UI state retry; Llamatik runtime/permission/confirmation/workflow/memory; Hermes loop/approval/SQLite state; AndroidWorld M3A; LiteRT phone tools and offline voice assistant architecture.
 - Recorded repository commit pins and root license observations, and separated direct Android-native code from host/ADB automation, benchmark frameworks, model/runtime examples and conceptual references.
 - Key architecture conclusion: build one durable observe-plan-validate-approve-dispatch-observe-verify loop; persist every step transition; never replay uncertain non-idempotent actions; require unique target grounding and independent postcondition verification.
