@@ -31,7 +31,7 @@ class AndroidAccessibilityObserver(
             while (stack.isNotEmpty() && out.size < MAX_NODES) {
                 val node = stack.removeLast()
                 try {
-                    val rect = android.graphics.Rect().also(node::getBoundsInScreen)
+                    val rect = android.graphics.Rect().also { node.getBoundsInScreen(it) }
                     val pkg = node.packageName?.toString() ?: continue
                     val text = node.text?.toString()
                     val viewId = node.viewIdResourceName
