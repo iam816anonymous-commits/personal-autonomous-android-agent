@@ -42,12 +42,12 @@ class ToolRegistry private constructor(
     fun descriptor(id: CapabilityId): ToolDescriptor? = tools[id]
 
     fun availableTools(statuses: Map<CapabilityId, CapabilityStatus>): List<ToolDescriptor> =
-        tools.values.filter { statuses[it.id]?.usable == true }.sortedBy { it.id.value }
+        tools.values.filter { descriptor ->\n            statuses[descriptor.id]?.let { it.id == descriptor.id && it.usable } == true\n        }.sortedBy { it.id.value }
 
     fun requireAvailable(id: CapabilityId, statuses: Map<CapabilityId, CapabilityStatus>): ToolDescriptor {
         val descriptor = tools[id] ?: error("Unknown capability: ${id.value}")
         val status = statuses[id] ?: error("Capability has not been discovered: ${id.value}")
-        require(status.usable) { status.unavailableReason ?: "Capability is not currently usable" }
+        require(status.id == id) { "Capability status identity mismatch" }\n        require(status.usable) { status.unavailableReason ?: "Capability is not currently usable" }
         return descriptor
     }
 
