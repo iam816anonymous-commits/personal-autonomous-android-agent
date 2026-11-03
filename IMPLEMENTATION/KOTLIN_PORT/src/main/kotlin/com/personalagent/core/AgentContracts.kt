@@ -188,3 +188,13 @@ data class TaskStepRecord(
         require(note.length <= 1_000)
     }
 }
+
+/** Stable wire-level action identifiers; never derive schemas from JVM class names. */
+fun AgentAction.kindId(): KClassName = KClassName(
+    when (this) {
+        is LaunchApplication -> "launch_application"
+        is ClickAccessibleNode -> "click_accessible_node"
+        is SetAccessibleText -> "set_accessible_text"
+        is ReadForegroundState -> "read_foreground_state"
+    },
+)
