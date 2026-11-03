@@ -345,3 +345,13 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 - Physical TECNO API 27 installation, AccessibilityService interaction, Room migration on-device and REA probes: **NOT RUN**.
 - Current work is a source implementation tranche, not a complete REA runtime, a UI-integrated tool builder, or a release-ready app.
 - Next exact work: obtain a CI run and fix all compile/test failures; then add app-facing REA capture/probe workflow, explicit approval UI and durable task recovery integration. Do not merge PR #4 until CI passes and review is complete.
+
+
+#### Implementation tranche follow-up
+
+- Added `ReverseEngineeringSession`: bounded screen fingerprint capture, transition graph collection, app-package scoping and secret-redacted labels from the existing accessibility observer.
+- Added `AndroidReverseEngineeringController` and exposed it from `AgentApplication`. A caller must explicitly begin inspection for a selected installed package, capture current foreground screens, record verified probes and finish/cancel the session.
+- Tightened self-tool creation: every step must reference a registered action and its exact argument schema; typed parameter bindings must match the action argument types.
+- Added a REA test for screen fingerprint transitions and password/OTP redaction.
+- Found and reused the existing `.github/workflows/kotlin-core.yml` workflow. It runs on `feature/**` pushes and pull requests to main, including core tests and Android APK assembly. The newly added duplicate workflow was removed.
+- Latest PR #4 head at the time of this update: `fa380d901c5e0fe4b0bc846eda32be5dea66506b`. CI result remains **NOT VERIFIED** through the available status endpoint; do not claim green.
