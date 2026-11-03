@@ -421,3 +421,11 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 - Updated DEVICE_CONTROL.md with the new grounding invariant.
 - Validation: branch CI pending at the time of this entry; physical API 27/OEM test NOT RUN. No automated UI dispatch instrumentation test has been run.
 - Next exact task: verify CI, then add an Android instrumentation/manual-device acceptance path for observer/dispatcher behavior. Do not add gesture/coordinate fallbacks until semantic targeting is proven on the physical device.
+
+
+### 2026-11-03 — Physical-device validation handoff
+
+- Added a GitHub Actions artifact upload after `:agent:app:assembleDebug`.
+- Each successful CI run will publish `personal-agent-debug-apk` containing `app-debug.apk` for seven days, with missing APK treated as a CI failure.
+- This is a handoff aid only. APK assembly is not installation or physical-device acceptance.
+- Next device gate: install on TECNO IN6 / H633, Android 8.1 / API 27; enable the AccessibilityService; inspect a known app; capture multiple screens; verify password/OTP redaction; confirm that click/text mutations are rejected when the screen changes or the 10-second snapshot lease expires. Record build fingerprint and observed results before enabling broader autonomous actions.

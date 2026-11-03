@@ -29,3 +29,11 @@ jobs:
         run: gradle :agent:app:testDebugUnitTest
       - name: Assemble API 27 Android application
         run: gradle :agent:app:assembleDebug
+
+      - name: Upload debug APK for physical-device validation
+        uses: actions/upload-artifact@v4
+        with:
+          name: personal-agent-debug-apk
+          path: agent/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
