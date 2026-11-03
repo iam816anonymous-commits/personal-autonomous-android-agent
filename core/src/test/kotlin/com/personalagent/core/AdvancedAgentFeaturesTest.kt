@@ -159,4 +159,30 @@ class AdvancedAgentFeaturesTest {
         )
         assertTrue(result.reasons.any { it.contains("Unverified probe") })
     }
+    @Test
+    fun reaBuildsBoundedScreenFingerprintsAndTransitionsFromRedactedSnapshots() {
+        val app = AppIdentity("com.example.notes", "1.0", 1, 27)
+        val session = ReverseEngineeringSession(app)
+        val first = DeviceSnapshot(
+            SnapshotId("rea-1"), 10, "com.example.notes",
+            listOf(
+                UiNodeSnapshot("title", "Notes", null, "id/title", "com.example.notes", false, false, false, null),
+                UiNodeSnapshot("secret", "OTP 123456", null, "id/otp", "com.example.notes", false, true, true, null),
+            ),
+            true, EvidenceSource.ACCESSIBILITY_TREE,
+        )
+        val second = first.copy(
+            id = SnapshotId("rea-2"),
+            nodes = listOf(
+                UiNodeSnapshot("title", "New Note", null, "id/title", "com.example.notes", false, false, false, null),
+            ),
+        )
+        assertEquals(0, session.observe(first))
+        assertEquals(1, session.observe(second))
+        val model = session.finish()
+        assertEquals(2, model.observedScreens.size)
+        assertEquals(listOf(0 to 1), model.transitions)
+        assertFalse(model.observedScreens.first().normalizedVisibleLabels.any { it.contains("otp") || it.contains("123456") })
+    }
+
 }
