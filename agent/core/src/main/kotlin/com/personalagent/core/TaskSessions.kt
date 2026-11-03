@@ -32,7 +32,7 @@ sealed interface TaskSessionDecision {
 /** Enforces legal task lifecycle transitions and monotonic wall-clock timestamps. */
 object TaskSessionProtocol {
     private val allowed = mapOf(
-        TaskSessionState.CREATED to setOf(TaskSessionState.RUNNING, TaskSessionState.CANCELLED, TaskSessionState.FAILED),
+        TaskSessionState.CREATED to setOf(TaskSessionState.RUNNING, TaskSessionState.RECOVERY_REQUIRED, TaskSessionState.CANCELLED, TaskSessionState.FAILED),
         TaskSessionState.RUNNING to setOf(TaskSessionState.AWAITING_APPROVAL, TaskSessionState.RECOVERY_REQUIRED,
             TaskSessionState.COMPLETED, TaskSessionState.FAILED, TaskSessionState.CANCELLED),
         TaskSessionState.AWAITING_APPROVAL to setOf(TaskSessionState.RUNNING, TaskSessionState.CANCELLED, TaskSessionState.FAILED),
