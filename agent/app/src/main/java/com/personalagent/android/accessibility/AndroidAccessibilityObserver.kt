@@ -7,7 +7,7 @@ import java.util.UUID
 
 class AndroidAccessibilityObserver(
     private val serviceProvider: () -> AgentAccessibilityService? = AgentAccessibilityService::current,
- ) : DeviceObserver {
+) : DeviceObserver {
     private val snapshotLeases = SnapshotLeaseRegistry()
 
     override suspend fun observe(): DeviceSnapshot = observeNow()
