@@ -29,7 +29,7 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 
 ### Overall
 
-**Kotlin/JVM core plus Android integration; durable journal/REA/tool-factory implementation in PR #4; CI and physical device validation pending**
+**Kotlin/JVM core plus Android integration on main; durable journal, initial REA bridge and declarative self-tool factory merged; live REA UI now added; latest CI and physical-device validation pending**
 
 - The repository contains a Kotlin/JVM core and an Android application module. GitHub Actions run 41612516639 passed core compilation/tests, three Android verifier unit tests and :app:assembleDebug on commit e3ea4db83d33cc127097427dcabc5358de559d3c; no Android source changed after that passing run.
 - Product assumptions, high-level architecture, platform constraints, research, source reuse decisions, safety contracts and phase plans are documented.
@@ -368,4 +368,18 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
   - `:app:assembleDebug` — PASS
 - This is CI evidence for compilation, JVM/unit tests and APK assembly only. It is not proof of installation or runtime behavior on TECNO API 27.
 - The new REA controller is exposed from `AgentApplication`; end-user REA controls/screens and durable generated-tool persistence remain follow-up work.
-- Current phase remains implementation/integration; PR #4 remains draft and unmerged. Physical device validation, actual third-party app exploration and Room migration testing on a device remain NOT RUN.
+- PR #4 was subsequently merged into main. Physical device validation, actual third-party app exploration and Room migration testing on a device remain NOT RUN.
+
+
+### 2026-11-03 — Resume implementation: live REA capture and user-facing inspection flow
+
+- Re-read this canonical status file and inspected the current main branch. PR #4 is already merged at merge commit `91e61c9fa3bc92c79e4db89a230e1e363e5061ec`; the earlier session-log statement that it remained draft/unmerged was stale and has been corrected.
+- Confirmed that the REA core contracts, screen fingerprinting, transition collection, evidence-gated skill certification and declarative self-tool factory are present. Confirmed that generated tools are currently in-memory only and that no executable-code generation is permitted.
+- Found a functional integration defect: the previous REA controller attempted to capture a screen only when called from the agent app, which meant it could not observe a different target app while that target was foregrounded.
+- Fixed the capture path: AccessibilityService now forwards visible foreground-package events to a single app-scoped listener; the REA controller captures bounded, redacted accessibility snapshots on a dedicated serial worker, scoped to the selected package and throttled to avoid event floods.
+- Added a basic REA user flow to MainActivity: enumerate launchable installed apps, select a target, begin an inspection, launch the target, explore it manually, return and finish/cancel, and display the discovered screen/transition/probe/limitation counts. No skill is falsely reported as created.
+- Changed files: `app/src/main/java/com/personalagent/android/accessibility/AndroidAccessibilityObserver.kt`, `AgentAccessibilityService.kt`, `app/src/main/java/com/personalagent/android/rea/AndroidReverseEngineeringController.kt`, and `app/src/main/java/com/personalagent/android/MainActivity.kt`.
+- Commits created directly on main: `e9859e9`, `03e93ab`, `d29cb36`, `99e98e0`.
+- Validation: source changes committed; **CI NOT YET VERIFIED** for the new main commits. No local Gradle execution was available through this session. Physical-device REA capture and app-version drift behavior remain **NOT RUN**.
+- Known limitations remain: REA currently collects passive screen fingerprints/transitions, not automated exploratory probes; no persistent REA session/skill store or user-facing probe approval flow exists; generated-tool persistence/management UI is not implemented; the core planner is not yet connected to a task-entry UI.
+- Next exact implementation tasks: verify CI for the new main commits; add persistent, versioned REA behavior/skill and generated-tool records with migration tests; build explicit user approval and revocation UI; then add safe probe execution using only the already-registered typed actions and independent postcondition verification. Continue the phase order; do not add wake-word or model runtime before these deterministic controls are proven.
