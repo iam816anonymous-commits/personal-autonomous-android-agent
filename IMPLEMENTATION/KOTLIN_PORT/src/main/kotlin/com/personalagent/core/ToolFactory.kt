@@ -85,9 +85,15 @@ class SelfToolFactory {
             }
             if (step.capability !in definition.requiredCapabilities) errors += "Step ${index + 1} uses an undeclared capability"
             if (step.risk.severity > definition.maximumRisk.severity) errors += "Step ${index + 1} exceeds the tool risk ceiling"
-            step.parameterBindings.values.forEach { binding ->
-                val parameter = binding.removePrefix("\$")
-                if (parameter !in parameterNames) errors += "Step ${index + 1} references unknown parameter '$parameter'"
+            step.parameterBindings.forEach { (argumentName, binding) ->
+                val parameter = binding.removePrefix("\\$")
+                val declared = definition.parameters.firstOrNull { it.name == parameter }
+                val expectedType = actionSchema?.get(argumentName)
+                if (declared == null) {
+                    errors += "Step ${index + 1} references unknown parameter '$parameter'"
+                } else if (expectedType != null && declared.type != expectedType) {
+                    errors += "Step ${index + 1} binds '$parameter' with the wrong parameter type"
+                }
             }
         }
 
