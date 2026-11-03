@@ -29,7 +29,7 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 
 ### Overall
 
-**Kotlin/JVM core plus Android integration on main; durable journal, initial REA bridge and declarative self-tool factory merged; live REA UI now added; latest CI and physical-device validation pending**
+**Kotlin/JVM core plus Android integration on main; first durable task-session persistence tranche on feature branch; CI/device validation pending**
 
 - The repository contains executable modules under `agent/core/` and `agent/app/`. GitHub Actions run 41612516639 is historical baseline evidence for the earlier source state; subsequent Android source changes were made and require their own CI/device validation.
 - Product assumptions, high-level architecture, platform constraints, research, source reuse decisions, safety contracts and phase plans are documented.
@@ -48,7 +48,7 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 | Phase | Name | Status | Evidence / remaining work |
 |---|---|---|---|
 | 0 | Repository archaeology, research and requirements freeze | **In progress (Argon validation complete; awaiting Owner sign-off)** | Argon Phase 0 deliverables are archived under `research/ENGINEERING/ARGON/` (`DONOR_BUILD_TEST_MATRIX.md`, `DONOR_SOURCE_PROVENANCE_AND_LICENSE_LEDGER.md`, `DONOR_REVISION_AND_DIFF_REPORT.md`, `INITIAL_TASK_BENCHMARK.md`, `PHASE_0_TECHNICAL_SPIKES.md`, plus the development handoff). Awaiting Owner confirmation of final device matrix/API 27 mandate, first-party donor license declaration, benchmark approval, and Phase 1 start authorization. |
-| 1 | Buildable Android shell and stable contracts | **Prototype source added; CI build passed; device gate open** | Kotlin/JVM core (`:agent:core`) and API 27-minimum Android module (`:agent:app`) compile in CI. Run 41612516639 passed core compile/tests, 3 Android verifier tests and debug APK assembly. No API 27 physical install/smoke test yet. See research/IMPLEMENTATION/HERMES_KOTLIN_PORT_REVIEW.md and research/IMPLEMENTATION/KOTLIN_PORT_README.md. |
+| 1 | Buildable Android shell and stable contracts | **Prototype plus durable task-session journal added; current branch CI pending; device gate open** | Added a versioned task-session state protocol, Room `task_sessions` table (schema migration 2→3), AES-GCM encrypted goal/reason fields, and startup reconciliation of interrupted task/action records. Four core lifecycle tests added. The session journal is not yet connected to the orchestrator/task-entry UI. No Room migration instrumentation test or API 27 physical install/smoke test yet. |
 | 2 | Accessibility observation bridge | **Initial adapter source added; device validation pending** | User-enabled service, bounded 250-node semantic observer and stale-target checks added under app/; API 27/OEM behavior NOT RUN on physical device. |
 | 3A | Hardware capability discovery and control | **Partial** | Initial capability registry reports accessibility and app-launch availability; torch/vibration/Wi-Fi/Bluetooth hardware adapters are NOT IMPLEMENTED. |
 | 3 | Deterministic device action layer and verification | **Initial accessibility actions added; integration validation pending** | Launch, semantic click and set-text dispatch plus fresh-snapshot postcondition verifier are source-present; action UI approval and physical verification remain incomplete. |
@@ -395,3 +395,16 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 - Commit: `0e6a49677ea8e203537977038f069f0a0f4cf1a7`.
 - Structural verification: confirmed the agent source, Android manifest, tests, research index, Argon archive and Gradle/CI files exist at their new paths; confirmed no old top-level `app/`, `core/`, `ARCHITECTURE/`, `RESEARCH/`, `ENGINEERING/` or `IMPLEMENTATION/` paths remain.
 - Build/CI after relocation: **PENDING / NOT VERIFIED**. The previous passing CI run predates the relocation; the next run must validate the new Gradle project paths.
+
+
+### 2026-11-03 — Stage 1: durable task-session foundation
+
+- Created feature branch `feature/stage-1-durable-task-sessions` from the latest main commit.
+- Added platform-neutral task-session contracts and a closed lifecycle protocol: CREATED, RUNNING, AWAITING_APPROVAL, RECOVERY_REQUIRED and terminal states. Invalid transitions, backwards timestamps and terminal transitions without reasons are rejected.
+- Added process-restart handling: active sessions are marked RECOVERY_REQUIRED; no action is automatically replayed.
+- Added Room `task_sessions` table and schema migration 2→3. User goal text and terminal reason are encrypted through Android Keystore AES-GCM; only task metadata/state remains queryable.
+- Added RoomTaskSessionJournal create/get/transition/loadActive/reconcile operations. AgentApplication starts reconciliation of task sessions and durable action attempts on process startup.
+- Added four JVM tests for legal transitions, terminal-state closure, interrupted-session recovery and clock rollback handling.
+- Not yet implemented: orchestrator integration with TaskSessionJournal, task-entry/execution UI, Room migration instrumentation tests, startup-recovery readiness barrier, and physical-device validation.
+- Validation: GitHub Actions run for this feature branch is pending at the time of this entry; do not treat source creation as a passing build.
+- Next exact task: inspect and fix the feature-branch CI result; then integrate task-session transitions into the orchestrator and add persistence/migration tests before moving to the next dependent stage.

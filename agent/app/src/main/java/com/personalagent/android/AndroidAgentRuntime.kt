@@ -48,6 +48,8 @@ class AndroidAgentRuntime(
             approvalProvider = approvalProvider,
             journal = journal,
             durableJournal = durableJournal,
+            taskSessions = (appContext as AgentApplication).taskSessionJournal,
+            epochClock = EpochClock { System.currentTimeMillis() },
             clock = clock,
         )
     }

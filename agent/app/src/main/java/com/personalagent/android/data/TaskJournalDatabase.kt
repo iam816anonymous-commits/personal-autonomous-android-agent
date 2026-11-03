@@ -8,6 +8,17 @@ import com.personalagent.core.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+@Entity(tableName = "task_sessions", indices = [Index(value = ["state", "updatedAtEpochMillis"])])
+data class TaskSessionEntity(
+    @PrimaryKey val taskId: String,
+    val goalCiphertext: ByteArray,
+    val inputModality: String,
+    val state: String,
+    val createdAtEpochMillis: Long,
+    val updatedAtEpochMillis: Long,
+    val terminalReasonCiphertext: ByteArray?,
+)
+
 @Entity(tableName = "task_steps", indices = [Index(value = ["taskId", "startedAtElapsedMillis"])])
 data class TaskStepEntity(
     @PrimaryKey(autoGenerate = true) val rowId: Long = 0,
@@ -40,6 +51,21 @@ data class DurableActionEntity(
 )
 
 @Dao
+interface TaskSessionDao {
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(record: TaskSessionEntity): Long
+
+    @Query("SELECT * FROM task_sessions WHERE taskId = :taskId LIMIT 1")
+    suspend fun find(taskId: String): TaskSessionEntity?
+
+    @Update
+    suspend fun update(record: TaskSessionEntity): Int
+
+    @Query("SELECT * FROM task_sessions WHERE state IN ('CREATED', 'RUNNING', 'AWAITING_APPROVAL', 'RECOVERY_REQUIRED') ORDER BY createdAtEpochMillis ASC")
+    suspend fun active(): List<TaskSessionEntity>
+}
+
+@Dao
 interface TaskStepDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(step: TaskStepEntity): Long
@@ -70,8 +96,9 @@ interface DurableActionDao {
     suspend fun recoverable(): List<DurableActionEntity>
 }
 
-@Database(entities = [TaskStepEntity::class, DurableActionEntity::class], version = 2, exportSchema = true)
+@Database(entities = [TaskSessionEntity::class, TaskStepEntity::class, DurableActionEntity::class], version = 3, exportSchema = true)
 abstract class TaskJournalDatabase : RoomDatabase() {
+    abstract fun taskSessionDao(): TaskSessionDao
     abstract fun taskStepDao(): TaskStepDao
     abstract fun durableActionDao(): DurableActionDao
 
@@ -98,7 +125,96 @@ abstract class TaskJournalDatabase : RoomDatabase() {
                 db.execSQL("CREATE INDEX IF NOT EXISTS index_action_attempts_dispatchState_updatedAtElapsedMillis ON action_attempts(dispatchState, updatedAtElapsedMillis)")
             }
         }
+
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS task_sessions (
+                        taskId TEXT NOT NULL PRIMARY KEY,
+                        goalCiphertext BLOB NOT NULL,
+                        inputModality TEXT NOT NULL,
+                        state TEXT NOT NULL,
+                        createdAtEpochMillis INTEGER NOT NULL,
+                        updatedAtEpochMillis INTEGER NOT NULL,
+                        terminalReasonCiphertext BLOB
+                    )
+                """.trimIndent())
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_task_sessions_state_updatedAtEpochMillis ON task_sessions(state, updatedAtEpochMillis)")
+            }
+        }
     }
+}
+
+class RoomTaskSessionJournal(
+    private val database: TaskJournalDatabase,
+    private val crypto: JournalCrypto,
+) : TaskSessionJournal {
+    override suspend fun create(record: TaskSessionRecord): Boolean = withContext(Dispatchers.IO) {
+        require(record.state == TaskSessionState.CREATED) { "New task sessions must start in CREATED" }
+        database.taskSessionDao().insert(record.toEntity()) != -1L
+    }
+
+    override suspend fun transition(
+        taskId: TaskId,
+        next: TaskSessionState,
+        nowEpochMillis: Long,
+        reason: String?,
+    ): TaskSessionDecision = withContext(Dispatchers.IO) {
+        database.withTransaction {
+            val dao = database.taskSessionDao()
+            val current = dao.find(taskId.value)?.toRecord()
+                ?: return@withTransaction TaskSessionDecision.Reject("Task session does not exist")
+            val decision = TaskSessionProtocol.transition(current, next, nowEpochMillis, reason)
+            if (decision is TaskSessionDecision.Accept) {
+                val updated = dao.update(decision.record.toEntity())
+                if (updated != 1) return@withTransaction TaskSessionDecision.Reject("Concurrent task update; reload before proceeding")
+            }
+            decision
+        }
+    }
+
+    override suspend fun get(taskId: TaskId): TaskSessionRecord? = withContext(Dispatchers.IO) {
+        database.taskSessionDao().find(taskId.value)?.toRecord()
+    }
+
+    override suspend fun loadActive(): List<TaskSessionRecord> = withContext(Dispatchers.IO) {
+        database.taskSessionDao().active().map { it.toRecord() }
+    }
+
+    override suspend fun reconcileAfterProcessRestart(nowEpochMillis: Long): List<TaskSessionRecord> =
+        withContext(Dispatchers.IO) {
+            database.withTransaction {
+                val dao = database.taskSessionDao()
+                dao.active().map { entity ->
+                    val current = entity.toRecord()
+                    val decision = TaskSessionProtocol.interrupted(current, nowEpochMillis)
+                    if (decision is TaskSessionDecision.Accept && decision.record != current) {
+                        dao.update(decision.record.toEntity())
+                        decision.record
+                    } else current
+                }
+            }
+        }
+
+    private fun TaskSessionRecord.toEntity() = TaskSessionEntity(
+        taskId = taskId.value,
+        goalCiphertext = crypto.encrypt(goal.toByteArray(Charsets.UTF_8)),
+        inputModality = inputModality.name,
+        state = state.name,
+        createdAtEpochMillis = createdAtEpochMillis,
+        updatedAtEpochMillis = updatedAtEpochMillis,
+        terminalReasonCiphertext = terminalReason?.let { crypto.encrypt(it.toByteArray(Charsets.UTF_8)) },
+    )
+
+    private fun TaskSessionEntity.toRecord() = TaskSessionRecord(
+        taskId = TaskId(taskId),
+        goal = crypto.decrypt(goalCiphertext).toString(Charsets.UTF_8),
+        inputModality = TaskInputModality.valueOf(inputModality),
+        state = TaskSessionState.valueOf(state),
+        createdAtEpochMillis = createdAtEpochMillis,
+        updatedAtEpochMillis = updatedAtEpochMillis,
+        terminalReason = terminalReasonCiphertext?.let { crypto.decrypt(it).toString(Charsets.UTF_8) },
+    )
 }
 
 class RoomTaskStepJournal(private val dao: TaskStepDao, private val crypto: JournalCrypto) : TaskStepJournal {
@@ -202,4 +318,5 @@ class RoomDurableExecutionJournal(
 
 interface JournalCrypto {
     fun encrypt(plaintext: ByteArray): ByteArray
+    fun decrypt(ciphertext: ByteArray): ByteArray
 }
