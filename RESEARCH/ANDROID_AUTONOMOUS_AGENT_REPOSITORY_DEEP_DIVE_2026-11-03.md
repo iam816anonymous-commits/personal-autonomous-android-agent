@@ -40,7 +40,7 @@ The commit pins below identify the exact source snapshots inspected during this 
 | [appium/appium-uiautomator2-server](https://github.com/appium/appium-uiautomator2-server/tree/56bf27a222b9aa242e6a40cf87825b78b443b7be) — `56bf27a222b9aa242e6a40cf87825b78b443b7be` | Apache-2.0 | README, server model and instrumentation build/run approach | **Testing reference only.** Repository README says development moved to appium-android monorepo. |
 | [openatx/uiautomator2](https://github.com/openatx/uiautomator2/tree/5d373ad83a94d85ebfd088cacb58d06ac40a00d2) — `5d373ad83a94d85ebfd088cacb58d06ac40a00d2` | MIT | README, device-side HTTP server + Python client architecture, selector and hierarchy APIs | **Testing/diagnostics reference only.** Not a direct in-app dependency. |
 | [langchain-ai/langgraph](https://github.com/langchain-ai/langgraph/tree/3c916d750575b22c464790e9774494d810ccd322) — `3c916d750575b22c464790e9774494d810ccd322` | MIT | Checkpoint package and persistence/checkpointer docs | **Adapt checkpoint semantics.** Do not embed server-oriented Python/DB infrastructure. |
-| [google-ai-edge/litert-samples](https://github.com/google-ai-edge/litert-samples) — default branch snapshot inspected 2026-11-03 | Apache-2.0 | Android offline voice assistant README, tool execution source, model catalog/download architecture | **High-value inference/model-management reference, but not API 27-compatible as inspected.** Verify exact revision and model/runtime license before adoption. |
+| [google-ai-edge/litert-samples](https://github.com/google-ai-edge/litert-samples/tree/e98147beea80ee90f7f74ed975bca9c78667d87c) — `e98147beea80ee90f7f74ed975bca9c78667d87c` | Apache-2.0 | Android offline voice assistant README, tool execution source, model catalog/download architecture | **High-value inference/model-management reference, but not API 27-compatible as inspected.** Verify exact revision and model/runtime license before adoption. |
 
 ### Important distinction
 
@@ -467,7 +467,7 @@ Prefer new Kotlin implementations for Android-specific execution and safety poli
 - Appium UiAutomator2 server: https://github.com/appium/appium-uiautomator2-server/tree/56bf27a222b9aa242e6a40cf87825b78b443b7be
 - OpenATX uiautomator2: https://github.com/openatx/uiautomator2/tree/5d373ad83a94d85ebfd088cacb58d06ac40a00d2
 - LangGraph persistence: https://github.com/langchain-ai/langgraph/blob/3c916d750575b22c464790e9774494d810ccd322/libs/checkpoint/README.md
-- LiteRT offline voice assistant: https://github.com/google-ai-edge/litert-samples/tree/main/samples/litert_lm/voice_assistant
+- LiteRT offline voice assistant: https://github.com/google-ai-edge/litert-samples/tree/e98147beea80ee90f7f74ed975bca9c78667d87c/samples/litert_lm/voice_assistant
 - Android AccessibilityService API: https://developer.android.com/reference/android/accessibilityservice/AccessibilityService
 - Android 8 background limits: https://developer.android.com/about/versions/oreo/background
 - Android restricted screen reading: https://source.android.com/docs/core/permissions/restricted-screen-reading
