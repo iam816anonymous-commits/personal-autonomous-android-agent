@@ -2,6 +2,7 @@ package com.personalagent.core
 
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.TimeoutCancellationException
 
 fun interface GoalPlanner {
     suspend fun nextAction(goal: String, snapshot: DeviceSnapshot, completedActions: List<ActionId>): AgentAction?
@@ -129,7 +130,7 @@ class AgentOrchestrator(
                 }
                 TaskOutcome(taskId, TaskState.FAILED, verifiedCount, "Maximum action count reached")
             }
-        } catch (cancelled: CancellationException) {
+        } catch (timeout: TimeoutCancellationException) {\n            TaskOutcome(taskId, TaskState.RECOVERY_REQUIRED, verifiedCount, "Execution time budget expired; observe device state before retrying")\n        } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {
             TaskOutcome(taskId, TaskState.FAILED, verifiedCount, failure.message ?: "Execution failed")
