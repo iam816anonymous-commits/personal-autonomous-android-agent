@@ -62,7 +62,7 @@ class ApprovalPolicy(
             }
         }
 
-        val approvalRequired = action.risk >= RiskLevel.HIGH ||
+        val approvalRequired = action.risk.ordinal >= RiskLevel.HIGH.ordinal ||
             action is SetAccessibleText || action is ClickAccessibleNode
         if (!approvalRequired) return PolicyDecision.Allowed
 
