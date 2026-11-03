@@ -7,6 +7,8 @@ import com.personalagent.android.data.RoomDurableExecutionJournal
 import com.personalagent.android.data.RoomTaskStepJournal
 import com.personalagent.android.data.RoomTaskSessionJournal
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -14,6 +16,7 @@ import com.personalagent.android.data.TaskJournalDatabase
 import com.personalagent.android.rea.AndroidReverseEngineeringController
 
 class AgentApplication : Application() {
+    private lateinit var startupRecovery: Deferred<Unit>
     lateinit var journal: RoomTaskStepJournal
         private set
     lateinit var durableJournal: RoomDurableExecutionJournal
@@ -22,6 +25,11 @@ class AgentApplication : Application() {
         private set
     lateinit var reaController: AndroidReverseEngineeringController
         private set
+
+    /** Task execution entry points must await this before creating or dispatching work. */
+    suspend fun awaitStartupRecovery() {
+        startupRecovery.await()
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -33,7 +41,7 @@ class AgentApplication : Application() {
         journal = RoomTaskStepJournal(database.taskStepDao(), crypto)
         durableJournal = RoomDurableExecutionJournal(database, crypto)
         taskSessionJournal = RoomTaskSessionJournal(database, crypto)
-        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+        startupRecovery = CoroutineScope(SupervisorJob() + Dispatchers.IO).async {
             // Any task that was active when the process died must be reconciled, never replayed.
             taskSessionJournal.reconcileAfterProcessRestart(System.currentTimeMillis())
             durableJournal.reconcileAfterProcessDeath()
