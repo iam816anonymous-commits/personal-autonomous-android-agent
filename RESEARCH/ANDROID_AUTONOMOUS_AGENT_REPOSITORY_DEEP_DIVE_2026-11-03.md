@@ -352,6 +352,8 @@ For our legacy target, the inference adapter must be independently selected and 
 
 Android's AccessibilityService `takeScreenshot()` was added in API 30. The global screenshot action is API 28. Therefore, neither can be used on Android 8.1/API 27.
 
+Android's `AccessibilityService.dispatchGesture()` is available from API 24, but the service must declare `android:canPerformGestures="true"` in its metadata. The current destination service XML does not declare this capability, so gesture dispatch is not currently available in our app. This can be added as a deliberate later capability, with bounds checks and verification; it should not replace semantic node targeting.
+
 On API 27, baseline observation should be:
 
 - AccessibilityNodeInfo tree;
