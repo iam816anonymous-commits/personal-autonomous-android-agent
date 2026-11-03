@@ -54,6 +54,7 @@ class AgentOrchestrator(
     private val policy: ApprovalPolicy,
     private val approvalProvider: ApprovalProvider,
     private val journal: TaskStepJournal,
+    private val durableJournal: DurableExecutionJournal,
     private val clock: MonotonicClock,
     private val limits: OrchestratorLimits = OrchestratorLimits(),
 ) {
@@ -80,7 +81,6 @@ class AgentOrchestrator(
                     if (action.kindId() !in descriptor.supportedActions) {
                         return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, "Action is not registered for this capability")
                     }
-
                     if (action.risk.severity > descriptor.riskCeiling.severity) {
                         return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, "Action exceeds the registered tool risk ceiling")
                     }
@@ -92,7 +92,6 @@ class AgentOrchestrator(
                         is PolicyDecision.RequiresApproval -> approvalProvider.request(action, snapshot)
                             ?: return@withTimeout TaskOutcome(taskId, TaskState.CANCELLED, verifiedCount, "User declined or did not provide approval")
                     }
-
                     val finalDecision = policy.evaluate(action, PolicyContext(capabilityStatuses, approval, snapshot))
                     if (finalDecision !is PolicyDecision.Allowed) {
                         val reason = when (finalDecision) {
@@ -103,33 +102,95 @@ class AgentOrchestrator(
                         return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, reason)
                     }
 
-                    journal.append(record(taskId, action, TaskState.EXECUTING, "Dispatch started", clock.nowMillis()))
-                    val dispatch = withTimeout(action.limits.timeoutMillis) { dispatcher.dispatch(action) }
-                    if (dispatch !is ActionExecutionResult.Dispatched) {
-                        val reason = when (dispatch) {
-                            is ActionExecutionResult.Rejected -> dispatch.reason
-                            is ActionExecutionResult.Failed -> dispatch.reason
-                            is ActionExecutionResult.Dispatched -> ""
+                    // Write-ahead intent must be durable before the Android adapter is called.
+                    val intent = DurableActionRecord(
+                        taskId = taskId,
+                        actionId = action.id,
+                        actionKind = action.kindId().value,
+                        targetPackage = action.targetPackage,
+                        snapshotId = when (action) {
+                            is ClickAccessibleNode -> action.snapshotId
+                            is SetAccessibleText -> action.snapshotId
+                            else -> snapshot.id
+                        },
+                        idempotency = action.idempotency,
+                        dispatchState = DispatchState.PREPARED,
+                        attempt = 1,
+                        createdAtElapsedMillis = clock.nowMillis(),
+                        updatedAtElapsedMillis = clock.nowMillis(),
+                    )
+                    if (!durableJournal.insertPrepared(intent)) {
+                        return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, "Could not persist action intent; dispatch was blocked")
+                    }
+                    val dispatching = durableJournal.transition(taskId, action.id, DispatchState.DISPATCHING, clock.nowMillis())
+                    if (dispatching !is JournalDecision.Accept) {
+                        return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, "Could not persist dispatch boundary; dispatch was blocked")
+                    }
+
+                    journal.append(record(taskId, action, TaskState.EXECUTING, "Dispatch started after durable intent commit", clock.nowMillis()))
+                    val dispatch = try {
+                        withTimeout(action.limits.timeoutMillis) { dispatcher.dispatch(action) }
+                    } catch (timeout: TimeoutCancellationException) {
+                        durableJournal.transition(taskId, action.id, DispatchState.OUTCOME_UNKNOWN, clock.nowMillis(),
+                            "Dispatch timed out; side effect may have occurred")
+                        observer.observe().redacted()
+                        journal.append(record(taskId, action, TaskState.RECOVERY_REQUIRED, "Dispatch outcome uncertain after timeout", clock.nowMillis()))
+                        return@withTimeout TaskOutcome(taskId, TaskState.RECOVERY_REQUIRED, verifiedCount, "Dispatch timed out; device state must be reconciled")
+                    }
+
+                    when (dispatch) {
+                        is ActionExecutionResult.Rejected -> {
+                            durableJournal.transition(taskId, action.id, DispatchState.REJECTED, clock.nowMillis(), dispatch.reason)
+                            return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, dispatch.reason)
                         }
-                        // A timeout/failure may have happened after the side effect. Never replay blindly.
-                        snapshot = observer.observe().redacted()
-                        journal.append(record(taskId, action, TaskState.RECOVERY_REQUIRED, reason, clock.nowMillis()))
-                        return@withTimeout TaskOutcome(taskId, TaskState.RECOVERY_REQUIRED, verifiedCount, reason)
+                        is ActionExecutionResult.Failed -> {
+                            val next = if (dispatch.outcomeMayHaveOccurred) DispatchState.OUTCOME_UNKNOWN else DispatchState.FAILED
+                            durableJournal.transition(taskId, action.id, next, clock.nowMillis(), dispatch.reason)
+                            if (dispatch.outcomeMayHaveOccurred) {
+                                observer.observe().redacted()
+                                journal.append(record(taskId, action, TaskState.RECOVERY_REQUIRED, dispatch.reason, clock.nowMillis()))
+                                return@withTimeout TaskOutcome(taskId, TaskState.RECOVERY_REQUIRED, verifiedCount, dispatch.reason)
+                            }
+                            return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, dispatch.reason)
+                        }
+                        is ActionExecutionResult.Dispatched -> {
+                            val receipt = dispatch.evidenceReference
+                            val persisted = durableJournal.transition(
+                                taskId, action.id, DispatchState.DISPATCHED, clock.nowMillis(),
+                                receipt ?: if (action.idempotency == Idempotency.NON_IDEMPOTENT) null else "dispatch-returned",
+                            )
+                            if (persisted !is JournalDecision.Accept) {
+                                durableJournal.transition(taskId, action.id, DispatchState.OUTCOME_UNKNOWN, clock.nowMillis(),
+                                    "Dispatch returned but durable receipt could not be committed")
+                                observer.observe().redacted()
+                                return@withTimeout TaskOutcome(taskId, TaskState.RECOVERY_REQUIRED, verifiedCount,
+                                    "Dispatch occurred but journal receipt is uncertain")
+                            }
+                        }
                     }
 
                     journal.append(record(taskId, action, TaskState.VERIFYING, "Dispatch returned; independent verification required", clock.nowMillis()))
                     val after = observer.observe().redacted()
                     when (val result = verifier.verify(action, snapshot, after)) {
                         is VerificationResult.Verified -> {
+                            val verified = durableJournal.transition(taskId, action.id, DispatchState.VERIFIED, clock.nowMillis(), result.evidence)
+                            if (verified !is JournalDecision.Accept) {
+                                return@withTimeout TaskOutcome(taskId, TaskState.RECOVERY_REQUIRED, verifiedCount,
+                                    "Postcondition verified but durable verification commit failed")
+                            }
                             verifiedCount++
                             completed += action.id
                             journal.append(record(taskId, action, TaskState.COMPLETED, result.evidence.take(1_000), clock.nowMillis()))
                             snapshot = after
                         }
-                        is VerificationResult.Failed ->
+                        is VerificationResult.Failed -> {
+                            durableJournal.transition(taskId, action.id, DispatchState.FAILED, clock.nowMillis(), result.reason)
                             return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, result.reason)
-                        is VerificationResult.Inconclusive ->
+                        }
+                        is VerificationResult.Inconclusive -> {
+                            durableJournal.transition(taskId, action.id, DispatchState.OUTCOME_UNKNOWN, clock.nowMillis(), result.reason)
                             return@withTimeout TaskOutcome(taskId, TaskState.RECOVERY_REQUIRED, verifiedCount, result.reason)
+                        }
                     }
                 }
                 TaskOutcome(taskId, TaskState.FAILED, verifiedCount, "Maximum action count reached")
@@ -141,7 +202,6 @@ class AgentOrchestrator(
         } catch (failure: Exception) {
             TaskOutcome(taskId, TaskState.FAILED, verifiedCount, failure.message ?: "Execution failed")
         }.also {
-            // Prevent a broken clock/provider from silently extending the task's lifetime.
             check(clock.nowMillis() - started <= limits.maxElapsedMillis + 1_000) {
                 "Orchestrator exceeded its monotonic time budget"
             }
