@@ -1,11 +1,11 @@
 # Phase 0 Deterministic Task Benchmark and Failure-Mode Verification Specification
 
 **Date:** 2026-11-03  
-**Workstream:** Gemini 4 Argon — Phase 0 Donor Validation (`ENGINEERING/ARGON_DEVELOPMENT_HANDOFF.md` §2.7, §5, §6; `ENGINEERING/TEST_STRATEGY.md` §3)  
+**Workstream:** Gemini 4 Argon — Phase 0 Donor Validation (`ENGINEERING/ARGON/ARGON_DEVELOPMENT_HANDOFF.md` §2.7, §5, §6; `ENGINEERING/TEST_STRATEGY.md` §3)  
 **Destination Repository:** `https://github.com/iam816anonymous-commits/personal-autonomous-android-agent`  
 **Validation Branch:** `phase-0-argon-handoff`  
 
-> **Benchmark Governance:** This benchmark defines **26 deterministic task scenarios** across all 8 required task categories in `ENGINEERING/TEST_STRATEGY.md`, plus explicit test contracts for all **14 mandatory architectural failure modes** in `ENGINEERING/ARGON_DEVELOPMENT_HANDOFF.md` §6. No task may be scored as `PASS` based on action dispatch alone; every scenario specifies an **independent postcondition verifier** and **forbidden side effects**.
+> **Benchmark Governance:** This benchmark defines **26 deterministic task scenarios** across all 8 required task categories in `ENGINEERING/TEST_STRATEGY.md`, plus explicit test contracts for all **14 mandatory architectural failure modes** in `ENGINEERING/ARGON/ARGON_DEVELOPMENT_HANDOFF.md` §6. No task may be scored as `PASS` based on action dispatch alone; every scenario specifies an **independent postcondition verifier** and **forbidden side effects**.
 
 ---
 
@@ -93,7 +93,7 @@
 
 ## 3. Mandatory 14-Item Architectural Failure-Mode Verification Checklist (`ARGON_DEVELOPMENT_HANDOFF.md` §6)
 
-Every failure mode mandated in `ENGINEERING/ARGON_DEVELOPMENT_HANDOFF.md` §6 was tested against the donor codebase (`agent-created-by-gemini` @ `90f5cf3`) and mapped to a deterministic fail-closed contract and benchmark/unit test gate for Phase 1–4:
+Every failure mode mandated in `ENGINEERING/ARGON/ARGON_DEVELOPMENT_HANDOFF.md` §6 was tested against the donor codebase (`agent-created-by-gemini` @ `90f5cf3`) and mapped to a deterministic fail-closed contract and benchmark/unit test gate for Phase 1–4:
 
 | # | Mandatory Failure Mode (`ARGON_DEVELOPMENT_HANDOFF.md` §6) | Donor Status at `90f5cf3` (`agent-created-by-gemini`) | Required Fail-Closed Destination Contract | Linked Benchmark / Test Gate |
 |---|---|---|---|---|
