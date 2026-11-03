@@ -581,6 +581,8 @@ Prefer new Kotlin implementations for Android-specific execution and safety poli
 - Mobilerun Executor: https://github.com/droidrun/mobilerun/blob/11dcdebdec9ea99f172dd7e80af7ba1eadbeb6c8/mobilerun/agent/executor/executor_agent.py
 - MobileUse: https://github.com/MadeAgents/mobile-use/tree/babec07fd0e5faa7e7bcc7d3d0ee2320f6b83347
 - Mobilerun Portal AccessibilityService: https://github.com/droidrun/mobilerun-portal/blob/00a77c01e2ee4fcc71889a3992bc1753d64e9ed9/app/src/main/java/com/mobilerun/portal/service/MobilerunAccessibilityService.kt
+- Mobilerun Portal API26–29 MediaProjection fallback: https://github.com/droidrun/mobilerun-portal/blob/00a77c01e2ee4fcc71889a3992bc1753d64e9ed9/app/src/main/java/com/mobilerun/portal/service/MediaProjectionScreenshotter.kt
+- Mobilerun Portal API24 gesture controller: https://github.com/droidrun/mobilerun-portal/blob/00a77c01e2ee4fcc71889a3992bc1753d64e9ed9/app/src/main/java/com/mobilerun/portal/service/GestureController.kt
 - sherpa-onnx Android KWS: https://github.com/k2-fsa/sherpa-onnx/blob/935e5ded3d949a8b557ac44ef4dad03a7d2038e7/android/SherpaOnnxKws/app/src/main/java/com/k2fsa/sherpa/onnx/KeywordSpotter.kt
 - Google AI Edge Gallery: https://github.com/google-ai-edge/gallery/tree/6d09e2ea0823b0868800ef3b5752852715b58b91
 - llama.cpp Android sample: https://github.com/ggml-org/llama.cpp/tree/71efc559a00b236851f6ba00a629d776f2416d2b/examples/llama.android
