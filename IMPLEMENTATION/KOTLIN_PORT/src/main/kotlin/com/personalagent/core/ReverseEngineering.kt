@@ -39,7 +39,10 @@ data class InteractionProbe(
     val observedAfter: SnapshotId?,
     val verification: VerificationResult?,
 ) {
-    init { require(name.isNotBlank() && name.length <= 120) }
+    init {
+        require(name.isNotBlank() && name.length <= 120)
+        require(expected == action.expected) { "Probe expectation must match the dispatched action contract" }
+    }
 }
 
 data class AppBehaviorModel(
@@ -92,7 +95,8 @@ class AppSkillCertifier(private val validator: SkillValidator) {
         if (proposal.evidenceProbeNames.isEmpty()) failures += "No interaction probe evidence was supplied"
 
         val verifiedProbeNames = behavior.probes.filter {
-            it.verification is VerificationResult.Verified &&
+            it.action.targetPackage == behavior.app.packageName &&
+                it.verification is VerificationResult.Verified &&
                 it.observedAfter != null &&
                 it.observedAfter != it.observedBefore
         }.map { it.name }.toSet()
@@ -116,5 +120,92 @@ class AppSkillCertifier(private val validator: SkillValidator) {
             .digest(canonical.toByteArray(Charsets.UTF_8))
             .joinToString("") { "%02x".format(it) }
         return SkillCertification.Certified(proposal, digest)
+    }
+}
+
+
+/**
+ * Stateful REA capture session. It consumes already-redacted accessibility snapshots supplied by
+ * the Android observer; it does not acquire screenshots, inspect private app data or dispatch probes.
+ */
+class ReverseEngineeringSession(
+    private val app: AppIdentity,
+    private val maximumScreens: Int = 100,
+    private val maximumProbes: Int = 100,
+) {
+    private val screens = mutableListOf<AppScreenFingerprint>()
+    private val transitions = linkedSetOf<Pair<Int, Int>>()
+    private val probes = mutableListOf<InteractionProbe>()
+    private val limitations = linkedSetOf<String>()
+    private var lastScreenIndex: Int? = null
+    private var closed = false
+
+    init {
+        require(maximumScreens in 1..100)
+        require(maximumProbes in 1..100)
+    }
+
+    @Synchronized
+    fun observe(snapshot: DeviceSnapshot): Int? {
+        check(!closed) { "REA session is closed" }
+        if (snapshot.foregroundPackage != app.packageName) {
+            limitations += "Observation ignored because the inspected app was not foreground"
+            return null
+        }
+        if (!snapshot.complete) {
+            limitations += "Incomplete accessibility snapshot; screen fingerprint may be unavailable"
+            return null
+        }
+        val nodes = snapshot.redacted().nodes.filter { it.packageName == app.packageName && !it.password }
+        val labels = nodes.mapNotNull { it.text ?: it.contentDescription }
+            .map { it.trim().replace(Regex("\\s+"), " ").lowercase() }
+            .filter { it.isNotBlank() }
+            .distinct()
+            .take(80)
+        val ids = nodes.mapNotNull { it.viewId?.takeIf(String::isNotBlank) }.distinct().take(120)
+        val fingerprint = AppScreenFingerprint(
+            packageName = app.packageName,
+            normalizedVisibleLabels = labels,
+            viewIds = ids,
+            interactiveNodeCount = nodes.count { it.clickable || it.editable }.coerceAtMost(250),
+        )
+        var index = screens.indexOf(fingerprint)
+        if (index < 0) {
+            if (screens.size >= maximumScreens) {
+                limitations += "Screen fingerprint limit reached"
+                return null
+            }
+            screens += fingerprint
+            index = screens.lastIndex
+        }
+        lastScreenIndex?.let { previous ->
+            if (previous != index && transitions.size < 250) transitions += previous to index
+        }
+        lastScreenIndex = index
+        return index
+    }
+
+    @Synchronized
+    fun recordProbe(probe: InteractionProbe) {
+        check(!closed) { "REA session is closed" }
+        require(probes.size < maximumProbes) { "Probe limit reached" }
+        require(probe.action.targetPackage == app.packageName) { "Probe is outside the inspected app" }
+        probes += probe
+        if (probe.verification !is VerificationResult.Verified) {
+            limitations += "Probe '\${probe.name}' has no successful independent verification"
+        }
+    }
+
+    @Synchronized
+    fun addLimitation(reason: String) {
+        check(!closed) { "REA session is closed" }
+        if (reason.isNotBlank()) limitations += reason.take(300)
+    }
+
+    @Synchronized
+    fun finish(): AppBehaviorModel {
+        check(!closed) { "REA session is already closed" }
+        closed = true
+        return AppBehaviorModel(app, screens.toList(), transitions.toList(), probes.toList(), limitations.toList())
     }
 }
