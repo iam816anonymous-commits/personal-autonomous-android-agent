@@ -217,6 +217,7 @@ class AgentCoreTest {
             journal = object : TaskStepJournal {
                 override suspend fun append(record: TaskStepRecord) = Unit
             },
+            durableJournal = FakeDurableJournal(),
             clock = clock,
         ).run(TaskId("task-2"), "Open notes", mapOf(capability to usable(capability)))
         assertEquals(TaskState.RECOVERY_REQUIRED, outcome.state)
