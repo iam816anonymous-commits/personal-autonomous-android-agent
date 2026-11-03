@@ -20,6 +20,8 @@ android {
     }
     kotlinOptions { jvmTarget = "17" }
 }
+ksp { arg("room.schemaLocation", projectDir.resolve("schemas").absolutePath) }
+
 dependencies {
     implementation(project(":core"))
     implementation("androidx.core:core-ktx:1.13.1")
