@@ -33,7 +33,7 @@ data class OrchestratorLimits(
 ) {
     init {
         require(maxActions in 1..8)
-        require(maxElapsedMillis in 1_000..180_000)
+        require(maxElapsedMillis in 1_000L..180_000L)
     }
 }
 
@@ -76,7 +76,7 @@ class AgentOrchestrator(
                     journal.append(record(taskId, action, TaskState.VALIDATING, "Validating typed action", clock.nowMillis()))
                     val descriptor = runCatching { registry.requireAvailable(action.capability, capabilityStatuses) }
                         .getOrElse { return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, it.message ?: "Capability unavailable") }
-                    if (action::class.simpleName !in descriptor.supportedActions.map { it.value }) {
+                    if (action.kindId() !in descriptor.supportedActions) {
                         return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, "Action is not registered for this capability")
                     }
 
