@@ -47,11 +47,19 @@ class AndroidAccessibilityObserver(
                     val rect = android.graphics.Rect().also { node.getBoundsInScreen(it) }
                     val pkg = node.packageName?.toString() ?: continue
                     val text = node.text?.toString()
+                    val description = node.contentDescription?.toString()
+                    val password = node.isPassword
                     val viewId = node.viewIdResourceName
-                    val stable = digest(pkg + "|" + viewId + "|" + node.className + "|" + text + "|" + rect)
+                    // Never incorporate password contents or descriptions into a target identifier.
+                    val stable = digest(
+                        pkg + "|" + viewId + "|" + node.className + "|" +
+                            (if (password) "" else text.orEmpty()) + "|" +
+                            (if (password) "" else description.orEmpty()) + "|" +
+                            node.isClickable + "|" + node.isEditable + "|" + password + "|" + rect,
+                    )
                     out += UiNodeSnapshot(stable, text?.take(500),
-                        node.contentDescription?.toString()?.take(500), viewId, pkg,
-                        node.isClickable, node.isEditable, node.isPassword,
+                        description?.take(500), viewId, pkg,
+                        node.isClickable, node.isEditable, password,
                         ScreenBounds(rect.left, rect.top, rect.right, rect.bottom))
                     for (i in node.childCount - 1 downTo 0) node.getChild(i)?.let(stack::add)
                 } finally { node.recycle() }
