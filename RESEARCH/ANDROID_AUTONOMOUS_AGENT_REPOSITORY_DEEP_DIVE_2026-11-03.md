@@ -4,7 +4,7 @@
 **Destination:** Personal Autonomous Android Agent  
 **Primary compatibility target:** Android 8.1 / API 27 (TECNO Camon i Click / IN6 family; exact RAM variant still needs physical confirmation)  
 **Deployment assumption:** Personal sideloaded app; no Google Play publication requirement at present  
-**Research scope:** 11 external repositories, selected source files, architecture documents, test fixtures, licenses, and official Android platform documentation. This is a curated engineering audit, not an exhaustive search of all GitHub.
+**Research scope:** 12 external repositories, selected source files, architecture documents, test fixtures, licenses, and official Android platform documentation. This is a curated engineering audit, not an exhaustive search of all GitHub.
 
 ## 1. Executive conclusion
 
@@ -12,6 +12,7 @@ Do not build this as a free-running LLM that repeatedly guesses taps. Build a **
 
 The strongest references solve different parts of the problem:
 
+- **Google ADK for Kotlin** is now the highest-priority Kotlin framework proof-of-concept: it has Android-specific modules, Room-backed sessions/events/state, human confirmation events, resumability and multiple model backends. It is an orchestration/model framework, not our Android actuator or safety authority.
 - **OpenDroid** is the closest Android-native Kotlin reference: a real app structure with plan management, accessibility service, action dispatch, Room history, recovery, model downloads, and instrumentation tests.
 - **Mobilerun** demonstrates a useful Manager → Executor split, shared device state, trajectory capture, accessibility + screenshot observation, and differentiated retry/recovery behavior. It is a host-side Python agent, not an APK runtime.
 - **Llamatik** provides a Kotlin agent runtime with tool/action registries, capability checks, permission decisions, confirmation, audit and workflows.
@@ -220,9 +221,39 @@ A checkpoint is a snapshot of graph state after a super-step. This concept maps 
 
 Do not add LangGraph itself to the APK. Reimplement the required small state machine in Kotlin/Room.
 
-### 3.10 LiteRT samples — model lifecycle and tool calling
+### 3.10 Google ADK for Kotlin — strongest framework candidate
 
-The inspected Google offline voice assistant sample uses a recognizer, a tool-calling LLM and TTS. It declares tools, executes them in app code, sends tool results back to the model and checks Android's own state after setting an alarm. The model manager uses catalog metadata, free-space preflight, HTTPS, resumable download and SHA-256 verification.
+Inspected source paths:
+
+- `README.md` (version 1.5.0, module map and Android setup)
+- `examples/android/README.md`
+- `examples/android/build.gradle.kts`
+- `core/build.gradle.kts`
+- `core/src/androidMain/kotlin/com/google/adk/kt/sessions/room/RoomSessionService.kt`
+- `core/src/androidMain/kotlin/com/google/adk/kt/sessions/room/AdkSessionsDatabase.kt`
+- `core/src/commonMain/kotlin/com/google/adk/kt/tools/FunctionTool.kt`
+- `core/src/commonMain/kotlin/com/google/adk/kt/tools/ToolContext.kt`
+- `core/src/commonMain/kotlin/com/google/adk/kt/agents/ResumabilityConfig.kt`
+- `litertlm/README.md`, `litertlm/build.gradle.kts`, `mlkit/build.gradle.kts`
+
+Why it matters:
+
+1. The Android RoomSessionService persists sessions, events and scoped app/user state in four tables and uses Room transactions for session creation and state seeding. Its documentation explicitly says sessions/events/state survive process death and reboot. This is a much stronger persistence reference than a simple append-only task journal.
+2. FunctionTool supports a per-call `requiresConfirmation(args)` predicate. When approval is missing it emits a tool-confirmation request; the run can be resumed with a ToolConfirmation result. This is a useful human-in-the-loop pattern.
+3. ADK supports sequential, loop and parallel agents, tool schemas, streaming events, session state, memory/artifacts and resumability.
+4. The Android examples separate Room session persistence, cloud Firebase model calls, ML Kit Gemini Nano and LiteRT-LM local inference.
+5. The official Android developer guide documents minSdk 24 for its published Android setup. The inspected current repository snapshot's root build defaults to minSdk 26, compileSdk 37, AGP 9.3.1 and Kotlin 2.3.21. The current destination uses AGP 8.7.3, compileSdk 35 and Kotlin 2.0.21. A direct latest-version dependency may therefore require a Gradle/SDK toolchain upgrade or version pin; test an isolated integration before changing the project baseline.
+6. The ML Kit module in this snapshot sets minSdk 26, but Gemini Nano still depends on device/AICore availability. API compatibility alone does not mean the TECNO IN6 can run it.
+7. The LiteRT-LM module requires JDK 21+ to build because the runtime artifacts use Java 21 class files. The sample Gemma 4 E2B model is about 2.5 GB and the example says it wants 8 GB RAM or more. This is not suitable as the baseline model for a 4 GB-class legacy phone.
+
+Decision:
+
+- **Run an isolated ADK core + cloud-model POC first** to evaluate structured tool calling, session events, state persistence, confirmation and streaming.
+- Keep our own action schema, risk/approval policy, capability registry, snapshot freshness, Android dispatcher and independent postcondition verifier outside the LLM framework. ADK confirmation is not a substitute for an approval token bound to our exact action payload and observed device snapshot.
+- Reuse ADK RoomSessionService only if it coexists cleanly with our Room task journal. Do not store the authoritative device execution journal only as conversational session state.
+- Do not adopt the LiteRT-LM module until the build toolchain and physical-device model benchmark prove it can run within the target's actual RAM/storage budget.
+
+### 3.11 LiteRT samples — model lifecycle and tool calling uses a recognizer, a tool-calling LLM and TTS. It declares tools, executes them in app code, sends tool results back to the model and checks Android's own state after setting an alarm. The model manager uses catalog metadata, free-space preflight, HTTPS, resumable download and SHA-256 verification.
 
 Important compatibility finding: the inspected sample reports **minSdk 31 / Android 12+**, and its sample model set totals about 2.81 GB. That sample cannot be used as the API 27 implementation. It is useful as a modern-device optional inference path and as a model-download integrity reference.
 
