@@ -1,6 +1,6 @@
 # Source-by-Source Reuse Specification
 
-**Status:** Research specification — implementation not authorized  
+**Status:** Research specification — staged development authorized; donor transplantation remains gated on Phase 0 exit criteria  
 **Date:** 2026-11-02  
 **Destination:** iam816anonymous-commits/personal-autonomous-android-agent
 
@@ -8,7 +8,7 @@
 
 This document turns the source audit into actionable decisions for the Personal Autonomous Android Agent. It identifies exact classes, files and design documents to retain, adapt, rewrite or reject.
 
-This is a specification only. It does not authorize code integration, application implementation, or a repository-wide merge.
+This remains a specification, not permission to transplant donor code immediately. The owner authorized phased development on 2026-11-03; code integration and destination app implementation remain blocked until the Phase 0 exit criteria in `PROJECT_STATUS.md` are evidenced and reviewed. No repository-wide merge is authorized.
 
 ### Decision labels
 
