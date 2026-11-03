@@ -253,7 +253,9 @@ Decision:
 - Reuse ADK RoomSessionService only if it coexists cleanly with our Room task journal. Do not store the authoritative device execution journal only as conversational session state.
 - Do not adopt the LiteRT-LM module until the build toolchain and physical-device model benchmark prove it can run within the target's actual RAM/storage budget.
 
-### 3.11 LiteRT samples — model lifecycle and tool calling uses a recognizer, a tool-calling LLM and TTS. It declares tools, executes them in app code, sends tool results back to the model and checks Android's own state after setting an alarm. The model manager uses catalog metadata, free-space preflight, HTTPS, resumable download and SHA-256 verification.
+### 3.11 LiteRT samples — model lifecycle and tool calling
+
+The inspected Google offline voice assistant sample uses a recognizer, a tool-calling LLM and TTS. It declares tools, executes them in app code, sends tool results back to the model and checks Android's own state after setting an alarm. The model manager uses catalog metadata, free-space preflight, HTTPS, resumable download and SHA-256 verification.
 
 Important compatibility finding: the inspected sample reports **minSdk 31 / Android 12+**, and its sample model set totals about 2.81 GB. That sample cannot be used as the API 27 implementation. It is useful as a modern-device optional inference path and as a model-download integrity reference.
 
