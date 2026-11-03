@@ -82,3 +82,31 @@ OpenCL remains unavailable to the tested ordinary APK because the vendor library
 Do not select Vulkan as the model runtime until a small neural-network proof-of-concept demonstrates supported operators, numerical correctness, model load success, peak process memory, latency and thermal stability. The source report also identifies a command-buffer one-time-submit reuse issue; repeated workload timings remain provisional pending correction and rerun.
 
 Source: [TECNO IN6 GPUProbe APK validation report](https://github.com/iam816anonymous-commits/tecno-os/blob/in6-linux-bringup-infrastructure-4378631429758063630/docs/hardware/gpuprobe-apk-validation-2026-11-02.md).
+
+
+## 2026-11-03 — Additional Android runtime and speech findings
+
+### Google ADK for Kotlin 1.5.0
+
+Repository: https://github.com/google/adk-kotlin/tree/b961c9e4aa50c79dbf4c17d870ab5629424a5e49  
+License: Apache-2.0.
+
+ADK Kotlin now offers Android core, Room-backed session service, tool confirmation, resumability, Firebase/cloud models, ML Kit Gemini Nano and LiteRT-LM integrations. The inspected RoomSessionService persists sessions, events and scoped state in Room transactions. This is the highest-priority orchestration POC candidate, but our own action authorization, snapshot-bound approval, device adapter and independent verifier must remain outside the model framework.
+
+Compatibility caution: the inspected current repository uses AGP 9.3.1, Kotlin 2.3.21, compileSdk 37 and minSdk 26 by default. The current destination uses AGP 8.7.3, Kotlin 2.0.21 and compileSdk 35. Do not upgrade the entire app blindly; test the published core artifact or a small isolated integration first.
+
+### sherpa-onnx — API 27 speech candidate
+
+Repository: https://github.com/k2-fsa/sherpa-onnx/tree/935e5ded3d949a8b557ac44ef4dad03a7d2038e7  
+License: Apache-2.0.
+
+Its Android Kotlin/JNI examples include streaming ASR and keyword spotting and set minSdk 21. The KWS sample captures 16 kHz mono PCM16 through AudioRecord. This makes it a plausible API 27 speech-to-text and later wake-word candidate. The runtime's licence does not automatically cover model artifacts. Benchmark the exact English/Telugu models for APK/native library size, model disk size, peak PSS, CPU load, first partial result, real-time factor, accuracy, battery and thermal behavior.
+
+### Current unsuitable-as-baseline samples
+
+- Google AI Edge Gallery's inspected Android app sets minSdk 31.
+- llama.cpp's current Android sample sets minSdk 33. A custom NDK build may differ, but API 27 compatibility is unproven.
+- ADK LiteRT-LM integration requires JDK 21+ to build; its example Gemma 4 E2B model is about 2.5 GB and asks for 8 GB RAM or more.
+- These are useful modern-device references, not proof that the TECNO API 27 target can run those inference stacks.
+
+**Decision:** prioritize a cloud-model ADK tool-calling POC and a separate sherpa-onnx push-to-talk ASR POC. Do not select an on-device LLM until the exact API 27 device passes a physical benchmark.
