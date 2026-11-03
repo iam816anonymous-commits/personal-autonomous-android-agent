@@ -42,16 +42,11 @@ class ApprovalPolicy(
         if (!capability.usable) {
             return PolicyDecision.Denied(capability.unavailableReason ?: "Capability is unavailable")
         }
-
         if (action.risk == RiskLevel.CRITICAL) {
             return PolicyDecision.Denied("Critical-risk actions are not supported by this agent")
         }
 
-        val snapshotBound = when (action) {
-            is ClickAccessibleNode -> action.snapshotId
-            is SetAccessibleText -> action.snapshotId
-            else -> null
-        }
+        val snapshotBound = snapshotBoundTo(action)
         if (snapshotBound != null) {
             val current = context.snapshot
                 ?: return PolicyDecision.Denied("A fresh UI snapshot is required")
@@ -87,35 +82,49 @@ class ApprovalPolicy(
         return PolicyDecision.Allowed
     }
 
-    fun issueUserApproval(action: AgentAction, snapshot: DeviceSnapshot?): ApprovalToken =
-        ApprovalToken(
+    /** Call only from explicit user-confirmation UI after the user approves the displayed action. */
+    fun issueUserApproval(action: AgentAction, snapshot: DeviceSnapshot?): ApprovalToken {
+        val boundSnapshot = snapshotBoundTo(action)
+        require(boundSnapshot == null || snapshot?.id == boundSnapshot) {
+            "Approval snapshot does not match action grounding"
+        }
+        return ApprovalToken(
             actionDigest = digest(action),
             targetPackage = action.targetPackage,
-            snapshotId = when (action) {
-                is ClickAccessibleNode -> action.snapshotId
-                is SetAccessibleText -> action.snapshotId
-                else -> null
-            },
+            snapshotId = boundSnapshot,
             expiresAtElapsedMillis = Math.addExact(clock.nowMillis(), approvalLifetimeMillis),
             approvedByUser = true,
         )
+    }
+
+    private fun snapshotBoundTo(action: AgentAction): SnapshotId? = when (action) {
+        is ClickAccessibleNode -> action.snapshotId
+        is SetAccessibleText -> action.snapshotId
+        else -> null
+    }
 
     private fun digest(action: AgentAction): String {
-        // Explicit canonical representation; do not use data-class toString() as a security format.
+        val postcondition = when (val expected = action.expected) {
+            is Postcondition.ForegroundPackageIs -> "foreground:${expected.packageName}"
+            is Postcondition.VisibleTextContains -> "text:${expected.packageName}:${expected.text}"
+            is Postcondition.AccessibleNodeExists -> "node:${expected.packageName}:${expected.nodeId}"
+            Postcondition.ObservationAvailable -> "observation_available"
+        }
+        val payload = when (action) {
+            is LaunchApplication -> action.packageName
+            is ClickAccessibleNode -> "${action.snapshotId.value}:${action.nodeId}"
+            is SetAccessibleText -> "${action.snapshotId.value}:${action.nodeId}:${action.text}"
+            is ReadForegroundState -> "read"
+        }
         val canonical = listOf(
-            action::class.simpleName.orEmpty(),
+            action.kindId().value,
             action.id.value,
             action.capability.value,
             action.risk.name,
             action.idempotency.name,
             action.targetPackage.orEmpty(),
-            action.expected.toString(),
-            when (action) {
-                is LaunchApplication -> action.packageName
-                is ClickAccessibleNode -> "${action.snapshotId.value}:${action.nodeId}"
-                is SetAccessibleText -> "${action.snapshotId.value}:${action.nodeId}:${action.text}"
-                is ReadForegroundState -> "read"
-            },
+            postcondition,
+            payload,
         ).joinToString("|")
         return MessageDigest.getInstance("SHA-256")
             .digest(canonical.toByteArray(Charsets.UTF_8))
