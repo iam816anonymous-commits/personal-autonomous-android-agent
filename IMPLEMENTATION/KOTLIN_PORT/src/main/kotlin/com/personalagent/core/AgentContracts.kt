@@ -25,7 +25,7 @@ value class SnapshotId(val value: String) {
     init { require(value.isNotBlank()) }
 }
 
-enum class RiskLevel { READ_ONLY, LOW, MODERATE, HIGH, CRITICAL }
+enum class RiskLevel(val severity: Int) { READ_ONLY(0), LOW(1), MODERATE(2), HIGH(3), CRITICAL(4) }
 enum class Idempotency { IDEMPOTENT, CONDITIONALLY_IDEMPOTENT, NON_IDEMPOTENT }
 enum class EvidenceSource { ACCESSIBILITY_TREE, ANDROID_API, APP_STATE, USER_CONFIRMATION }
 
@@ -34,7 +34,7 @@ data class ActionLimits(
     val maxAttempts: Int = 1,
 ) {
     init {
-        require(timeoutMillis in 1..120_000) { "Action timeout must be between 1 ms and 120 s" }
+        require(timeoutMillis in 1L..120_000L) { "Action timeout must be between 1 ms and 120 s" }
         require(maxAttempts in 1..2) { "Retries are deliberately bounded to at most one retry" }
     }
 }
