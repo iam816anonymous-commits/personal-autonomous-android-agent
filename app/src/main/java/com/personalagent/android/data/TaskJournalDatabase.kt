@@ -144,7 +144,7 @@ class RoomDurableExecutionJournal(
                 ?: return@withTransaction JournalDecision.Reject("Action intent was not persisted before dispatch")
             val decision = DurableActionProtocol.transition(current.toRecord(), next, nowElapsedMillis, note)
             if (decision is JournalDecision.Accept) {
-                val updated = dao.update(decision.record.toEntity(crypto))
+                val updated = dao.update(decision.record.toEntity(crypto, rowId = current.rowId))
                 if (updated != 1) return@withTransaction JournalDecision.Reject("Concurrent journal update; reload before proceeding")
             }
             decision
@@ -155,7 +155,23 @@ class RoomDurableExecutionJournal(
         database.durableActionDao().recoverable().map { it.toRecord() }
     }
 
-    private fun DurableActionRecord.toEntity(crypto: JournalCrypto) = DurableActionEntity(
+    override suspend fun reconcileAfterProcessDeath(): List<DurableActionRecord> = withContext(Dispatchers.IO) {
+        database.withTransaction {
+            val dao = database.durableActionDao()
+            dao.recoverable().map { entity ->
+                val recovered = DurableActionProtocol.recoverAfterProcessDeath(entity.toRecord())
+                if (recovered is JournalDecision.Accept && recovered.record != entity.toRecord()) {
+                    dao.update(recovered.record.toEntity(crypto, rowId = entity.rowId))
+                    recovered.record
+                } else {
+                    entity.toRecord()
+                }
+            }
+        }
+    }
+
+    private fun DurableActionRecord.toEntity(crypto: JournalCrypto, rowId: Long = 0) = DurableActionEntity(
+        rowId = rowId,
         taskId = taskId.value,
         actionId = actionId.value,
         actionKind = actionKind,
