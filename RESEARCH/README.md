@@ -26,3 +26,8 @@ Research is organized to separate primary platform rules, repository evidence, e
 ## Research discipline
 
 For every dependency candidate, record repository, exact revision/date, license, Android minimum version, runtime placement, external service dependencies, supported operations, failure modes, and evidence from source/tests. A README is not sufficient evidence for production readiness.
+
+
+## Integrated architecture design
+
+- [Full Agent Architecture](../DESIGN/FULL_AGENT_ARCHITECTURE.md) — end-to-end product behavior, module boundaries, agent loop, domain contracts, Room schema, approval and risk model, Android API 27 execution, speech, memory, skills, scheduler, security, benchmarks, roadmap and open decisions.
