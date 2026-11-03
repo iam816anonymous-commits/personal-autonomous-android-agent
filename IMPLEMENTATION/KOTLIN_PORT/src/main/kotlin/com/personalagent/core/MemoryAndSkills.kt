@@ -86,7 +86,7 @@ class SkillValidator {
                 SkillStepKind.OBSERVE -> if (step.parameters.isNotEmpty()) add("Step ${index + 1}: observe takes no parameters")
                 SkillStepKind.WAIT_FOR_STATE -> {
                     if (step.parameters.keys != setOf("timeoutMillis") ||
-                        step.parameters["timeoutMillis"]?.toLongOrNull() !in 1L..15_000L
+                        (step.parameters["timeoutMillis"]?.toLongOrNull() ?: 0L) !in 1L..15_000L
                     ) add("Step ${index + 1}: wait must be bounded to 15 seconds")
                 }
             }
