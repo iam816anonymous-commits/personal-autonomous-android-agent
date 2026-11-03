@@ -45,6 +45,13 @@ class TaskSessionProtocolTest {
         assertEquals("App process restarted; task requires state reconciliation", interrupted.terminalReason)
     }
 
+    @Test fun approvalPromptInterruptedByProcessDeathRequiresRecovery() {
+        val interrupted = assertIs<TaskSessionDecision.Accept>(
+            TaskSessionProtocol.interrupted(record(TaskSessionState.AWAITING_APPROVAL), 200),
+        ).record
+        assertEquals(TaskSessionState.RECOVERY_REQUIRED, interrupted.state)
+    }
+
     @Test fun recoveryNeverMovesClockBackwards() {
         val interrupted = assertIs<TaskSessionDecision.Accept>(
             TaskSessionProtocol.interrupted(record(TaskSessionState.RUNNING), 50),
