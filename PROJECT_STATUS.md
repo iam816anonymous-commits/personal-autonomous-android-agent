@@ -304,7 +304,7 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 
 - Corrected the Android build status: CI run 41612516639 passed :core:compileKotlin, :core:test, :app:testDebugUnitTest (3 tests) and :app:assembleDebug at source commit e3ea4db83d33cc127097427dcabc5358de559d3c. Later app source changes were not made; documentation updates followed.
 - Phase 1 is a buildable prototype with CI passing, not physically accepted. Phase 4 has a platform-neutral orchestrator prototype, but no end-to-end task UI, durable recovery or device acceptance.
-- Research index now links the 2026-11-03 11-repository deep dive. The LiteRT samples snapshot is pinned to e98147beea80ee90f7f74ed975bca9c78667d87c.
+- Research index now links the 2026-11-03 17-repository deep dive. The LiteRT samples snapshot is pinned to e98147beea80ee90f7f74ed975bca9c78667d87c.
 - Exact API 27 screenshot limitation is documented: AccessibilityService.takeScreenshot requires API 30; global screenshot action requires API 28. API 27 should use semantic tree observation, with visual capture only through an explicitly consented MediaProjection flow if needed.
 - No code changes or new tests were performed in this research session.
 - Next engineering task: replace the append-only Room journal with a transactional task/step state machine and implement safe recovery reconciliation before adding more action tools.
