@@ -192,7 +192,7 @@ class ReverseEngineeringSession(
         require(probe.action.targetPackage == app.packageName) { "Probe is outside the inspected app" }
         probes += probe
         if (probe.verification !is VerificationResult.Verified) {
-            limitations += "Probe '\${probe.name}' has no successful independent verification"
+            limitations += "Probe '${probe.name}' has no successful independent verification"
         }
     }
 
