@@ -246,3 +246,11 @@ Task sequence:
 - Created `ENGINEERING/ARGON_DEVELOPMENT_HANDOFF.md` on branch `phase-0-argon-handoff`, assigning Argon clean-checkout builds/tests, donor provenance/licence analysis, benchmark scenarios and technical spikes; assigning ChatGPT architecture/evidence reconciliation, safety review, integration control and phase-gate verification.
 - No destination app source, Gradle configuration, dependency, CI workflow or physical-device test was added or changed. No donor code was transplanted.\n- Reviewed the newer TECNO IN6 GPUProbe report. Updated `ARCHITECTURE/HARDWARE_CAPABILITIES.md` and `RESEARCH/MODEL_AND_INFERENCE_RESEARCH.md` with the verified ordinary-APK Vulkan vector-add result and explicit limitations: no neural-network runtime is proven; APK OpenCL loading fails; repeated-dispatch evidence remains provisional due to a one-time-submit command-buffer reuse issue. Updated the tecno-os reference pin in the reuse specification to its current branch head.
 - Next: execute the Argon handoff; confirm exact target-device matrix with the owner; inspect the newer `tecno-os` GPU report; complete donor clean-build/test/licence evidence and benchmark before Phase 1.
+
+
+### Owner clarification — primary target device (2026-11-03)
+
+- The owner confirmed the newer 16 GB RAM phone is not the main target. The primary device is TECNO Camon i Click / IN6 / H633, Android 8.1.0 / API 27. Do not block progress on the newer phone model.
+- Treat API 27 as the primary compatibility baseline. Newer Android support is additive and must not compromise API 27.
+- Product objective is maximum legitimate user-authorized device control through ordinary app APIs, runtime permissions and explicitly enabled system services. No root-only, privileged, private-API or security-bypass promises.
+- Argon handoff section 9 updated with this target decision and its engineering consequences.
