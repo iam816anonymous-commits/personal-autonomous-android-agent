@@ -7,12 +7,14 @@ import com.personalagent.android.accessibility.AndroidActionDispatcher
 import com.personalagent.android.accessibility.AndroidPostconditionVerifier
 import com.personalagent.android.capability.AndroidCapabilityRegistry
 import com.personalagent.android.data.RoomTaskStepJournal
+import com.personalagent.android.data.RoomDurableExecutionJournal
 import com.personalagent.core.*
 
 /** Composition root: the model planner is injected, never given Android framework handles. */
 class AndroidAgentRuntime(
     context: Context,
     private val journal: RoomTaskStepJournal,
+    private val durableJournal: RoomDurableExecutionJournal,
 ) {
     private val appContext = context.applicationContext
     private val capabilities = AndroidCapabilityRegistry(appContext)
@@ -45,6 +47,7 @@ class AndroidAgentRuntime(
             policy = approvalPolicy,
             approvalProvider = approvalProvider,
             journal = journal,
+            durableJournal = durableJournal,
             clock = clock,
         )
     }
