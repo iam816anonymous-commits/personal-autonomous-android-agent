@@ -1,5 +1,9 @@
 package com.personalagent.core
 
+fun interface EpochClock {
+    fun nowEpochMillis(): Long
+}
+
 /** Durable lifecycle for a user goal, independent from individual action attempts. */
 enum class TaskSessionState {
     CREATED, RUNNING, AWAITING_APPROVAL, RECOVERY_REQUIRED, COMPLETED, FAILED, CANCELLED
