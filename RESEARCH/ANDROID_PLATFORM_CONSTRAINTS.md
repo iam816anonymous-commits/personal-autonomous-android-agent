@@ -53,7 +53,7 @@ Technical design:
 - User explicitly enables the service in Android Settings.
 - Service exposes UI hierarchy, node text/metadata, bounds and supported actions.
 - Agent uses fresh snapshots; node references are not assumed stable across screen transitions.
-- Support click, long-click, scroll, text input and global navigation only where the platform and target UI permit.
+- Support click, long-click, scroll, text input and global navigation only where the platform and target UI permit. API 27 also supports AccessibilityService.dispatchGesture() (added API 24), but the service must declare android:canPerformGestures=true. The destination service XML currently does not request this capability; gesture dispatch is therefore not implemented yet.
 - Re-observe after every action and verify the expected state transition.
 - Provide an obvious enabled/disabled state and emergency stop.
 - Avoid collecting or persisting sensitive UI content unnecessarily.
@@ -66,7 +66,7 @@ Important: AccessibilityService does not grant omnipotent control. Apps can hide
 - App-specific APIs/deep links where supported.
 - Accessibility semantic tree for UI grounding and interaction.
 - Screenshot/visual observation where permitted and user-consented.
-- MediaProjection for user-approved screen capture; not a universal silent screenshot API.
+- MediaProjection for user-approved screen capture; not a universal silent screenshot API. On API 27, AccessibilityService.takeScreenshot() is unavailable (API 30); the global screenshot action is API 28. A user-consented MediaProjection path is the visual fallback if required.
 - Notification actions and widgets where supported.
 - ADB/Shizuku/root as optional advanced personal profiles only, with explicit setup and threat model. Not baseline requirements.
 
