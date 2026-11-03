@@ -74,7 +74,13 @@ class AndroidActionDispatcher(
                 val node = stack.removeLast()
                 val rect = android.graphics.Rect().also { node.getBoundsInScreen(it) }
                 val pkg = node.packageName?.toString().orEmpty()
-                val value = digest(pkg + "|" + node.viewIdResourceName + "|" + node.className + "|" + node.text + "|" + rect)
+                val password = node.isPassword
+                val value = digest(
+                    pkg + "|" + node.viewIdResourceName + "|" + node.className + "|" +
+                        (if (password) "" else node.text?.toString().orEmpty()) + "|" +
+                        (if (password) "" else node.contentDescription?.toString().orEmpty()) + "|" +
+                        node.isClickable + "|" + node.isEditable + "|" + password + "|" + rect,
+                )
                 if (value == expected) {
                     stack.forEach { it.recycle() }; stack.clear(); return node
                 }
