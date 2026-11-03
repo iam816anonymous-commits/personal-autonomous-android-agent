@@ -151,3 +151,21 @@ Return:
 8. Explicit list of work NOT performed.
 
 Do not claim the destination agent is implemented. This is a Phase 0 donor-validation task.
+
+
+## 9. Primary device target — owner clarification (2026-11-03)
+
+The owner clarified that the newer 16 GB RAM phone is **not** the primary design target. The primary target is the legacy TECNO Camon i Click / IN6 / H633 running Android 8.1.0 (API 27), MT6763V/V, Mali-G71, 4 GB marketed RAM / approximately 3.74 GiB reported by Android. The newer device is secondary and must not drive architecture, minimum requirements or feature prioritization.
+
+### Required design consequences
+
+- Treat API 27 as the primary compatibility baseline, not a best-effort legacy profile. Newer Android support is additive and must not break API 27 behavior.
+- Prioritize maximum **legitimate, user-authorized device control** on API 27: AccessibilityService UI observation/actions, available public hardware APIs, audio/voice input, notifications, app navigation, lifecycle/recovery, local persistence and capability discovery.
+- "Full control" must be interpreted as the maximum control available to an ordinary installed app with user-granted permissions and explicitly enabled system services. Do not promise root-level access, silent permission grants, arbitrary input injection, private API access or bypass of Android/vendor security boundaries.
+- Build a per-capability control matrix with four independent fields: hardware present; public API available on API 27; ordinary app can control after permission/user enablement; physical device test evidence. Do not collapse these into one boolean.
+- Every API-27 restriction must have an explicit fallback or a clear "not controllable by ordinary app" result. Never advertise a capability merely because a framework class or vendor diagnostic activity exists.
+- Optimize for measured memory and thermal limits of this phone. Do not size models from the newer phone's RAM. Model selection must use measured peak process memory and sustained behavior on the IN6.
+- Keep API 27 as the compatibility gate in CI and add instrumentation/physical-device validation for the IN6 where available. Emulator tests do not establish OEM hardware behavior.
+- The owner does not need to provide the newer phone model to proceed; remove it as a blocking decision.
+
+Argon must prioritize its platform research, benchmark scenarios and technical spikes around Android 8.1/API 27 and this exact device. ChatGPT must reject proposals that achieve modern-Android behavior by silently dropping API 27 compatibility.
