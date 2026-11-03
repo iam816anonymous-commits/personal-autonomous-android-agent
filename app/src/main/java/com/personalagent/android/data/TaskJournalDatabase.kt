@@ -2,6 +2,8 @@ package com.personalagent.android.data
 
 import androidx.room.*
 import androidx.room.withTransaction
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.personalagent.core.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
