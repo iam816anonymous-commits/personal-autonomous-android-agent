@@ -74,6 +74,7 @@ class AdvancedAgentFeaturesTest {
             ToolValidationContext(
                 approvedCapabilities = emptySet(),
                 registeredActionKinds = emptySet(),
+                registeredActionSchemas = emptyMap(),
                 maximumAllowedRisk = RiskLevel.MODERATE,
                 userApproved = true,
             ),
@@ -109,6 +110,7 @@ class AdvancedAgentFeaturesTest {
                 ToolValidationContext(
                     approvedCapabilities = setOf(cap),
                     registeredActionKinds = setOf(KClassName("launch_application")),
+                    registeredActionSchemas = mapOf(KClassName("launch_application") to mapOf("packageName" to ToolParameterType.PACKAGE_NAME)),
                     maximumAllowedRisk = RiskLevel.LOW,
                     userApproved = true,
                 ),
