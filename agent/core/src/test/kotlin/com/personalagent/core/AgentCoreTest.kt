@@ -179,6 +179,7 @@ class AgentCoreTest {
             ),
         ).build()
         val snapshot = snapshot()
+        val sessions = FakeTaskSessionJournal()
 
         val orchestrator = AgentOrchestrator(
             planner = GoalPlanner { _, _, _ ->
@@ -204,7 +205,7 @@ class AgentCoreTest {
                 override suspend fun append(record: TaskStepRecord) { records += record }
             },
             durableJournal = FakeDurableJournal(),
-            taskSessions = FakeTaskSessionJournal(),
+            taskSessions = sessions,
             epochClock = EpochClock { 100 },
             clock = clock,
         )
@@ -213,6 +214,7 @@ class AgentCoreTest {
         assertEquals(TaskState.COMPLETED, outcome.state)
         assertEquals(1, outcome.verifiedActions)
         assertTrue(records.any { it.state == TaskState.VERIFYING })
+        assertEquals(TaskSessionState.COMPLETED, sessions.get(TaskId("task-1"))?.state)
     }
 
     @Test
@@ -223,6 +225,7 @@ class AgentCoreTest {
         val registry = ToolRegistry.Builder().register(
             ToolDescriptor(capability, "Launch", RiskLevel.LOW, setOf(action.kindId())),
         ).build()
+        val sessions = FakeTaskSessionJournal()
         val outcome = AgentOrchestrator(
             planner = GoalPlanner { _, _, _ -> action },
             observer = object : DeviceObserver {
@@ -242,11 +245,12 @@ class AgentCoreTest {
                 override suspend fun append(record: TaskStepRecord) = Unit
             },
             durableJournal = FakeDurableJournal(),
-            taskSessions = FakeTaskSessionJournal(),
+            taskSessions = sessions,
             epochClock = EpochClock { 100 },
             clock = clock,
         ).run(TaskId("task-2"), "Open notes", mapOf(capability to usable(capability)))
         assertEquals(TaskState.RECOVERY_REQUIRED, outcome.state)
         assertEquals(0, outcome.verifiedActions)
+        assertEquals(TaskSessionState.RECOVERY_REQUIRED, sessions.get(TaskId("task-2"))?.state)
     }
 }

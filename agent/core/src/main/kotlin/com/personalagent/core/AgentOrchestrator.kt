@@ -224,7 +224,15 @@ class AgentOrchestrator(
         } catch (timeout: TimeoutCancellationException) {
             TaskOutcome(taskId, TaskState.RECOVERY_REQUIRED, verifiedCount, "Execution time budget expired; observe device state before retrying")
         } catch (cancelled: CancellationException) {
-            taskSessions.transition(taskId, TaskSessionState.CANCELLED, epochClock.nowEpochMillis(), "Execution coroutine cancelled")
+            val unresolved = runCatching {
+                durableJournal.loadRecoverable().any { it.taskId == taskId }
+            }.getOrDefault(true)
+            val interruptedState = if (unresolved) TaskSessionState.RECOVERY_REQUIRED else TaskSessionState.CANCELLED
+            taskSessions.transition(
+                taskId, interruptedState, epochClock.nowEpochMillis(),
+                if (unresolved) "Execution cancelled with an unresolved action; reconcile device state before retrying"
+                else "Execution coroutine cancelled before any unresolved action remained",
+            )
             throw cancelled
         } catch (failure: Exception) {
             TaskOutcome(taskId, TaskState.FAILED, verifiedCount, failure.message ?: "Execution failed")
