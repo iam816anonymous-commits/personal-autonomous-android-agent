@@ -112,3 +112,37 @@ class SelfToolFactory {
         return ToolFactoryResult.Created(definition, digest)
     }
 }
+
+
+/**
+ * Runtime registry for approved declarative tools. This in-memory registry is intentionally small;
+ * persistence and UI management are a separate Android integration step.
+ */
+class GeneratedToolRegistry(private val factory: SelfToolFactory = SelfToolFactory()) {
+    private val active = linkedMapOf<String, ToolFactoryResult.Created>()
+
+    @Synchronized
+    fun createAndActivate(
+        definition: GeneratedToolDefinition,
+        context: ToolValidationContext,
+    ): ToolFactoryResult {
+        val result = factory.create(definition, context)
+        if (result is ToolFactoryResult.Created) {
+            val existing = active[definition.id]
+            if (existing != null && definition.version <= existing.definition.version) {
+                return ToolFactoryResult.Rejected(listOf("Tool version must increase monotonically"))
+            }
+            active[definition.id] = result
+        }
+        return result
+    }
+
+    @Synchronized
+    fun find(id: String): GeneratedToolDefinition? = active[id]?.definition
+
+    @Synchronized
+    fun revoke(id: String): Boolean = active.remove(id) != null
+
+    @Synchronized
+    fun list(): List<GeneratedToolDefinition> = active.values.map { it.definition }.sortedBy { it.id }
+}
