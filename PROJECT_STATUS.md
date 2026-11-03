@@ -4,7 +4,7 @@
 **Project:** Personal Autonomous Android Agent  
 **Canonical status file:** This document  
 **Product target:** Personal-use Android agent, installed by sideloading on the owner's devices  
-**Implementation authorization:** **GRANTED FOR PHASED DEVELOPMENT** — the owner instructed development to begin on 2026-11-03. Phase 1 application code remains blocked until the Phase 0 exit gate is evidenced and reviewed; this authorization does not waive any phase, safety, provenance, test or physical-device gate.
+**Implementation authorization:** **LIMITED KOTLIN CORE PROTOTYPE AUTHORIZED** — on 2026-11-03 the owner explicitly requested Hermes-inspired Kotlin implementation. This authorizes the platform-neutral core prototype only. Android application packaging, device adapters, Room persistence and physical-device-dependent features remain gated by the unresolved Phase 0 owner decisions; no safety, provenance, test or device gate is waived.
 
 > **Mandatory session rule:** Before doing any work in this repository, read this file first. Then inspect the current GitHub branch/HEAD and the relevant source files. Do not rely on a previous chat summary as proof of repository state. At the end of every work session, update this file with what changed, evidence, current phase, blockers and the exact next task.
 
@@ -29,14 +29,16 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 
 ### Overall
 
-**Research/specification baseline**
+**Research baseline plus first Kotlin core source tranche (not yet buildable)**
 
 - The repository is a documentation-first project at the last verified baseline.
 - Product assumptions, high-level architecture, platform constraints, research, source reuse decisions, safety contracts and phase plans are documented.
 - A source-by-source reuse specification exists, including class-level RETAIN / ADAPT / REWRITE / REJECT decisions and known defects.
 - Hardware capability architecture is documented.
 - A separate-app home-security research specification is retained for future reference; it is not part of this agent's architecture or implementation plan.
-- No destination Android application implementation, integration build or physical-device acceptance run has been established by the documentation audit.
+- A first platform-neutral Kotlin core source tranche has been added under `IMPLEMENTATION/KOTLIN_PORT/` on branch `feature/hermes-kotlin-core`; it is not yet integrated into an Android Gradle application.
+- A Kotlin/JVM Gradle build and seven unit tests now exist. GitHub Actions run `41609551659` passed `:core:compileKotlin` and `:core:test` at commit `199cd7120d42534a642589aa332ce41f366d789f`.
+- No Android application module, manifest, Room persistence, Android adapter, Android build, instrumentation test or physical-device acceptance run has been performed.
 - No model/runtime has been selected based on reproducible measurements on the target physical device.
 - Full transitive dependency/license clearance remains open.
 - The implementation authorization checklist in the source reuse specification is not complete.
@@ -46,7 +48,7 @@ Build a real Android-native personal agent that can accept a goal (initially tex
 | Phase | Name | Status | Evidence / remaining work |
 |---|---|---|---|
 | 0 | Repository archaeology, research and requirements freeze | **In progress (Argon validation complete; awaiting Owner sign-off)** | Argon Phase 0 deliverables completed on `phase-0-argon-handoff` (`DONOR_BUILD_TEST_MATRIX.md`, `DONOR_SOURCE_PROVENANCE_AND_LICENSE_LEDGER.md`, `DONOR_REVISION_AND_DIFF_REPORT.md`, `INITIAL_TASK_BENCHMARK.md`, `PHASE_0_TECHNICAL_SPIKES.md`). Awaiting Owner confirmation of final device matrix/API 27 mandate, first-party donor license declaration, benchmark approval, and Phase 1 start authorization. |
-| 1 | Buildable Android shell and stable contracts | Not started | No destination app/build evidence recorded. |
+| 1 | Buildable Android shell and stable contracts | **Prototype source added; build gate open** | Hermes-inspired platform-neutral Kotlin contracts, explicit tool registry, action-bound approval policy, bounded orchestrator, memory/skill interfaces and scheduled-job interfaces added on `feature/hermes-kotlin-core`. Kotlin/JVM Gradle project and unit tests pass; Android app shell, Android build, Room journal, Android adapters and physical-device tests remain NOT IMPLEMENTED / NOT RUN. See `IMPLEMENTATION/KOTLIN_PORT/HERMES_KOTLIN_PORT_REVIEW.md`. |
 | 2 | Accessibility observation bridge | Not started | Architecture and source candidates documented; no destination implementation or physical-device evidence. |
 | 3A | Hardware capability discovery and control | Not started | Subsystem design documented; no adapters or device verification. |
 | 3 | Deterministic device action layer and verification | Not started | Contracts and defects documented; no destination implementation. |
@@ -198,7 +200,7 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 ## 6. Current next task
 
 **Active phase:** Phase 0 — Repository archaeology, research and requirements freeze (Argon validation complete; ready for ChatGPT review pass and Owner gate sign-off).  
-**Next task:** Review the five Phase 0 Argon deliverables on branch `phase-0-argon-handoff`, obtain Owner confirmation on the four Owner gate items in `ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §7, and upon approval begin Phase 1 (minimal buildable multi-module Kotlin shell, canonical `:core-contracts`, `:core-policy`, Room `TaskStepJournal`, redacted logger, global stop control, and deterministic CI).
+**Next task:** Reconcile the TECNO IN6 hardware/RAM identity and remaining Phase 0 owner gates. Then add the minimal Android application module and Room-backed task journal, keeping the already passing platform-neutral core isolated from Android framework dependencies.
 
 ## 7. Blockers and unresolved decisions
 
@@ -211,9 +213,23 @@ Keep documents that have distinct purposes. Avoid duplicating full architecture 
 - [x] Local inference CPU/GPU/RAM constraints on `TECNO IN6` (`ARMv8.0-A` Cortex-A53 without `dotprod`/`fp16`; `libOpenCL.so` blocked; Vulkan `1.0.58` verified) resolved (`ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §3, `ADR-008`).
 - [x] Wake-word feasibility under Android/OEM lifecycle constraints resolved (`ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §4, `ADR-009`).
 - [x] Encryption/key-management (`AndroidKeyStore` AES-256-GCM) and backup/restore design resolved (`ENGINEERING/PHASE_0_TECHNICAL_SPIKES.md` §5, `ADR-010`).
-- [ ] **Owner Gate 4:** Explicit Owner authorization to transition from Phase 0 to Phase 1 application source-code implementation after reviewing Phase 0 evidence.
+- [x] **Owner Gate 4 (limited scope):** Owner explicitly requested Hermes-inspired Kotlin source implementation on 2026-11-03. This authorizes the platform-neutral core prototype only; it does not waive Owner Gates 1–3 or authorize Android packaging/device integration.
 
 ## 8. Session log
+
+### 2026-11-03 — Hermes-inspired Kotlin core prototype
+
+- Owner explicitly requested implementation of Hermes-inspired functionality in Kotlin for the destination Android agent. Created branch `feature/hermes-kotlin-core` from destination `main` HEAD `d1d4accc7191a42a7247ed35835dd3997541e741`.
+- Inspected `NousResearch/hermes-agent` at `c314285f077e91937c995d419b9fa40af9eb4981`; confirmed root MIT licence. No Python source was copied verbatim. Added `IMPLEMENTATION/KOTLIN_PORT/HERMES_KOTLIN_PORT_REVIEW.md` with source mapping, decisions, provenance and limitations.
+- Added platform-neutral Kotlin source for typed agent contracts, capability registry, action-bound approval policy, bounded observe/plan/execute/verify orchestrator, memory/skill interfaces and scheduled-job interfaces.
+- Added explicit limits: max 8 actions, bounded action/task timeouts, bounded UI snapshots, snapshot freshness, exact action digest/target/snapshot/expiry approval binding, capability availability and risk-ceiling checks, independent verification contract, declarative skills only.
+- This is **not yet a buildable Android app**. The Kotlin/JVM core build and seven unit tests pass in GitHub Actions run `41609551659` (`:core:compileKotlin`, `:core:test`). No Android manifest/app module, Room implementation, Android adapters or physical-device tests have been added.
+- The TECNO IN6 RAM/device-variant discrepancy in the Phase 0 spike remains unresolved; no hardware-specific model or memory budget was derived from this prototype.
+- Added Kotlin/JVM Gradle configuration (`settings.gradle.kts`, root `build.gradle.kts`, `core/build.gradle.kts`), GitHub Actions workflow `.github/workflows/kotlin-core.yml`, and seven deterministic tests in `core/src/test/kotlin/com/personalagent/core/AgentCoreTest.kt`.
+- GitHub Actions run `41609551659` passed both `:core:compileKotlin` and `:core:test` on commit `199cd7120d42534a642589aa332ce41f366d789f` using Gradle 8.10.2, JDK 17 and Kotlin 2.0.21.
+- No Android application build or physical-device test has been run. Next: resolve device matrix/RAM discrepancy and remaining owner gates before creating Android app/Room integration.
+
+## Historical session log
 
 ### 2026-11-02 — Documentation control baseline
 
