@@ -20,7 +20,7 @@ class AgentApplication : Application() {
         super.onCreate()
         val database = Room.databaseBuilder(this, TaskJournalDatabase::class.java, "agent-journal.db")
             .setJournalMode(androidx.room.RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
-            .addMigrations(TaskJournalDatabase.MIGRATION_1_2)
+            .addMigrations(TaskJournalDatabase.MIGRATION_1_2, TaskJournalDatabase.MIGRATION_2_3)
             .build()
         val crypto = AndroidKeystoreJournalCrypto()
         journal = RoomTaskStepJournal(database.taskStepDao(), crypto)
