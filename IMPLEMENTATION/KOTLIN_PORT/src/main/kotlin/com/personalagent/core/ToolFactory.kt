@@ -27,7 +27,7 @@ data class ToolStepTemplate(
     init {
         require(parameterBindings.size <= 12)
         require(parameterBindings.all { (key, value) ->
-            key.matches(Regex("[a-z][a-zA-Z0-9_]{0,40}") && value.matches(Regex("\\$[a-z][a-zA-Z0-9_]{0,40}"))
+            key.matches(Regex("[a-z][a-zA-Z0-9_]{0,40}")) && value.matches(Regex("""\\$[a-z][a-zA-Z0-9_]{0,40}"""))
         })
     }
 }
@@ -78,7 +78,7 @@ class SelfToolFactory {
             if (step.capability !in definition.requiredCapabilities) errors += "Step ${index + 1} uses an undeclared capability"
             if (step.risk.severity > definition.maximumRisk.severity) errors += "Step ${index + 1} exceeds the tool risk ceiling"
             step.parameterBindings.values.forEach { binding ->
-                val parameter = binding.removePrefix("$")
+                val parameter = binding.removePrefix("\\$")
                 if (parameter !in parameterNames) errors += "Step ${index + 1} references unknown parameter '$parameter'"
             }
         }
