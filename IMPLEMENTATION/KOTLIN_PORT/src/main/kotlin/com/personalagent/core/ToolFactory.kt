@@ -55,6 +55,8 @@ data class GeneratedToolDefinition(
 data class ToolValidationContext(
     val approvedCapabilities: Set<CapabilityId>,
     val registeredActionKinds: Set<KClassName>,
+    /** Exact argument schema for each registered action; missing schemas are rejected. */
+    val registeredActionSchemas: Map<KClassName, Map<String, ToolParameterType>>,
     val maximumAllowedRisk: RiskLevel,
     val userApproved: Boolean,
 )
@@ -75,6 +77,12 @@ class SelfToolFactory {
 
         definition.steps.forEachIndexed { index, step ->
             if (step.actionKind !in context.registeredActionKinds) errors += "Step ${index + 1} uses an unregistered action"
+            val actionSchema = context.registeredActionSchemas[step.actionKind]
+            if (actionSchema == null) {
+                errors += "Step ${index + 1} has no registered argument schema"
+            } else if (step.parameterBindings.keys != actionSchema.keys) {
+                errors += "Step ${index + 1} argument names do not match the registered action schema"
+            }
             if (step.capability !in definition.requiredCapabilities) errors += "Step ${index + 1} uses an undeclared capability"
             if (step.risk.severity > definition.maximumRisk.severity) errors += "Step ${index + 1} exceeds the tool risk ceiling"
             step.parameterBindings.values.forEach { binding ->
