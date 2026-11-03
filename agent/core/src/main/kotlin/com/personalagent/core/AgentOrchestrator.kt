@@ -55,6 +55,8 @@ class AgentOrchestrator(
     private val approvalProvider: ApprovalProvider,
     private val journal: TaskStepJournal,
     private val durableJournal: DurableExecutionJournal,
+    private val taskSessions: TaskSessionJournal,
+    private val epochClock: EpochClock,
     private val clock: MonotonicClock,
     private val limits: OrchestratorLimits = OrchestratorLimits(),
 ) {
@@ -67,8 +69,21 @@ class AgentOrchestrator(
         val started = clock.nowMillis()
         val completed = mutableListOf<ActionId>()
         var verifiedCount = 0
+        val createdAt = epochClock.nowEpochMillis()
+        val created = taskSessions.create(TaskSessionRecord(
+            taskId = taskId,
+            goal = goal,
+            inputModality = TaskInputModality.TEXT,
+            state = TaskSessionState.CREATED,
+            createdAtEpochMillis = createdAt,
+            updatedAtEpochMillis = createdAt,
+        ))
+        if (!created) return TaskOutcome(taskId, TaskState.FAILED, 0, "Task session could not be created; execution was blocked")
+        if (taskSessions.transition(taskId, TaskSessionState.RUNNING, epochClock.nowEpochMillis()) !is TaskSessionDecision.Accept) {
+            return TaskOutcome(taskId, TaskState.FAILED, 0, "Task session could not enter RUNNING; execution was blocked")
+        }
 
-        return try {
+        val outcome = try {
             withTimeout(limits.maxElapsedMillis) {
                 var snapshot = observer.observe().redacted()
                 repeat(limits.maxActions) {
@@ -89,8 +104,19 @@ class AgentOrchestrator(
                     val approval = when (initialDecision) {
                         PolicyDecision.Allowed -> null
                         is PolicyDecision.Denied -> return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, initialDecision.reason)
-                        is PolicyDecision.RequiresApproval -> approvalProvider.request(action, snapshot)
-                            ?: return@withTimeout TaskOutcome(taskId, TaskState.CANCELLED, verifiedCount, "User declined or did not provide approval")
+                        is PolicyDecision.RequiresApproval -> {
+                            val waiting = taskSessions.transition(taskId, TaskSessionState.AWAITING_APPROVAL, epochClock.nowEpochMillis())
+                            if (waiting !is TaskSessionDecision.Accept) {
+                                return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, "Could not persist approval boundary")
+                            }
+                            val token = approvalProvider.request(action, snapshot)
+                                ?: return@withTimeout TaskOutcome(taskId, TaskState.CANCELLED, verifiedCount, "User declined or did not provide approval")
+                            val resumed = taskSessions.transition(taskId, TaskSessionState.RUNNING, epochClock.nowEpochMillis())
+                            if (resumed !is TaskSessionDecision.Accept) {
+                                return@withTimeout TaskOutcome(taskId, TaskState.FAILED, verifiedCount, "Could not persist approval result")
+                            }
+                            token
+                        }
                     }
                     val finalDecision = policy.evaluate(action, PolicyContext(capabilityStatuses, approval, snapshot))
                     if (finalDecision !is PolicyDecision.Allowed) {
@@ -198,14 +224,27 @@ class AgentOrchestrator(
         } catch (timeout: TimeoutCancellationException) {
             TaskOutcome(taskId, TaskState.RECOVERY_REQUIRED, verifiedCount, "Execution time budget expired; observe device state before retrying")
         } catch (cancelled: CancellationException) {
+            taskSessions.transition(taskId, TaskSessionState.CANCELLED, epochClock.nowEpochMillis(), "Execution coroutine cancelled")
             throw cancelled
         } catch (failure: Exception) {
             TaskOutcome(taskId, TaskState.FAILED, verifiedCount, failure.message ?: "Execution failed")
-        }.also {
-            check(clock.nowMillis() - started <= limits.maxElapsedMillis + 1_000) {
-                "Orchestrator exceeded its monotonic time budget"
-            }
         }
+
+        val finalSessionState = when (outcome.state) {
+            TaskState.COMPLETED -> TaskSessionState.COMPLETED
+            TaskState.RECOVERY_REQUIRED -> TaskSessionState.RECOVERY_REQUIRED
+            TaskState.CANCELLED -> TaskSessionState.CANCELLED
+            else -> TaskSessionState.FAILED
+        }
+        val persistedOutcome = taskSessions.transition(taskId, finalSessionState, epochClock.nowEpochMillis(), outcome.reason)
+        if (persistedOutcome !is TaskSessionDecision.Accept) {
+            return TaskOutcome(taskId, TaskState.RECOVERY_REQUIRED, verifiedCount,
+                "Execution ended as ${outcome.state}, but the task result could not be durably recorded")
+        }
+        check(clock.nowMillis() - started <= limits.maxElapsedMillis + 1_000) {
+            "Orchestrator exceeded its monotonic time budget"
+        }
+        return outcome
     }
 
     private fun record(
